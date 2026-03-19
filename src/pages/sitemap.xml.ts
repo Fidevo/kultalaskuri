@@ -3,12 +3,17 @@ import type { APIRoute } from 'astro';
 
 const SITE_URL = 'https://kultalaskuri.fi';
 
-// Kaikki sivut ja niiden SEO-asetukset
+
 const pages = [
   { 
     url: '/', 
-    changefreq: 'hourly',   // Hinta päivittyy usein
+    changefreq: 'hourly',  
     priority: 1.0 
+  },
+  { 
+    url: '/kullan-leimat',  
+    changefreq: 'monthly', 
+    priority: 0.8 
   },
   { 
     url: '/kayttoehdot', 

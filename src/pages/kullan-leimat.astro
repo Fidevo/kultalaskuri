@@ -1,0 +1,360 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+import { Image } from 'astro:assets';
+import kuva585 from '../assets/585-kultaleima.jpeg';
+import kuva750 from '../assets/750-kultaleima.jpeg';  
+
+const currentDate = new Date().toISOString().split('T')[0];
+const displayDate = new Date().toLocaleDateString('fi-FI');
+
+// Schema.org-rakenne artikkelille ja UKK-osiolle
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Kullan leimat 585 ja 750 – mitä ne tarkoittavat?",
+      "description": "Opi tunnistamaan kullan leimat (585, 750, ulkomaiset leimat) ja paljastamaan väärennökset. Katso oppaamme ja laske kultasi tarkka arvo.",
+      "image": "https://kultalaskuri.fi/images/kullan-leimat-og.jpg", 
+      "datePublished": currentDate,
+      "dateModified": currentDate,
+      "inLanguage": "fi-FI",
+      "author": {
+        "@type": "Organization",
+        "name": "Kultalaskuri.fi",
+        "url": "https://kultalaskuri.fi"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Kultalaskuri.fi",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://kultalaskuri.fi/kultalaskuri-logo.png"
+        }
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://kultalaskuri.fi/kullan-leimat"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Mitä tarkoittaa kullan leima 585?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Leima 585 tarkoittaa 14 karaatin kultaa. Se sisältää 58,5 % puhdasta kultaa, ja on Suomen yleisin kultapitoisuus koruissa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mitä tarkoittaa kullan leima 750?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Leima 750 tarkoittaa 18 karaatin kultaa. Se sisältää 75,0 % puhdasta kultaa ja on yleinen arvokkaammissa koruissa ja kelloissa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Onko 585 aitoa kultaa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kyllä, leima 585 on aitoa jalometallia. Se on 14 karaatin kultaa, jossa loppuosa (41,5 %) on kovuutta tuovia seosmetalleja kuten hopeaa tai kuparia."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Voiko aito kulta olla ilman leimaa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kyllä voi. Esimerkiksi vanhoissa koruissa, ulkomailta tuoduissa esineissä tai tilaustöissä leima voi puuttua tai se on voinut kulua käytössä pois."
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const faqItems = schemaData["@graph"][1].mainEntity;
+---
+
+<BaseLayout 
+  title="Kullan leimat 585 ja 750 – mitä ne tarkoittavat? | Kultalaskuri.fi" 
+  description="Mitä tarkoittaa kullan leima 585 tai 750? Opi tunnistamaan aidot kultaleimat, karaatit ja kullatut esineet. Laske kullan arvo ilmaiseksi."
+  schema={JSON.stringify(schemaData)}
+>
+  <div class="relative bg-[#0B0F19] pt-32 pb-40 md:pt-40 md:pb-48 px-4 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/10 rounded-full mix-blend-screen filter blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
+        Kullan leimat 585 ja 750:
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-2">
+          Mitä ne tarkoittavat?
+        </span>
+      </h1>
+      <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
+        Ovatko korusi aitoa kultaa vai kullattua metallia? Opi lukemaan suomalaisia ja ulkomaisia leimoja ja arvioi kullan arvo helposti.
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto -mt-16 relative z-30 px-4">
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="text-left md:max-w-xs">
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Tiedätkö jo painon ja leiman?</h2>
+        <p class="text-gray-600 text-sm">Tarkista korujesi arvo heti ilmaisella laskurilla.</p>
+      </div>
+      <div class="w-full md:w-auto flex flex-col items-center">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-[#0B0F19] text-white w-full px-8 py-4 rounded-xl font-bold hover:bg-gold-500 hover:text-[#0B0F19] hover:scale-105 transition-all duration-300 shadow-md whitespace-nowrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+          Laske arvo heti
+        </a>
+        <span class="text-[11px] text-gray-400 font-medium mt-2 uppercase tracking-wide">Ilmainen, anonyymi • Vie alle 30s</span>
+      </div>
+    </div>
+  </div>
+
+  <article class="bg-white py-20 px-4 relative z-20">
+    <div class="max-w-3xl mx-auto">
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Miksi kulta ylipäätään leimataan?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Puhdas 24 karaatin kulta on fyysisiltä ominaisuuksiltaan liian pehmeää kestääkseen jokapäiväistä kulutusta käyttöesineissä tai koruissa. Siksi siihen sekoitetaan muita metalleja, kuten hopeaa tai kuparia. <strong>Kullan leimat</strong> toimivat eräänlaisena jalometalliesineen virallisena passina: ne takaavat, että esineen kultapitoisuus on tarkalleen se, mitä myyjä tai valmistaja lupaa.
+      </p>
+      <p class="text-lg text-gray-600 leading-relaxed mb-16">
+        Suomessa jalometallituotteiden merkintöjä säädellään tarkasti, ja kultaesineissä käytetään asianmukaisia leimoja, kuten pitoisuusleimaa ja nimileimaa.
+      </p>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Mitä kullan leima 585 tarkoittaa?</h2>
+      <div class="bg-gray-50 rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group mb-12">
+        <div class="aspect-video bg-white rounded-2xl mb-8 overflow-hidden relative flex items-center justify-center border border-gray-200">
+          <Image 
+            src={kuva585} 
+            alt="Kullan leima 585 kultaketjussa kertoo esineen olevan 14 karaatin kultaa." 
+            class="object-cover w-full h-full" 
+          />
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight flex items-center gap-3">
+          <span class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-900 text-sm border border-gray-200">14K</span>
+          Leima 585 on 14 karaatin kultaa
+        </h3>
+        <p class="text-gray-900 font-medium text-lg mb-4">
+          Leima 585 tarkoittaa 14 karaatin kultaa. Se sisältää 58,5 % puhdasta kultaa, ja on Suomen yleisin kultapitoisuus koruissa.
+        </p>
+        <p class="text-gray-600 leading-relaxed mb-4">
+          Loppuosa seoksesta tekee metallista kovempaa ja paremmin käyttöä kestävää, minkä vuoksi 585-kulta on yleinen erityisesti käyttökoruissa ja sormuksissa.
+        </p>
+        <a href="/#laskuri" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
+          Laske 585-kullan arvo päivän kurssilla <span>&rarr;</span>
+        </a>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Mitä kullan leima 750 tarkoittaa?</h2>
+      <div class="bg-gold-50/30 rounded-3xl p-8 border border-gold-100 shadow-sm hover:shadow-md transition-shadow group mb-16">
+        <div class="aspect-video bg-white rounded-2xl mb-8 overflow-hidden relative flex items-center justify-center border border-gold-200">
+           <Image 
+            src={kuva750} 
+            alt="Kullan leima 750 kultasormuksessa tarkoittaa 18 karaatin kultaa." 
+            class="object-cover w-full h-full" 
+          />
+        </div>
+        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight flex items-center gap-3">
+          <span class="w-10 h-10 rounded-full bg-gold-100 flex items-center justify-center text-gold-700 text-sm border border-gold-200">18K</span>
+          Leima 750 on 18 karaatin kultaa
+        </h3>
+        <p class="text-gray-900 font-medium text-lg mb-4">
+          Leima 750 tarkoittaa 18 karaatin kultaa. Se sisältää 75,0 % puhdasta kultaa ja on yleinen arvokkaammissa koruissa ja kelloissa.
+        </p>
+        <p class="text-gray-600 leading-relaxed mb-4">
+          Korkeamman kultapitoisuutensa ansiosta se on väriltään syvemmän ja lämpimämmän keltaista. Se on arvokkaampaa, mutta rakenteeltaan hieman 14 karaatin kultaa pehmeämpää.
+        </p>
+        <a href="/#laskuri" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
+          Tarkista 750-kullan tämänhetkinen arvo <span>&rarr;</span>
+        </a>
+      </div>
+
+      <hr class="border-gray-100 mb-16" />
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Voiko kullan leima puuttua aidosta korusta?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kyllä voi. Leiman puuttuminen ei automaattisesti tarkoita, että kyseessä olisi väärennös tai arvoton koru. On useita täysin normaaleja syitä siihen, miksi aidosta kultakorusta voi puuttua leima:
+      </p>
+      <ul class="space-y-3 mb-12 text-gray-600">
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Kuluneet leimat:</strong> Kymmeniä vuosia jatkuvassa käytössä olleista vihkisormuksista tai ketjuista leimat ovat voineet kulua ihokosketuksen ja hankauksen vuoksi täysin näkymättömiin.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Korjaukset ja osien vaihdot:</strong> Jos kaulaketjun alkuperäinen lukko on rikkoutunut ja vaihdettu uuteen, leima on voinut poistua vanhan lukon mukana. Myös sormusten toistuvat korjaukset ja niihin liittyvä voimakas koneellinen kiillotus ovat voineet vuosien varrella hioa matalat leimat näkymättömiin.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Ulkomaiset esineet ja tilaustyöt:</strong> Kaikissa maissa leimaaminen ei ole ollut historiallisesti pakollista. Joissakin tilaustöissä leimat voivat olla hyvin pieniä, vaikeasti havaittavia tai kuluneita.</span>
+        </li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-12">
+        Jos olet epävarma leimattoman esineesi aitoudesta, kulta-alan ammattilaiset voivat määrittää esineen kultapitoisuuden turvallisesti ilman, että sitä tarvitsee vahingoittaa, esimerkiksi XRF-mittauksella.
+      </p>
+
+    
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Tarkastus-, paikkakunta- ja vuosileimat</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-8">
+        Vaikka rekisteröity nimileima ja pitoisuusleima riittävät lakisääteisesti myyntiin, erityisesti arvokoruista ja historiallisista esineistä löytyy usein muitakin merkintöjä.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-6 mb-20">
+        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Vuosileimat</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Koostuvat kirjaimesta ja numerosta (esim. A8 tai Y9). Ne kertovat tarkan valmistusvuoden.
+          </p>
+        </div>
+        
+        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Paikkakuntaleimat</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Yleensä kilpimäisen vaakunan muotoinen leima, joka osoittaa korun valmistuskaupungin. 
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Tarkastusleimat</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Sydämenmuotoinen kruunuleima toimi aiemmin takuuna siitä, että viranomainen on tutkinut seoksen.
+          </p>
+        </div>
+      </div>
+
+      <hr class="border-gray-100 mb-16" />
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Ulkomaiset kullan leimat ja karaatit</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-10">
+        Siinä missä Suomessa luotetaan tarkkaan promillepohjaiseen pitoisuusleimaan, on <strong>kullan leimat ulkomailla</strong> usein merkitty perinteisillä karaateilla (esim. 14K, 18K). Ulkomaisen leiman puuttuminen tai erilaisuus ei siis automaattisesti tarkoita tuotteen olevan väärennös.
+      </p>
+
+      <div class="overflow-x-auto mb-20 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[500px]">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-5 px-6 font-bold">Leima</th>
+              <th class="py-5 px-6 font-bold">Karaatti</th>
+              <th class="py-5 px-6 font-bold">Kultaa (%)</th>
+              <th class="py-5 px-6 font-bold">Yleinen käyttökohde</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-4 px-6 font-black text-gray-900 text-lg">999</td>
+              <td class="py-4 px-6 font-bold text-gray-500">24K</td>
+              <td class="py-4 px-6">99,9 %</td>
+              <td class="py-4 px-6">Sijoituskulta, harkot ja keräilykolikot</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-4 px-6 font-black text-gray-900 text-lg">916</td>
+              <td class="py-4 px-6 font-bold text-gray-500">22K</td>
+              <td class="py-4 px-6">91,6 %</td>
+              <td class="py-4 px-6">Intian ja Lähi-idän hääkorut</td>
+            </tr>
+            <tr class="hover:bg-gold-50/50 transition-colors bg-gold-50/20">
+              <td class="py-4 px-6 font-black text-gray-900 text-lg">750</td>
+              <td class="py-4 px-6 font-bold text-gold-600">18K</td>
+              <td class="py-4 px-6 font-bold">75,0 %</td>
+              <td class="py-4 px-6">Arvokorut, luksuskellot ja design</td>
+            </tr>
+            <tr class="hover:bg-gold-50/50 transition-colors bg-gold-50/20">
+              <td class="py-4 px-6 font-black text-gray-900 text-lg">585</td>
+              <td class="py-4 px-6 font-bold text-gold-600">14K</td>
+              <td class="py-4 px-6 font-bold">58,5 %</td>
+              <td class="py-4 px-6">Suomalaiset standardikorut</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-4 px-6 font-black text-gray-900 text-lg">375</td>
+              <td class="py-4 px-6 font-bold text-gray-500">9K</td>
+              <td class="py-4 px-6">37,5 %</td>
+              <td class="py-4 px-6">Alin Suomessa kullaksi luokiteltava pitoisuus</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Miten tunnistan aidon kultaleiman kotona?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-8">
+        On tärkeää erottaa aidot <strong>kullan merkinnät ja leimat</strong> niistä, jotka viittaavat vain ohueen kultapinnoitteeseen halvan perusmetallin päällä. Näin vältät väärennökset:
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 mb-20">
+        <div class="flex items-start gap-5 p-6 bg-red-50 rounded-2xl border border-red-100">
+          <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 font-black text-xl">!</div>
+          <div>
+            <strong class="text-red-900 block mb-2 text-lg">Varo leimoja: GP, GF, GE, HGE</strong>
+            <span class="text-red-800 text-base leading-relaxed">Nämä merkinnät (esim. Gold Plated, Gold Filled) kertovat, että kyseessä on vain kullattu esine, ei aito kultakoru. Niillä ei yleensä ole varsinaista romukullan arvoa.</span>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-5 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+          <div class="w-10 h-10 rounded-full bg-white text-gray-600 flex items-center justify-center shrink-0 font-black text-xl border border-gray-200">?</div>
+          <div>
+            <strong class="text-gray-900 block mb-2 text-lg">Tee magneettitesti</strong>
+            <span class="text-gray-600 text-base leading-relaxed">Aito kulta ei itsessään ole magneettista. Jos koru tarttuu selvästi voimakkaaseen magneettiin, kyseessä on usein muu metalli tai vain kullattu esine.</span>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kultaleimoista</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-16">
+        {faqItems?.map((item: any) => (
+          <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
+        ))}
+      </div>
+
+      <script is:inline>
+        if (window.matchMedia('(min-width: 768px)').matches) {
+         
+        }
+      </script>
+
+    </div>
+  </article>
+
+  <section class="bg-gray-50 py-24 md:py-32 border-t border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-8 tracking-tight">
+        Katso heti,<br class="hidden md:block" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-600">
+          paljonko kultasi on arvoltaan.
+        </span>
+      </h2>
+      <p class="text-lg md:text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+        Kullan maailmanmarkkinahinta vaihtelee jatkuvasti, joten ajantasainen arvo kannattaa aina tarkistaa laskurilla. Syötä korujesi leima ja paino, niin tiedät heti niiden reilun myyntihinnan.
+      </p>
+      
+      <div class="flex flex-col items-center">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-3 bg-[#0B0F19] text-white px-8 py-5 rounded-2xl font-bold text-lg hover:bg-gold-500 hover:text-[#0B0F19] hover:scale-105 transition-all duration-300 shadow-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator">
+            <rect width="16" height="20" x="4" y="2" rx="2"></rect>
+            <line x1="8" x2="16" y1="6" y2="6"></line>
+            <line x1="16" x2="16" y1="14" y2="18"></line>
+            <path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path>
+          </svg>
+          Laske kullan arvo
+        </a>
+        <span class="text-sm text-gray-500 mt-4 font-medium">Ilmainen ja anonyymi • Vie alle 30s</span>
+      </div>
+      
+      <div class="mt-16 pt-8 border-t border-gray-200">
+        <p class="text-xs text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          Tämä artikkeli on päivitetty {displayDate} ja se perustuu Suomessa käytössä oleviin jalometallimerkintöihin ja alan vakiintuneisiin käytäntöihin. Tietopaketti on tarkoitettu kuluttajan yleiseksi oppaaksi kullan leimojen tunnistamiseen. Lopullinen aitous ja arvo kannattaa aina varmistaa alan ammattilaisella.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
