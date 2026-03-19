@@ -28,11 +28,11 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
     }
   }, [weight, purity, spotPriceEurPerGram]);
 
-  // Parempi ja luonnollisempi WhatsApp-viesti
+  // Asiallinen ja luottamusta herättävä WhatsApp-viesti
   const handleWhatsAppShare = () => {
     if (!result) return;
     
-    const text = `Hei! Tiesithän, että ${result.weightGrams}g ${purity}-kultakoru on tällä hetkellä noin ${formatEur(result.targetValue)} arvoinen? 👀\n\nTsekkasin täältä: https://kultalaskuri.fi`;
+    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)} €\n\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nTarkista kullan ajantasainen hinta: https://kultalaskuri.fi`;
     
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };

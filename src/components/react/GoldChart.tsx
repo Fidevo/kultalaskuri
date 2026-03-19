@@ -25,7 +25,7 @@ export default function GoldChart() {
         ],
         "chartOnly": false,
         "width": "100%",
-        "height": "400",
+        "height": "100%", 
         "locale": "fi",
         "colorTheme": "light",
         "autosize": true,
@@ -67,7 +67,8 @@ export default function GoldChart() {
   }, []);
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-4 md:p-6 relative min-h-[400px]">
+    // TÄSSÄ AINOA MUUTOS: min-h-[400px] muutettu min-h-[450px] ja h-[450px] lisätty mobiiliskaalautuvuuden turvaamiseksi
+    <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-4 md:p-6 relative min-h-[450px] h-[450px] md:h-[500px]">
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 z-10">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold-500"></div>

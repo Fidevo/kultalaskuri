@@ -100,9 +100,6 @@ const faqItems = [
   schema={schemaData}
 >
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- HERO                                        -->
-  <!-- ════════════════════════════════════════════ -->
   <div class="relative bg-[#0B0F19] pt-32 pb-48 px-4 overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
@@ -145,9 +142,6 @@ const faqItems = [
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- LASKURI + HINTATAULUKKO                     -->
-  <!-- ════════════════════════════════════════════ -->
   <div id="laskuri" class="relative z-20 -mt-24 px-4 pb-12">
     <div class="max-w-5xl mx-auto reveal delay-200">
       
@@ -189,18 +183,12 @@ const faqItems = [
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- KORUN PAINOARVIO                            -->
-  <!-- ════════════════════════════════════════════ -->
   <section class="py-20 bg-white border-t border-gray-100">
     <div class="max-w-4xl mx-auto px-4">
       <JewelryWeightEstimator client:visible spotPrice={spot} />
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- HINTAKEHITYS-GRAAFI                         -->
-  <!-- ════════════════════════════════════════════ -->
   <section class="py-20 bg-gray-50 border-t border-gray-100">
     <div class="max-w-5xl mx-auto px-4 reveal">
       <div class="text-center mb-10">
@@ -217,13 +205,12 @@ const faqItems = [
           Pörssissä hinta ilmoitetaan <strong>troy-unsseina</strong> (1 unssi = n. 31,1 grammaa).
         </div>
       </div>
-      <GoldChart client:visible />
+      <div class="shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+         <GoldChart client:visible />
+      </div>
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- MIKSI LASKEA KULLAN ARVO                    -->
-  <!-- ════════════════════════════════════════════ -->
   <section class="py-20 bg-white border-t border-gray-100">
     <div class="max-w-6xl mx-auto px-4 reveal">
       <div class="text-center mb-16">
@@ -252,9 +239,6 @@ const faqItems = [
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- KULTALEIMOJEN TUNNISTUS                     -->
-  <!-- ════════════════════════════════════════════ -->
   <section id="leimat" class="py-16 bg-gray-50 border-t border-gray-100">
     <div class="max-w-6xl mx-auto px-4">
       <div class="grid md:grid-cols-2 gap-16 items-center">
@@ -325,9 +309,6 @@ const faqItems = [
     </div>
   </section>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- UKK (FAQ)                                   -->
-  <!-- ════════════════════════════════════════════ -->
   <section id="ukk" class="py-20 bg-white border-t border-gray-100">
     <div class="max-w-6xl mx-auto px-4">
       <h2 class="text-3xl font-black text-center text-gray-900 mb-12">
@@ -341,16 +322,12 @@ const faqItems = [
     </div>
   </section>
 
-  <!-- FAQ:n desktop-tila: avataan heti ilman vilkkumista -->
   <script is:inline>
     if (window.matchMedia('(min-width: 768px)').matches) {
       document.querySelectorAll('#ukk details').forEach(function(d) { d.open = true; });
     }
   </script>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- SCROLL TO TOP                               -->
-  <!-- ════════════════════════════════════════════ -->
   <button 
     id="scroll-to-top" 
     class="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-gold-400 to-gold-600 
@@ -363,9 +340,6 @@ const faqItems = [
     </svg>
   </button>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- PÄÄSCRIPT                                   -->
-  <!-- ════════════════════════════════════════════ -->
   <script>
     function debounce<T extends (...args: unknown[]) => void>(
       fn: T,

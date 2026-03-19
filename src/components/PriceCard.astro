@@ -44,11 +44,7 @@ const weights = [1, 5, 10, 50];
         <span class="text-gray-500 font-medium">
           {w} gramma{w > 1 ? 'a' : ''}
         </span>
-        <span class={`tabular-nums text-gray-900 ${
-          i === weights.length - 1 
-            ? 'text-2xl font-black tracking-tight' 
-            : 'text-lg font-bold'
-        }`}>
+        <span class="tabular-nums text-gray-900 text-lg font-bold">
           {formatEur(price * w)} €
         </span>
       </div>
