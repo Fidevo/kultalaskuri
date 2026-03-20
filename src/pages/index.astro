@@ -352,7 +352,6 @@ const faqItems = [
       };
     }
 
-    // FAQ: synkronoi details-elementtien tila ikkunan koon muuttuessa
     function syncDetailsState(): void {
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
       document.querySelectorAll('#ukk details').forEach(d => {
