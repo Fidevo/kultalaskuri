@@ -2,11 +2,10 @@
 const currentYear = new Date().getFullYear();
 const contactEmail = "info@kultalaskuri.fi"; 
 
-
-
 const footerLinks = {
   main: [
-    { href: '/#laskuri', label: 'Hintalaskuri' },     
+    { href: '/#laskuri', label: 'Hintalaskuri' },
+    { href: '/kullan-myynti', label: 'Kullan myynti' }, // 🔥 UUSI MYYNTISIVU LISÄTTY
     { href: '/kullan-leimat', label: 'Tunnista kulta' }, 
     { href: '/#ukk', label: 'Usein kysyttyä' },       
   ],
@@ -24,7 +23,7 @@ const footerLinks = {
       
       {/* 1. LOGO JA KUVAUS */}
       <div class="md:col-span-5">
-        <a href="#" class="inline-block mb-6 group">
+        <a href="/" class="inline-block mb-6 group">
           <span class="text-2xl font-black tracking-tight leading-none">
             <span class="text-gold-400">Kulta</span><span class="text-white">laskuri</span><span class="text-gold-400">.fi</span>
           </span>
@@ -35,7 +34,7 @@ const footerLinks = {
           Tarjoamme reaaliaikaista markkinadataa, jotta tiedät arvometalliesi todellisen hinnan.
         </p>
 
-        {/* UUSI: YHTEYDENOTTO LINKKI */}
+        {/* YHTEYDENOTTO LINKKI */}
         <div class="pt-4">
           <a href={`mailto:${contactEmail}`} class="text-sm font-bold text-gold-400 hover:text-white transition-colors flex items-center gap-2">
             <span>✉️</span>

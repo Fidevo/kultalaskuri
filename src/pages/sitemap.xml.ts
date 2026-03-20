@@ -3,12 +3,16 @@ import type { APIRoute } from 'astro';
 
 const SITE_URL = 'https://kultalaskuri.fi';
 
-
 const pages = [
   { 
     url: '/', 
     changefreq: 'hourly',  
     priority: 1.0 
+  },
+  { 
+    url: '/kullan-myynti',  
+    changefreq: 'weekly', 
+    priority: 0.9 
   },
   { 
     url: '/kullan-leimat',  

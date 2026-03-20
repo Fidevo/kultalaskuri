@@ -1,0 +1,294 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+import GoldCalculator from '../components/react/GoldCalculator.tsx';
+import { getGoldPrice } from '../lib/api/metalPriceApi';
+import { calculateGoldValue } from '../lib/calculations/goldCalculator';
+
+// Reaaliaikainen kullan hinta
+const goldPrice = await getGoldPrice();
+const spot = goldPrice?.priceEurGram || 0;
+
+// Reaaliaikaiset tavoitehinnat samalla logiikalla kuin etusivulla
+const result24k = spot > 0 ? calculateGoldValue(1, '24K', spot) : null;
+const result18k = spot > 0 ? calculateGoldValue(1, '18K', spot) : null;
+const result14k = spot > 0 ? calculateGoldValue(1, '14K', spot) : null;
+
+const p24k = result24k?.targetValue ?? 0;
+const p18k = result18k?.targetValue ?? 0;
+const p14k = result14k?.targetValue ?? 0;
+
+const getTargetValue = (weight: number, purity: '14K' | '18K' | '24K') =>
+  spot > 0 ? (calculateGoldValue(weight, purity, spot)?.targetValue ?? 0) : 0;
+
+const ex5g14k = getTargetValue(5, '14K');
+const ex10g14k = getTargetValue(10, '14K');
+const ex20g18k = getTargetValue(20, '18K');
+const ex50g24k = getTargetValue(50, '24K');
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://kultalaskuri.fi/kullan-myynti",
+      "url": "https://kultalaskuri.fi/kullan-myynti",
+      "name": "Kullan myynti – Paljonko kullasta saa rahaa?",
+      "description": "Myy kulta fiksusti. Laske kullan arvo sekunneissa ja katso paljonko koruistasi voi saada. Vältä alihinnoittelu ja löydä paras hinta.",
+      "inLanguage": "fi-FI",
+      "isPartOf": {
+        "@id": "https://kultalaskuri.fi/#website"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Paljonko kullasta saa per gramma?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": `Kullasta maksettava hinta riippuu maailmanmarkkinahinnasta ja pitoisuudesta. Kullan reilu vähimmäistaso on juuri nyt noin ${p14k.toFixed(2)} €/g 14 karaatin kullalle, ${p18k.toFixed(2)} €/g 18 karaatin kullalle ja ${p24k.toFixed(2)} €/g puhtaalle kullalle.`
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kannattaako kulta myydä nyt?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kullan myynti voi olla kannattavaa silloin, kun markkinahinta on korkealla ja sinulla on tarpeettomia koruja tai muuta kultaa, jota et enää käytä. Ennen myyntiä kannattaa aina tarkistaa ajantasainen arvo laskurilla."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mistä saa parhaan hinnan kullasta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Parhaan hinnan saat yleensä vertailemalla useamman ostajan tarjouksia. Selvitä ensin kullan reilu vähimmäistaso, jotta tiedät, onko tarjous lähellä markkinatasoa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten kullan hinta määräytyy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kullan hinta määräytyy globaaleilla rahoitusmarkkinoilla kysynnän ja tarjonnan mukaan. Lopulliseen ostohintaan vaikuttavat lisäksi kullan pitoisuus, paino sekä ostajan oma marginaali."
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// TS-turvallinen tapa hakea FAQ-objektit
+const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
+---
+
+<BaseLayout 
+  title="Kullan myynti – Paljonko kullasta saa rahaa? | Kultalaskuri.fi" 
+  description="Myy kulta fiksusti. Laske kullan arvo sekunneissa ja katso paljonko koruistasi voi saada. Vältä alihinnoittelu ja löydä paras hinta."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative bg-[#0B0F19] pt-32 pb-40 px-4 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/10 rounded-full mix-blend-screen filter blur-[120px]"></div>
+    </div>
+
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
+        Kullan myynti –
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-2">
+          Näin saat parhaan hinnan kullastasi
+        </span>
+      </h1>
+      <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10">
+        Selvitä kullan arvo sekunneissa ja vältä alihinnoittelu. Katso mitä koruistasi oikeasti kannattaa pyytää.
+      </p>
+      
+      <a href="#myyntilaskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white hover:scale-105 transition-all duration-300 shadow-xl whitespace-nowrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        Laske kullan arvo ↓
+      </a>
+    </div>
+  </div>
+
+  <div id="myyntilaskuri" class="max-w-5xl mx-auto -mt-20 relative z-30 px-4 mb-24">
+    <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 p-2 md:p-6">
+      <div class="text-center mb-4 px-4 pt-4">
+        <p class="text-sm text-gray-500">Syötä korun paino ja pitoisuus – näet heti reilun vähimmäistason euroissa reaaliaikaisen hinnan perusteella.</p>
+      </div>
+
+      {goldPrice ? (
+        <GoldCalculator client:visible spotPriceEurPerGram={goldPrice.priceEurGram} />
+      ) : (
+        <div class="text-center p-12">
+          <p class="text-red-500 font-bold">Hintatietoja ei saatavilla juuri nyt.</p>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <section class="bg-white py-12 px-4 relative z-20">
+    <div class="max-w-3xl mx-auto">
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Paljonko kullasta saa rahaa?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kullan myyntihinta perustuu maailmanmarkkinoiden spot-hintaan eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen arvio riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
+      </p>
+      <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
+        <ul class="space-y-4 text-gray-700 font-medium">
+          <li class="flex justify-between items-center border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
+            <span><strong>585 (14K)</strong> – Suomen yleisin korukulta</span>
+            <span class="text-gold-600 font-bold">~{p14k.toFixed(2)} €/g</span>
+          </li>
+          <li class="flex justify-between items-center border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
+            <span><strong>750 (18K)</strong> – Arvokorut</span>
+            <span class="text-gold-600 font-bold">~{p18k.toFixed(2)} €/g</span>
+          </li>
+          <li class="flex justify-between items-center pb-1 hover:bg-gray-100 transition-colors p-2 rounded-lg">
+            <span><strong>999 (24K)</strong> – Harkot ja kolikot</span>
+            <span class="text-gold-600 font-bold">~{p24k.toFixed(2)} €/g</span>
+          </li>
+        </ul>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-10 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+        <strong>Huomio:</strong> Nämä hinnat edustavat kullan reilua vähimmäistasoa päivän kurssilla. Se antaa sinulle vahvan neuvotteluvaltin, sillä tiedät, ettei kultaa kannata myydä tätä halvemmalla.
+      </p>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-16 shadow-sm">
+        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Esimerkkejä: paljonko kullasta saa käytännössä?</h3>
+        <p class="text-gray-600 leading-relaxed mb-6">
+          Alla olevat esimerkit on laskettu reaaliaikaisella hinnalla. Ne kertovat kullan reilun vähimmäistason markkinoilla juuri nyt.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">5 g 14K (585)</div>
+            <div class="text-xl font-black text-gray-900">{ex5g14k.toFixed(2)} €</div>
+          </div>
+          <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">10 g 14K (585)</div>
+            <div class="text-xl font-black text-gray-900">{ex10g14k.toFixed(2)} €</div>
+          </div>
+          <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">20 g 18K (750)</div>
+            <div class="text-xl font-black text-gray-900">{ex20g18k.toFixed(2)} €</div>
+          </div>
+          <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+            <div class="text-sm text-gray-500 mb-1">50 g 24K (999)</div>
+            <div class="text-xl font-black text-gray-900">{ex50g24k.toFixed(2)} €</div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <a href="#myyntilaskuri" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
+            Laske oma tarkka arvo laskurilla <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Näin kullan myynti toimii käytännössä</h2>
+      <div class="space-y-6 mb-16">
+        <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 shadow-sm text-xl">1</div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Punnitse ja tarkista leima</h3>
+            <p class="text-gray-600">Punnitse korut esimerkiksi tarkalla keittiövaa’alla ja etsi <a href="/kullan-leimat" class="text-gold-600 font-bold hover:underline">kullan leimat</a>, kuten 585 tai 750.</p>
+          </div>
+        </div>
+        <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 shadow-sm text-xl">2</div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Laske arvo etukäteen</h3>
+            <p class="text-gray-600">Syötä paino ja karaatit sivun yläosan <a href="#myyntilaskuri" class="text-gold-600 font-bold hover:underline">laskuriin</a>. Näet heti kullan reilun vähimmäistason reaaliaikaisella hinnalla.</p>
+          </div>
+        </div>
+        <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+          <div class="w-12 h-12 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 shadow-sm text-xl">3</div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Pyydä tarjous useammalta ostajalta</h3>
+            <p class="text-gray-600">Voit myydä kullan paikallisessa liikkeessä tai postituspalvelun kautta. Vertaile tarjousta laskurin antamaan vähimmäistasoon ennen päätöstä.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Missä kulta kannattaa myydä?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kultaa myydään tavallisesti joko paikalliselle kullanostajalle tai verkkopalvelulle, joka ottaa lähetyksiä vastaan postitse. Molemmissa vaihtoehdoissa on omat etunsa.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+        <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Paikallinen liike</h3>
+          <ul class="space-y-2 text-gray-600 text-sm leading-relaxed">
+            <li>+ Saat usein arvion ja rahat nopeasti</li>
+            <li>+ Voit asioida kasvotusten</li>
+            <li>– Hinta ei aina ole markkinan korkein</li>
+          </ul>
+        </div>
+        <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Verkkopalvelu ja postitus</h3>
+          <ul class="space-y-2 text-gray-600 text-sm leading-relaxed">
+            <li>+ Kilpailukykyinen hinta on usein mahdollinen</li>
+            <li>+ Helppo kilpailuttaa useampia toimijoita</li>
+            <li>– Prosessi kestää yleensä pidempään</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="text-gray-600 leading-relaxed mb-6">
+        Paras ratkaisu riippuu siitä, arvostatko enemmän nopeutta vai mahdollisimman korkeaa tarjousta. Ennen myyntiä tärkeintä on tietää kullan reilu vähimmäistaso, jotta pystyt vertaamaan tarjouksia järkevästi.
+      </p>
+      
+      <div class="mb-16">
+        <a href="#myyntilaskuri" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
+          Tarkista kullan arvo ennen myyntiä <span>&rarr;</span>
+        </a>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Yleisimmät virheet kullan myynnissä</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-20">
+        <div class="p-6 bg-red-50/50 hover:bg-red-50 border border-red-100 rounded-2xl transition-colors">
+          <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mb-3">1</div>
+          <strong class="text-red-900 block mb-2 text-lg">Myyt ilman hintatietoa</strong>
+          <span class="text-red-800/80 text-sm leading-relaxed block">Jos et tiedä kullan reilua vähimmäistasoa, et tiedä onko saamasi tarjous reilu. Tarkista arvo aina ensin.</span>
+        </div>
+        
+        <div class="p-6 bg-red-50/50 hover:bg-red-50 border border-red-100 rounded-2xl transition-colors">
+          <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mb-3">2</div>
+          <strong class="text-red-900 block mb-2 text-lg">Hyväksyt ensimmäisen tarjouksen</strong>
+          <span class="text-red-800/80 text-sm leading-relaxed block">Eri ostajien hinnoissa voi olla selviä eroja. Jos mahdollista, vertaile useampi tarjous ennen päätöstä.</span>
+        </div>
+        
+        <div class="p-6 bg-red-50/50 hover:bg-red-50 border border-red-100 rounded-2xl transition-colors">
+           <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mb-3">3</div>
+          <strong class="text-red-900 block mb-2 text-lg">Et tarkista leimoja</strong>
+          <span class="text-red-800/80 text-sm leading-relaxed block">18K kulta on arvokkaampaa kuin 14K. Varmista aina, että pitoisuus on tiedossa ennen myyntiä.</span>
+        </div>
+        
+        <div class="p-6 bg-red-50/50 hover:bg-red-50 border border-red-100 rounded-2xl transition-colors">
+           <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold mb-3">4</div>
+          <strong class="text-red-900 block mb-2 text-lg">Myyt design-korun romuna</strong>
+          <span class="text-red-800/80 text-sm leading-relaxed block">Tunnettujen merkkien (kuten Kalevala, Lapponia tai Tapio Wirkkala) design-koruilla on usein huomattavasti enemmän arvoa ehjänä esineenä kuin pelkkänä sulatettavana kultana. Tarkista korujen brändi ennen myyntiä.</span>
+        </div>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kullan myynnistä</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-16">
+        {faqItems.map((item: any) => (
+          <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
+        ))}
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>

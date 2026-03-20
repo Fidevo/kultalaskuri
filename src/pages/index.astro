@@ -362,21 +362,6 @@ const faqItems = [
 
     window.addEventListener('resize', debounce(syncDetailsState));
 
-    // Scroll-to-top
-    const scrollBtn = document.getElementById('scroll-to-top');
-
-    function handleScroll(): void {
-      if (window.scrollY > 300) {
-        scrollBtn?.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
-      } else {
-        scrollBtn?.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
-      }
-    }
-
-    window.addEventListener('scroll', debounce(handleScroll, 50));
-    scrollBtn?.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
 
     // Reveal-animaatiot
     const observer = new IntersectionObserver((entries) => {

@@ -98,5 +98,46 @@ const isProd = import.meta.env.PROD;
     </main>
     
     <Footer />
+
+    <button 
+      id="global-scroll-to-top" 
+      class="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-gold-400 to-gold-600 
+        text-[#0B0F19] rounded-full shadow-lg shadow-gold-400/20 opacity-0 translate-y-10 
+        transition-all duration-300 hover:scale-110 focus:outline-none pointer-events-none"
+      aria-label="Palaa ylös"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+      </svg>
+    </button>
+
+    <script>
+      
+      const globalScrollBtn = document.getElementById('global-scroll-to-top');
+
+      function handleGlobalScroll() {
+        if (window.scrollY > 400) {
+          globalScrollBtn?.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+        } else {
+          globalScrollBtn?.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+        }
+      }
+
+      
+      let isScrolling = false;
+      window.addEventListener('scroll', () => {
+        if (!isScrolling) {
+          window.requestAnimationFrame(() => {
+            handleGlobalScroll();
+            isScrolling = false;
+          });
+          isScrolling = true;
+        }
+      });
+
+      globalScrollBtn?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    </script>
   </body>
 </html>

@@ -1,8 +1,13 @@
 ---
+
+const pathname = Astro.url.pathname;
+const normalizedPath = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
+
+
 const navLinks = [
-  { href: '/#laskuri', label: 'Laskuri' },
-  { href: '/kullan-leimat', label: 'Kultaleimat' }, 
-  { href: '/#ukk', label: 'Usein kysyttyä' },
+  { href: '/#laskuri', label: 'Laskuri', pagePath: '/' },
+  { href: '/kullan-myynti', label: 'Kullan myynti', pagePath: '/kullan-myynti' }, 
+  { href: '/kullan-leimat', label: 'Kultaleimat', pagePath: '/kullan-leimat' }, 
 ];
 ---
 
@@ -20,14 +25,22 @@ const navLinks = [
       </a>
 
       <nav class="hidden md:flex items-center gap-8">
-        {navLinks.map((link) => (
-          <a 
-            href={link.href}
-            class="text-sm font-bold text-gray-400 hover:text-gold-400 transition-all duration-200 relative py-2 uppercase tracking-wide"
-          >
-            {link.label}
-          </a>
-        ))}
+        {navLinks.map((link) => {
+          // Tarkistetaan onko linkki sama kuin nykyinen sivu
+          const isActive = normalizedPath === link.pagePath;
+          
+          return (
+            <a 
+              href={link.href}
+              aria-current={isActive ? "page" : undefined}
+              class={`text-sm font-bold transition-all duration-200 relative py-2 uppercase tracking-wide
+                ${isActive ? 'text-gold-400' : 'text-gray-400 hover:text-gold-400'}
+              `}
+            >
+              {link.label}
+            </a>
+          );
+        })}
       </nav>
 
       <div class="flex items-center gap-4 md:hidden">
@@ -53,14 +66,21 @@ const navLinks = [
     class="fixed inset-0 z-40 bg-[#0B0F19] w-full h-screen transform translate-x-full transition-transform duration-300 md:hidden flex flex-col pt-28 px-8"
   >
     <div class="flex flex-col space-y-6">
-      {navLinks.map((link) => (
-        <a 
-          href={link.href}
-          class="mobile-link text-2xl font-bold border-b border-white/5 pb-4 text-white hover:text-gold-400"
-        >
-          {link.label}
-        </a>
-      ))}
+      {navLinks.map((link) => {
+        const isActive = normalizedPath === link.pagePath;
+        
+        return (
+          <a 
+            href={link.href}
+            aria-current={isActive ? "page" : undefined}
+            class={`mobile-link text-2xl font-bold border-b border-white/5 pb-4 
+              ${isActive ? 'text-gold-400' : 'text-white hover:text-gold-400'}
+            `}
+          >
+            {link.label}
+          </a>
+        );
+      })}
     </div>
   </div>
 </header>
@@ -77,7 +97,7 @@ const navLinks = [
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
     
-    // Päivitä saavutettavuusattribuutit
+    
     if (btn) {
       btn.setAttribute('aria-expanded', String(isMenuOpen));
       btn.setAttribute('aria-label', isMenuOpen ? 'Sulje valikko' : 'Avaa valikko');
@@ -98,10 +118,10 @@ const navLinks = [
     }
   }
 
-  // Kuuntelijat
+  
   btn?.addEventListener('click', toggleMenu);
 
-  // Sulje valikko kun linkkiä klikataan
+  
   mobileLinks.forEach(link => {
     link.addEventListener('click', () => {
       if (isMenuOpen) toggleMenu();
