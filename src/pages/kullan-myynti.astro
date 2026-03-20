@@ -87,7 +87,7 @@ const schemaData = {
   ]
 };
 
-// TS-turvallinen tapa hakea FAQ-objektit
+
 const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
 ---
 
@@ -145,17 +145,17 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
       </p>
       <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
         <ul class="space-y-4 text-gray-700 font-medium">
-          <li class="flex justify-between items-center border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
+          <li class="flex justify-between items-center gap-4 border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
             <span><strong>585 (14K)</strong> – Suomen yleisin korukulta</span>
-            <span class="text-gold-600 font-bold">~{p14k.toFixed(2)} €/g</span>
+            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">~{p14k.toFixed(2)} €/g</span>
           </li>
-          <li class="flex justify-between items-center border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
+          <li class="flex justify-between items-center gap-4 border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
             <span><strong>750 (18K)</strong> – Arvokorut</span>
-            <span class="text-gold-600 font-bold">~{p18k.toFixed(2)} €/g</span>
+            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">~{p18k.toFixed(2)} €/g</span>
           </li>
-          <li class="flex justify-between items-center pb-1 hover:bg-gray-100 transition-colors p-2 rounded-lg">
+          <li class="flex justify-between items-center gap-4 pb-1 hover:bg-gray-100 transition-colors p-2 rounded-lg">
             <span><strong>999 (24K)</strong> – Harkot ja kolikot</span>
-            <span class="text-gold-600 font-bold">~{p24k.toFixed(2)} €/g</span>
+            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">~{p24k.toFixed(2)} €/g</span>
           </li>
         </ul>
       </div>
