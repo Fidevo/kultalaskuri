@@ -112,7 +112,7 @@ const isProd = import.meta.env.PROD;
     </button>
 
     <script>
-      
+      // 1. Scroll-to-top -logiikka
       const globalScrollBtn = document.getElementById('global-scroll-to-top');
 
       function handleGlobalScroll() {
@@ -123,7 +123,6 @@ const isProd = import.meta.env.PROD;
         }
       }
 
-      
       let isScrolling = false;
       window.addEventListener('scroll', () => {
         if (!isScrolling) {
@@ -137,6 +136,28 @@ const isProd = import.meta.env.PROD;
 
       globalScrollBtn?.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      
+      function syncFaqState() {
+        const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+        document.querySelectorAll('#ukk details').forEach(d => {
+          if (isDesktop) {
+            d.setAttribute('open', '');
+          } else {
+            d.removeAttribute('open');
+          }
+        });
+      }
+      
+      
+      syncFaqState();
+      
+      
+      let resizeTimer = 0;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(syncFaqState, 150);
       });
     </script>
   </body>

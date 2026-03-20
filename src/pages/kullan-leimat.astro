@@ -66,7 +66,8 @@ const schemaData = {
   ]
 };
 
-const faqItems = schemaData["@graph"][2].mainEntity;
+// TS-turvallinen tapa hakea FAQ-objektit
+const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
 ---
 
 <BaseLayout 
@@ -229,6 +230,7 @@ const faqItems = schemaData["@graph"][2].mainEntity;
 
       <div class="overflow-x-auto mb-20 rounded-2xl border border-gray-200 shadow-sm">
         <table class="w-full text-left border-collapse min-w-[500px]">
+          <caption class="sr-only">Kansainväliset kultaleimat, karaatit ja niiden kultapitoisuus</caption>
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
               <th class="py-5 px-6 font-bold">Leima</th>
@@ -297,7 +299,7 @@ const faqItems = schemaData["@graph"][2].mainEntity;
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kultaleimoista</h2>
       <div id="ukk" class="grid grid-cols-1 gap-4 mb-16">
-        {faqItems?.map((item: any) => (
+        {faqItems.map((item: any) => (
           <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
         ))}
       </div>
