@@ -14,10 +14,15 @@ interface Props {
 const { 
   title, 
   description, 
-  canonical = 'https://kultalaskuri.fi/',
+  canonical,
   schema,
   ogImage = 'https://kultalaskuri.fi/kultalaskuri-logo.png' 
 } = Astro.props;
+
+
+const siteUrl = 'https://kultalaskuri.fi';
+const defaultCanonical = new URL(Astro.url.pathname, siteUrl).toString();
+const finalCanonical = canonical || defaultCanonical;
 
 const siteName = 'Kultalaskuri.fi';
 const isProd = import.meta.env.PROD;
@@ -31,7 +36,8 @@ const isProd = import.meta.env.PROD;
     
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    
+    <link rel="canonical" href={finalCanonical} />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     
     <meta name="google-site-verification" content="X9EntxvR0l_Tx3Uj-Zy_rr89c-c_hqQpcMNEuIW6mBA" />
@@ -39,7 +45,7 @@ const isProd = import.meta.env.PROD;
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    <meta property="og:url" content={finalCanonical} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content="fi_FI" />
     <meta property="og:image" content={ogImage} />
