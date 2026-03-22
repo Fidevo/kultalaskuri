@@ -10,22 +10,22 @@ const pages = [
     priority: 1.0 
   },
   { 
-    url: '/kullan-myynti',  
+    url: '/kullan-myynti/',  // Viiva lisätty
     changefreq: 'weekly', 
     priority: 0.9 
   },
   { 
-    url: '/kullan-leimat',  
+    url: '/kullan-leimat/',  // Viiva lisätty
     changefreq: 'monthly', 
     priority: 0.8 
   },
   { 
-    url: '/kayttoehdot', 
+    url: '/kayttoehdot/', // Viiva lisätty
     changefreq: 'yearly', 
     priority: 0.2 
   },
   { 
-    url: '/tietosuoja', 
+    url: '/tietosuoja/', // Viiva lisätty
     changefreq: 'yearly', 
     priority: 0.2 
   },

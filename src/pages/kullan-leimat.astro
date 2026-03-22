@@ -224,55 +224,79 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
       <hr class="border-gray-100 mb-16" />
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Ulkomaiset kullan leimat ja karaatit</h2>
-      <p class="text-lg text-gray-600 leading-relaxed mb-10">
-        Suomessa kullan pitoisuus ilmoitetaan tavallisesti promillelukuna, kuten 585 tai 750. Monissa muissa maissa käytetään sen sijaan karaattimerkintöjä, kuten 14K, 18K ja 24K. Ulkomaisen leiman puuttuminen tai erilainen merkintätapa ei siis automaattisesti tarkoita, että esine olisi väärennös.
-      </p>
+<p class="text-lg text-gray-600 leading-relaxed mb-10">
+  Suomessa kullan pitoisuus ilmoitetaan tavallisesti promillelukuna, kuten 585 tai 750. Monissa muissa maissa käytetään sen sijaan karaattimerkintöjä, kuten 14K, 18K ja 24K. Ulkomaisen leiman puuttuminen tai erilainen merkintätapa ei siis automaattisesti tarkoita, että esine olisi väärennös.
+</p>
 
-      <div class="overflow-x-auto mb-20 rounded-2xl border border-gray-200 shadow-sm">
-        <table class="w-full text-left border-collapse min-w-[500px]">
-          <caption class="sr-only">Kansainväliset kultaleimat, karaatit ja niiden kultapitoisuus</caption>
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
-              <th class="py-5 px-6 font-bold">Leima</th>
-              <th class="py-5 px-6 font-bold">Karaatti</th>
-              <th class="py-5 px-6 font-bold">Kultaa (%)</th>
-              <th class="py-5 px-6 font-bold">Yleinen käyttökohde</th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-4 px-6 font-black text-gray-900 text-lg">999</td>
-              <td class="py-4 px-6 font-bold text-gray-500">24K</td>
-              <td class="py-4 px-6">99,9 %</td>
-              <td class="py-4 px-6">Sijoituskulta, harkot ja keräilykolikot</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-4 px-6 font-black text-gray-900 text-lg">916</td>
-              <td class="py-4 px-6 font-bold text-gray-500">22K</td>
-              <td class="py-4 px-6">91,6 %</td>
-              <td class="py-4 px-6">Intian ja Lähi-idän hääkorut</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-4 px-6 font-black text-gray-900 text-lg">750</td>
-              <td class="py-4 px-6 font-bold text-gray-500">18K</td>
-              <td class="py-4 px-6">75,0 %</td>
-              <td class="py-4 px-6">Arvokorut, luksuskellot ja design</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-4 px-6 font-black text-gray-900 text-lg">585</td>
-              <td class="py-4 px-6 font-bold text-gray-500">14K</td>
-              <td class="py-4 px-6">58,5 %</td>
-              <td class="py-4 px-6">Suomalaiset standardikorut</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-4 px-6 font-black text-gray-900 text-lg">375</td>
-              <td class="py-4 px-6 font-bold text-gray-500">9K</td>
-              <td class="py-4 px-6">37,5 %</td>
-              <td class="py-4 px-6">Alin Suomessa kullaksi luokiteltava pitoisuus</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<div class="overflow-x-auto mb-20 rounded-2xl border border-gray-200 shadow-sm">
+  <table class="w-full text-left border-collapse min-w-[500px]">
+    <caption class="sr-only">Kansainväliset kultaleimat, karaatit ja niiden kultapitoisuus</caption>
+    <thead>
+      <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+        <th class="py-5 px-6 font-bold">Leima</th>
+        <th class="py-5 px-6 font-bold">Karaatti</th>
+        <th class="py-5 px-6 font-bold">Kultaa (%)</th>
+        <th class="py-5 px-6 font-bold">Yleinen käyttökohde ja markkina-alue</th>
+      </tr>
+    </thead>
+    <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">999</td>
+        <td class="py-4 px-6 font-bold text-gray-500">24K</td>
+        <td class="py-4 px-6">99,9 %</td>
+        <td class="py-4 px-6">Sijoituskulta, standardiharkot, keräilykolikot</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">965</td>
+        <td class="py-4 px-6 font-bold text-gray-500">23K</td>
+        <td class="py-4 px-6">96,5 %</td>
+        <td class="py-4 px-6">Thaimaan kansallinen kultastandardi (Thai gold)</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">916</td>
+        <td class="py-4 px-6 font-bold text-gray-500">22K</td>
+        <td class="py-4 px-6">91,6 %</td>
+        <td class="py-4 px-6">Intian ja Lähi-idän hääkorut (esim. Dubai), sijoituskolikot</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">875</td>
+        <td class="py-4 px-6 font-bold text-gray-500">21K</td>
+        <td class="py-4 px-6">87,5 %</td>
+        <td class="py-4 px-6">Erittäin suosittu Lähi-idässä ja Pohjois-Afrikassa (esim. Saudi-Arabia, Egypti)</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">750</td>
+        <td class="py-4 px-6 font-bold text-gray-500">18K</td>
+        <td class="py-4 px-6">75,0 %</td>
+        <td class="py-4 px-6">Arvokorut, luksuskellot, arvostetut vihkisormukset</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">585</td>
+        <td class="py-4 px-6 font-bold text-gray-500">14K</td>
+        <td class="py-4 px-6">58,5 %</td>
+        <td class="py-4 px-6">Suomalaiset standardikorut, kestävät käyttöesineet</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">417</td>
+        <td class="py-4 px-6 font-bold text-gray-500">10K</td>
+        <td class="py-4 px-6">41,7 %</td>
+        <td class="py-4 px-6">Pohjois-Amerikan (USA, Kanada) alin kultastandardi, edulliset korut</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">375</td>
+        <td class="py-4 px-6 font-bold text-gray-500">9K</td>
+        <td class="py-4 px-6">37,5 %</td>
+        <td class="py-4 px-6">Yleinen Iso-Britanniassa, edulliset käyttökorut</td>
+      </tr>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="py-4 px-6 font-black text-gray-900 text-lg">333</td>
+        <td class="py-4 px-6 font-bold text-gray-500">8K</td>
+        <td class="py-4 px-6">33,3 %</td>
+        <td class="py-4 px-6">Edulliset korut, yleinen Saksassa ja Keski-Euroopassa</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Miten tunnistan aidon kultaleiman kotona?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-8">

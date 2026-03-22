@@ -1,13 +1,11 @@
 ---
-
 const pathname = Astro.url.pathname;
 const normalizedPath = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
 
-
 const navLinks = [
   { href: '/#laskuri', label: 'Laskuri', pagePath: '/' },
-  { href: '/kullan-myynti', label: 'Kullan myynti', pagePath: '/kullan-myynti' }, 
-  { href: '/kullan-leimat', label: 'Kultaleimat', pagePath: '/kullan-leimat' }, 
+  { href: '/kullan-myynti/', label: 'Kullan myynti', pagePath: '/kullan-myynti' }, // Kauttaviiva lisätty hrefiin
+  { href: '/kullan-leimat/', label: 'Kultaleimat', pagePath: '/kullan-leimat' }, // Kauttaviiva lisätty hrefiin
 ];
 ---
 
@@ -97,7 +95,6 @@ const navLinks = [
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
     
-    
     if (btn) {
       btn.setAttribute('aria-expanded', String(isMenuOpen));
       btn.setAttribute('aria-label', isMenuOpen ? 'Sulje valikko' : 'Avaa valikko');
@@ -117,10 +114,8 @@ const navLinks = [
       closeIcon?.classList.add('hidden');
     }
   }
-
   
   btn?.addEventListener('click', toggleMenu);
-
   
   mobileLinks.forEach(link => {
     link.addEventListener('click', () => {
