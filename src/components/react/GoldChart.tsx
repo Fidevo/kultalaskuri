@@ -61,7 +61,18 @@ export default function GoldChart() {
       }
     `;
 
-    script.onload = () => setIsLoaded(true);
+    script.onload = () => {
+      const widgetDiv = container.current?.querySelector('.tradingview-widget-container__widget');
+      if (!widgetDiv) { setIsLoaded(true); return; }
+
+      const observer = new MutationObserver(() => {
+        if (widgetDiv.childElementCount > 0) {
+          setIsLoaded(true);
+          observer.disconnect();
+        }
+      });
+      observer.observe(widgetDiv, { childList: true });
+    };
     container.current.appendChild(script);
 
   }, []);

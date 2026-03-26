@@ -9,6 +9,7 @@ import { calculateGoldValue } from '../lib/calculations/goldCalculator';
 import PriceCard from '../components/PriceCard.astro';
 import FaqItem from '../components/FaqItem.astro';
 
+
 // ── Hintatiedot ──
 const goldPrice = await getGoldPrice();
 const spot = goldPrice?.priceEurGram || 0;
@@ -48,7 +49,7 @@ const benefitCards = [
     icon: '💡', 
     iconLabel: 'Vinkkilamppu',
     title: 'Kilpailuttaminen kannattaa', 
-    text: 'Ostajien hinnoissa on eroja. Kun olet laskenut esineesi suuntaa-antavan arvon laskurillamme, tiedät onko saamasi tarjous reilu vai kannattaako kysyä hintaa muualta.'
+    text: 'Ostajien hinnoissa on eroja. Kun olet laskenut esineesi suuntaa-antavan arvon laskurillamme, tiedät onko saamasi tarjous reilu vai kannattaako kysyä hintaa muualta. <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Lue oppaamme kullan myymisestä →</a>'
   },
 ];
 
@@ -61,7 +62,7 @@ const stampCards = [
 const faqItems = [
   { 
     question: 'Paljonko on kullan hinta grammalta?', 
-    answer: `Kullan hinta grammalta vaihtelee pörssikurssin mukaan. Juuri nyt puhtaan kullan (24K) markkinahinta on noin <strong>${spot.toFixed(2)} €/g</strong>.`
+    answer: `Kullan hinta grammalta vaihtelee pörssikurssin mukaan. Juuri nyt puhtaan kullan (24K) markkinahinta on noin <strong>${spot > 0 ? spot.toFixed(2) + ' €/g' : 'tarkistettavissa laskuristamme'}</strong>.`
   },
   { 
     question: 'Mitä eroa on 14K ja 18K kullalla?', 
@@ -85,7 +86,7 @@ const faqItems = [
   },
   { 
     question: 'Kannattaako kulta myydä juuri nyt?', 
-    answer: 'Kullan hinta on historiallisesti erittäin korkealla tasolla. Jos sinulla on tarpeettomia koruja, rikkinäistä kultaa tai parittomia korvakoruja, nykyinen markkinatilanne on myyjän kannalta erinomainen.'
+    answer: 'Kullan hinta on historiallisesti erittäin korkealla tasolla. Jos sinulla on tarpeettomia koruja, rikkinäistä kultaa tai parittomia korvakoruja, nykyinen markkinatilanne on myyjän kannalta erinomainen. <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Lue vinkkimme kullan myymiseen →</a>'
   },
   { 
     question: 'Miten kullan maailmanmarkkinahinta määräytyy?', 
@@ -100,44 +101,57 @@ const faqItems = [
   schema={schemaData}
 >
 
-  <div class="relative bg-[#0B0F19] pt-32 pb-48 px-4 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+  <div class="relative bg-[#0B0F19] pt-28 pb-48 px-4 overflow-hidden">
+
+    {/* Partikkelianimaatio */}
+    <canvas id="hero-particles" class="absolute inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+
+    {/* Blob-animaatiot */}
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
       <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
       <div class="absolute top-10 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
     </div>
 
     <div class="max-w-4xl mx-auto text-center relative z-10 reveal active">
-      <div class="flex flex-col items-center gap-2 mb-8">
-        <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-md shadow-lg">
-          <span class="relative flex h-2.5 w-2.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+
+      {/* Live-indikaattori */}
+      <div class="flex items-center justify-center gap-2 mb-6">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+        <span class="text-gray-400 text-xs uppercase tracking-[0.2em] font-medium">Reaaliaikainen pörssihinta</span>
+      </div>
+
+      {/* ISO HINTANÄYTTÖ */}
+      <div class="mb-4">
+        <div class="flex items-end justify-center gap-2 md:gap-4">
+          <span
+            id="hero-spot-price"
+            data-target={spot > 0 ? spot.toFixed(2) : ''}
+            class="text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tight tabular-nums leading-none"
+          >
+            {spot > 0 ? spot.toFixed(2) : '--'}
           </span>
-          <span class="text-white font-bold tracking-wide text-sm md:text-base">
-            <span class="text-gold-200 font-normal mr-1">Kullan hinta tänään:</span>
-            {spot > 0 ? (
-              <>{spot.toFixed(2)} €/g <span class="text-xs text-gray-400 font-normal">(24K)</span></>
-            ) : (
-              <span class="text-yellow-400">Päivitetään...</span>
-            )}
-          </span>
-        </div>
-        <div class="flex flex-col items-center gap-1">
-          <span class="text-[10px] text-gray-400 uppercase tracking-widest">Reaaliaikainen pörssikurssi</span>
-          <span class="text-[9px] text-gray-500/80 italic">Lähde: Metalprice API</span>
+          <div class="flex flex-col items-start pb-1 md:pb-3">
+            <span class="text-gold-400 text-2xl md:text-4xl font-black leading-none">€</span>
+            <span class="text-gray-500 text-xs md:text-sm font-medium leading-tight mt-1">/ g &middot; 24K</span>
+          </div>
         </div>
       </div>
 
-      <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-        Kullan hinta tänään - 
+      {/* Lähde */}
+      <p class="text-gray-600 text-[11px] uppercase tracking-widest mb-10">Lähde: Metalprice API</p>
+
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight drop-shadow-lg">
+        Kullan hinta tänään —
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-600">
-          Laske kultasi arvo
+          laske kultasi arvo
         </span>
       </h1>
-      
-      <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-2 font-light leading-relaxed">
-        Selvitä paljonko saat, kun muutat <strong>kultasi rahaksi</strong>. 
-        Laskurimme hakee reaaliaikaisen pörssikurssin ja laskee koruillesi tarkan <strong>grammahinnan</strong> pitoisuuden mukaan.
+
+      <p class="text-base md:text-lg text-gray-300 max-w-xl mx-auto mb-2 leading-relaxed">
+        Syötä paino ja karaatit — näet heti <strong class="text-white font-medium">pörssikurssin mukaisen arvon</strong> sekä <strong class="text-white font-medium">vähimmäishinnan, jonka myydessä pitäisi saada</strong>.
       </p>
     </div>
   </div>
@@ -168,9 +182,9 @@ const faqItems = [
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 price-card-grid">
           {priceCards.map(card => (
-            <PriceCard 
+            <PriceCard
               karat={card.karat}
               purity={card.purity}
               label={card.label}
@@ -303,6 +317,11 @@ const faqItems = [
               </div>
             </div>
           ))}
+          <div class="mt-2">
+            <a href="/kullan-leimat/" class="inline-flex items-center gap-1.5 text-gold-600 font-bold hover:underline text-sm">
+              Lue täydellinen opas kullan leimoista →
+            </a>
+          </div>
         </div>
 
       </div>
@@ -323,6 +342,8 @@ const faqItems = [
   </section>
 
   <script>
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // Reveal-animaatiot
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -330,6 +351,99 @@ const faqItems = [
       });
     });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // --- Hintakorttien counter-animaatio ---
+    if (!reducedMotion) {
+      const priceObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          priceObserver.unobserve(entry.target);
+          entry.target.querySelectorAll<HTMLElement>('.price-value').forEach(el => {
+            const target = parseFloat(el.dataset.price ?? '');
+            if (isNaN(target)) return;
+            const duration = 900;
+            const start = performance.now();
+            function tick(now: number) {
+              const t = Math.min((now - start) / duration, 1);
+              const eased = 1 - Math.pow(1 - t, 3);
+              el.textContent = (target * eased).toLocaleString('fi-FI', {
+                minimumFractionDigits: 2, maximumFractionDigits: 2
+              }) + ' €';
+              if (t < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+          });
+        });
+      }, { threshold: 0.3 });
+
+      document.querySelectorAll('.price-card-grid').forEach(el => priceObserver.observe(el));
+    }
+
+    // --- Partikkelianimaatio ---
+    (function () {
+      const canvas = document.getElementById('hero-particles') as HTMLCanvasElement | null;
+      if (!canvas || reducedMotion) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const COUNT = window.innerWidth < 768 ? 35 : 65;
+
+      function resize() {
+        canvas!.width = canvas!.offsetWidth;
+        canvas!.height = canvas!.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      type Particle = { x: number; y: number; r: number; vx: number; vy: number; alpha: number; alphaDir: number };
+      const particles: Particle[] = Array.from({ length: COUNT }, () => ({
+        x: Math.random() * canvas!.width,
+        y: Math.random() * canvas!.height,
+        r: Math.random() * 1.8 + 0.4,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: -(Math.random() * 0.35 + 0.08),
+        alpha: Math.random() * 0.5 + 0.1,
+        alphaDir: (Math.random() - 0.5) * 0.004,
+      }));
+
+      function draw() {
+        ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha += p.alphaDir;
+          if (p.alpha <= 0.05) p.alphaDir = Math.abs(p.alphaDir);
+          if (p.alpha >= 0.65) p.alphaDir = -Math.abs(p.alphaDir);
+          if (p.y < -4) { p.y = canvas!.height + 4; p.x = Math.random() * canvas!.width; }
+          if (p.x < -4) p.x = canvas!.width + 4;
+          if (p.x > canvas!.width + 4) p.x = -4;
+          ctx!.beginPath();
+          ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(212,175,55,${p.alpha.toFixed(3)})`;
+          ctx!.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // --- Hintanumeron counter-animaatio ---
+    (function () {
+      const el = document.getElementById('hero-spot-price');
+      if (!el || reducedMotion) return;
+      const target = parseFloat((el as HTMLElement).dataset.target ?? '');
+      if (isNaN(target) || target <= 0) return;
+      const duration = 1800;
+      const start = performance.now();
+      el.textContent = '0.00';
+      function tick(now: number) {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 4);
+        el!.textContent = (target * eased).toFixed(2);
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
   </script>
 
 </BaseLayout>

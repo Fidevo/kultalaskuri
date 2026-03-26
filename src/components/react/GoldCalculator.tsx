@@ -32,7 +32,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
   const handleWhatsAppShare = () => {
     if (!result) return;
     
-    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)} €\n\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nTarkista kullan ajantasainen hinta: https://kultalaskuri.fi`;
+    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nTarkista kullan ajantasainen hinta: https://kultalaskuri.fi`;
     
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -77,7 +77,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
               placeholder="0.00"
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-gray-900 font-bold text-2xl placeholder-gray-300 outline-none transition-all duration-300 focus:border-gold-400 focus:ring-4 focus:ring-gold-400/10"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold group-focus-within:text-gold-500 transition-colors">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold group-focus-within:text-gold-500 transition-colors">
               g
             </span>
           </div>
@@ -99,14 +99,14 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                     flex flex-col items-center lg:items-start justify-center p-2 lg:p-3 rounded-xl border transition-all duration-200
                     ${isActive 
                       ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-md transform scale-[1.02] z-10' 
-                      : 'bg-white border-gray-200 hover:border-gold-300 hover:shadow-sm text-gray-500'
+                      : 'bg-white border-gray-200 hover:border-gold-300 hover:shadow-sm text-gray-600'
                     }
                   `}
                 >
-                  <span className={`text-base lg:text-lg font-black ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
+                  <span className={`text-base lg:text-lg font-black ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
                     {code}
                   </span>
-                  <span className="text-[10px] lg:text-xs font-medium text-gray-400 hidden lg:block">
+                  <span className="text-xs font-medium text-gray-500 hidden lg:block">
                     {GOLD_PURITIES[code].label.split(' ')[1]}
                   </span>
                 </button>
@@ -156,11 +156,11 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
             <div className="mt-auto pt-6 border-t border-gray-100">
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Puhdas kulta</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Puhdas kulta</p>
                     <p className="text-base md:text-lg font-bold text-gray-900 font-mono tabular-nums">{result.pureGoldContent.toFixed(2)}g</p>
                 </div>
                 <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Pörssiarvo (100%)</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Pörssiarvo (100%)</p>
                     <p className="text-base md:text-lg font-bold text-blue-600 font-mono tabular-nums">{formatEur(result.spotValue)}</p>
                 </div>
               </div>
@@ -208,10 +208,19 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
             <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4 md:mb-6 border border-gray-100">
                <Calculator className="text-gray-300 w-8 h-8 md:w-12 md:h-12" />
             </div>
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Aloita laskeminen</h3>
-            <p className="text-sm md:text-base text-gray-500 max-w-xs mx-auto">
-              Syötä esineen paino (g) ja valitse karaatit.
+            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Syötä paino ←</h3>
+            <p className="text-sm md:text-base text-gray-500 max-w-xs mx-auto mb-5">
+              Valitse karaatit ja syötä paino niin näet arvon heti.
             </p>
+            {spotPriceEurPerGram > 0 && (
+              <div className="bg-gray-50 border border-gray-100 rounded-xl px-5 py-3 text-sm text-gray-500">
+                Esim. <span className="font-bold text-gray-700">14K sormus 4 g</span>
+                {' '}≈{' '}
+                <span className="font-black text-gray-900">
+                  {(4 * spotPriceEurPerGram * 0.585 * 0.81).toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>

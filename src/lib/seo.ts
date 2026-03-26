@@ -94,42 +94,10 @@ export function generateIndexSchema(spotPrice: number, price14k: string) {
           },
           {
             "@type": "Question",
-            "name": "Mitä tarkoittaa leima 585?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Leima 585 tarkoittaa 14 karaatin kultaa. Luku kertoo, että seoksesta 585 tuhannesosaa (eli 58,5 %) on puhdasta kultaa."
-            }
-          },
-          {
-            "@type": "Question",
             "name": "Paljonko kultasormus tai ketju painaa?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Korujen paino vaihtelee suuresti. Kevyt naisten sormus painaa tyypillisesti 2–4 grammaa, miesten sormus 5–10 grammaa."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Onko kultakoruissa aina leima?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Suomessa myytävissä, yli 1 gramman painoisissa kultatuotteissa tulee lain mukaan olla pitoisuusleima. Vanhoissa koruissa leima voi puuttua."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Mistä tietää onko esine kultaa vai kullattu?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Varmin keino on etsiä leimat (esim. 585 tai 750). Toinen kotikonsti on magneetti: aito kulta ei ole magneettista."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Kannattaako kulta myydä juuri nyt?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Kullan hinta on historiallisesti korkealla tasolla. Nykyinen markkinatilanne on myyjän kannalta erinomainen."
             }
           },
           {

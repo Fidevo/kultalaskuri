@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Circle, User, Gem, Link as LinkIcon } from 'lucide-react';
+import { GOLD_PURITIES, type PurityCode } from '../../lib/calculations/goldCalculator';
 
 // FAKTATIEDOT: Keskimääräiset painot (g)
 const JEWELRY_DATA = {
@@ -43,6 +44,8 @@ const JEWELRY_DATA = {
 
 type JewelryType = keyof typeof JEWELRY_DATA;
 
+const COMMON_PURITIES: PurityCode[] = ['9K', '14K', '18K', '22K'];
+
 interface Props {
   spotPrice: number;
 }
@@ -50,9 +53,11 @@ interface Props {
 export default function JewelryWeightEstimator({ spotPrice }: Props) {
   const [activeType, setActiveType] = useState<JewelryType>('sormus');
   const [selectedSize, setSelectedSize] = useState<number | null>(1); // Oletus: Keskikoko
+  const [selectedPurity, setSelectedPurity] = useState<PurityCode>('14K');
 
   const calculateEstimate = (weight: number) => {
-    const estimate = weight * spotPrice * 0.585 * 0.81; 
+    const purity = GOLD_PURITIES[selectedPurity];
+    const estimate = weight * spotPrice * purity.decimal * purity.targetPercent;
     return new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' }).format(estimate);
   };
 
@@ -93,7 +98,24 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
           ))}
         </div>
 
-        {/* 2. CARDS - Koko (Mobiili: 3 saraketta, tiivistetty) */}
+        {/* 2. Karaattivalinta */}
+        <div className="flex justify-center gap-2 mb-8 md:mb-10">
+          {COMMON_PURITIES.map((code) => (
+            <button
+              key={code}
+              onClick={() => setSelectedPurity(code)}
+              className={`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200
+                ${selectedPurity === code
+                  ? 'bg-gold-400 text-[#0B0F19] shadow-lg shadow-gold-400/20 scale-105'
+                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                }`}
+            >
+              {code}
+            </button>
+          ))}
+        </div>
+
+        {/* 3. CARDS - Koko (Mobiili: 3 saraketta, tiivistetty) */}
         <div className="grid grid-cols-3 gap-3 md:gap-6 mb-8 md:mb-10">
           {currentData.sizes.map((size, index) => {
             const isSelected = selectedSize === index;
@@ -141,7 +163,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
                 {calculateEstimate(currentData.sizes[selectedSize].weight)}
               </div>
               <p className="text-gray-400 text-xs md:text-sm">
-                Laskelma: {currentData.sizes[selectedSize].weight}g × 14K × tavoitehinta
+                Laskelma: {currentData.sizes[selectedSize].weight}g × {selectedPurity} × tavoitehinta
               </p>
             </div>
 

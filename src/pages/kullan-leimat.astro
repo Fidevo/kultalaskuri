@@ -74,21 +74,35 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
   title="Kullan leimat 585 ja 750 – mitä ne tarkoittavat? | Kultalaskuri.fi" 
   description="Mitä tarkoittaa kullan leima 585 tai 750? Opi tunnistamaan aidot kultaleimat, karaatit ja kullatut esineet. Laske kullan arvo ilmaiseksi."
   schema={JSON.stringify(schemaData)}
+  ogImage={kuva750.src}
 >
 
-  <div class="relative bg-[#0B0F19] pt-32 pb-40 md:pt-40 md:pb-48 px-4 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/10 rounded-full mix-blend-screen filter blur-[120px]"></div>
+  <div class="relative bg-[#0B0F19] pt-28 pb-40 md:pt-36 md:pb-48 px-4 overflow-hidden">
+
+    {/* Partikkelianimaatio */}
+    <canvas id="hero-particles" class="absolute inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+
+    {/* Blob-animaatiot */}
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
+      <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
     </div>
 
     <div class="max-w-4xl mx-auto text-center relative z-10">
+
+      {/* Badge */}
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-md shadow-lg mb-8">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="text-xs text-gray-400 uppercase tracking-widest font-medium">Tunnistusopas</span>
+      </div>
+
       <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
         Kullan leimat <br class="md:hidden" />585&nbsp;ja&nbsp;750
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-2">
           mitä ne tarkoittavat?
         </span>
       </h1>
-      <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
+      <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
         Ovatko korusi aitoa kultaa vai kullattua metallia? Opi tunnistamaan yleisimmät kultaleimat ja tarkista korujesi arvo laskurilla.
       </p>
     </div>
@@ -355,6 +369,13 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
         </a>
         <span class="text-sm text-gray-500 mt-4 font-medium">Ilmainen ja anonyymi • Vie alle 30s</span>
       </div>
+
+      <div class="mt-8">
+        <p class="text-gray-500 text-sm mb-3">Haluatko myydä kultasi? Lue ensin oppaamme:</p>
+        <a href="/kullan-myynti/" class="inline-flex items-center gap-1.5 text-gold-600 font-bold hover:underline text-sm">
+          Kullan myynti – näin saat parhaan hinnan →
+        </a>
+      </div>
       
       <div class="mt-16 pt-8 border-t border-gray-200">
         <p class="text-xs text-gray-500 max-w-2xl mx-auto leading-relaxed">
@@ -363,5 +384,41 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
       </div>
     </div>
   </section>
+
+  <script>
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    (function () {
+      const canvas = document.getElementById('hero-particles') as HTMLCanvasElement | null;
+      if (!canvas || reducedMotion) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const COUNT = window.innerWidth < 768 ? 35 : 65;
+      function resize() { canvas!.width = canvas!.offsetWidth; canvas!.height = canvas!.offsetHeight; }
+      resize();
+      window.addEventListener('resize', resize);
+      type P = { x: number; y: number; r: number; vx: number; vy: number; alpha: number; alphaDir: number };
+      const particles: P[] = Array.from({ length: COUNT }, () => ({
+        x: Math.random() * canvas!.width, y: Math.random() * canvas!.height,
+        r: Math.random() * 1.8 + 0.4,
+        vx: (Math.random() - 0.5) * 0.25, vy: -(Math.random() * 0.35 + 0.08),
+        alpha: Math.random() * 0.5 + 0.1, alphaDir: (Math.random() - 0.5) * 0.004,
+      }));
+      function draw() {
+        ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+        for (const p of particles) {
+          p.x += p.vx; p.y += p.vy; p.alpha += p.alphaDir;
+          if (p.alpha <= 0.05) p.alphaDir = Math.abs(p.alphaDir);
+          if (p.alpha >= 0.65) p.alphaDir = -Math.abs(p.alphaDir);
+          if (p.y < -4) { p.y = canvas!.height + 4; p.x = Math.random() * canvas!.width; }
+          if (p.x < -4) p.x = canvas!.width + 4;
+          if (p.x > canvas!.width + 4) p.x = -4;
+          ctx!.beginPath(); ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx!.fillStyle = `rgba(212,175,55,${p.alpha.toFixed(3)})`; ctx!.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+  </script>
 
 </BaseLayout>
