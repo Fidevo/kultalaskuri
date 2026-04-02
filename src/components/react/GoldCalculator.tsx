@@ -49,7 +49,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
   };
 
   return (
-    <div className="grid lg:grid-cols-12 gap-0 bg-white shadow-xl rounded-[2rem] overflow-hidden border border-gray-100">
+    <div className="grid lg:grid-cols-12 gap-0 bg-white overflow-hidden">
       
       {/* --- VASEN PUOLI: SYÖTTÖ --- */}
       <div className="lg:col-span-5 bg-gray-50/80 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col gap-6 md:gap-8">
