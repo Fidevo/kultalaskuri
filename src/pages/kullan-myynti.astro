@@ -98,10 +98,7 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
 
   <div class="relative bg-[#0B0F19] pt-28 pb-40 px-4 overflow-hidden">
 
-    {/* Partikkelianimaatio */}
-    <canvas id="hero-particles" class="absolute inset-0 w-full h-full z-0 pointer-events-none"></canvas>
-
-    {/* Blob-animaatiot */}
+    {/* Blob-taustaefektit (kevyt CSS-only) */}
     <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
       <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
       <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
@@ -310,40 +307,5 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
     </div>
   </section>
 
-  <script>
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    (function () {
-      const canvas = document.getElementById('hero-particles') as HTMLCanvasElement | null;
-      if (!canvas || reducedMotion) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      const COUNT = window.innerWidth < 768 ? 35 : 65;
-      function resize() { canvas!.width = canvas!.offsetWidth; canvas!.height = canvas!.offsetHeight; }
-      resize();
-      window.addEventListener('resize', resize);
-      type P = { x: number; y: number; r: number; vx: number; vy: number; alpha: number; alphaDir: number };
-      const particles: P[] = Array.from({ length: COUNT }, () => ({
-        x: Math.random() * canvas!.width, y: Math.random() * canvas!.height,
-        r: Math.random() * 1.8 + 0.4,
-        vx: (Math.random() - 0.5) * 0.25, vy: -(Math.random() * 0.35 + 0.08),
-        alpha: Math.random() * 0.5 + 0.1, alphaDir: (Math.random() - 0.5) * 0.004,
-      }));
-      function draw() {
-        ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
-        for (const p of particles) {
-          p.x += p.vx; p.y += p.vy; p.alpha += p.alphaDir;
-          if (p.alpha <= 0.05) p.alphaDir = Math.abs(p.alphaDir);
-          if (p.alpha >= 0.65) p.alphaDir = -Math.abs(p.alphaDir);
-          if (p.y < -4) { p.y = canvas!.height + 4; p.x = Math.random() * canvas!.width; }
-          if (p.x < -4) p.x = canvas!.width + 4;
-          if (p.x > canvas!.width + 4) p.x = -4;
-          ctx!.beginPath(); ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx!.fillStyle = `rgba(212,175,55,${p.alpha.toFixed(3)})`; ctx!.fill();
-        }
-        requestAnimationFrame(draw);
-      }
-      draw();
-    })();
-  </script>
 
 </BaseLayout>
