@@ -3,10 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "weekly": "node scripts/weekly-post.mjs",
-    "educational": "node scripts/educational-post.mjs"
-  },
-  "dependencies": {
-    "@napi-rs/canvas": "^0.1.65"
+    "save": "node scripts/save-price.mjs",
+    "report": "node scripts/report.mjs"
   }
 }

@@ -1,0 +1,30 @@
+name: 'Hintaseuranta: päivittäinen tallennus'
+
+on:
+  schedule:
+    # Joka päivä klo 18:00 Suomen aikaa (UTC+3 = 15:00 UTC)
+    - cron: '0 15 * * *'
+  workflow_dispatch: # Manuaalinen ajo
+
+jobs:
+  save-price:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Save daily price
+        env:
+          METALPRICE_API_KEY: ${{ secrets.METALPRICE_API_KEY }}
+        run: node social/scripts/save-price.mjs
+
+      - name: Commit price history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add social/data/price-history.json
+          git diff --cached --quiet || git commit -m "Kullan hinta tallennettu"
+          git push
