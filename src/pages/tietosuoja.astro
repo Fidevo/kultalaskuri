@@ -5,23 +5,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="Tietosuojaseloste | Kultalaskuri.fi" description="Kultalaskuri.fi tietosuojaseloste ja yksityisyydensuoja.">
   <div class="pt-32 pb-20 px-4 bg-gray-50 min-h-screen">
     <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100 prose prose-gold">
-      
-      <h1 class="text-3xl font-black text-gray-900 mb-8">Tietosuojaseloste</h1>
-      <p class="text-sm text-gray-500 mb-8">Päivitetty: {new Date().toLocaleDateString('fi-FI')}</p>
 
-      <h3>1. Rekisterinpitäjä</h3>
+      <h1 class="text-3xl font-black text-gray-900 mb-2">Tietosuojaseloste</h1>
+      <p class="text-sm text-gray-500 mb-10">Päivitetty: {new Date().toLocaleDateString('fi-FI')}</p>
+
+      <h3 class="mt-10">1. Rekisterinpitäjä</h3>
       <p>
         Kultalaskuri.fi on yksityisen suomalaisen ohjelmistokehittäjän ylläpitämä verkkopalvelu.
         <br/>
         Yhteydenotot: <a href="mailto:info@kultalaskuri.fi" class="text-gold-500 hover:underline">info@kultalaskuri.fi</a>
       </p>
 
-      <h3>2. Henkilötietojen käsittely</h3>
+      <h3 class="mt-10">2. Henkilötietojen käsittely</h3>
       <p>
         Palvelu <strong>ei kerää</strong> käyttäjistä suoria henkilötietoja (kuten nimeä, puhelinnumeroa tai osoitetta), sillä sivustolla ei ole rekisteröitymistä tai yhteydenottolomakkeita. Myös kaikki sivustolla tekemäsi laskutoimitukset (esineiden painot ja pitoisuudet) tapahtuvat ainoastaan selaimesi sisällä, eikä niitä tallenneta palvelimillemme.
       </p>
 
-      <h3>3. Analytiikka (Umami)</h3>
+      <h3 class="mt-10">3. Analytiikka</h3>
+
+      <h4 class="mt-6">Umami Analytics</h4>
       <p>
         Käytämme sivuston kävijämäärien ja käytön seurantaan yksityisyyttä kunnioittavaa <strong>Umami Analytics</strong> -palvelua. Umami on suunniteltu täysin EU:n yleisen tietosuoja-asetuksen (GDPR) mukaiseksi:
       </p>
@@ -34,12 +36,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         Keräämme ainoastaan täysin anonyymiä tilastotietoa (kuten sivulataukset, käytetty selain, laitetyyppi ja karkea sijainti kaupunkitasolla) palvelun kehittämistä varten.
       </p>
 
-      <h3>4. Kolmannen osapuolen linkit</h3>
+      <h4 class="mt-6">Microsoft Clarity</h4>
+      <p>
+        Käytämme lisäksi <strong>Microsoft Clarity</strong> -palvelua, joka tallentaa anonyymejä istuntotallenteita ja heatmap-dataa. Clarity auttaa meitä ymmärtämään, miten sivustoa käytetään ja miten sitä voidaan parantaa.
+      </p>
+      <ul>
+        <li><strong>Ei henkilötietoja:</strong> Clarity ei kerää henkilökohtaisia tunnistetietoja.</li>
+        <li><strong>Ei kolmansille osapuolille:</strong> Dataa ei myydä tai jaeta ulkopuolisille.</li>
+        <li><strong>Automaattinen maskaus:</strong> Syöttökenttien sisältö (kuten laskuriin syötetty paino) maskataan automaattisesti tallenteissa.</li>
+      </ul>
+      <p>
+        Lisätietoja Clarityn tietosuojasta: Microsoftin tietosuojakäytännöt koskevat palvelun käsittelemää dataa.
+      </p>
+
+      <h3 class="mt-10">4. Kolmannen osapuolen linkit</h3>
       <p>
         Sivusto saattaa sisältää linkkejä kolmansien osapuolten (esim. kullanostajien tai tilastolähteiden) sivuille. Emme vastaa näiden sivustojen sisällöstä tai tietosuojakäytännöistä.
       </p>
 
-      <h3>5. Muutokset</h3>
+      <h3 class="mt-10">5. Muutokset</h3>
       <p>
         Pidätämme oikeuden muuttaa tätä tietosuojaselostetta palvelun kehittyessä.
       </p>
