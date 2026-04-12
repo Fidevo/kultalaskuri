@@ -50,6 +50,10 @@ interface Props {
   spotPrice: number;
 }
 
+const track = (event: string, data?: Record<string, string | number>) => {
+  try { (window as any).umami?.track(event, data); } catch {}
+};
+
 export default function JewelryWeightEstimator({ spotPrice }: Props) {
   const [activeType, setActiveType] = useState<JewelryType>('sormus');
   const [selectedSize, setSelectedSize] = useState<number | null>(1); // Oletus: Keskikoko
@@ -83,7 +87,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
           {(Object.entries(JEWELRY_DATA) as [JewelryType, typeof JEWELRY_DATA[JewelryType]][]).map(([key, data]) => (
             <button
               key={key}
-              onClick={() => { setActiveType(key); setSelectedSize(1); }}
+              onClick={() => { setActiveType(key); setSelectedSize(1); track('koruarvio-tyyppi', { type: key }); }}
               className={`
                 flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-5 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all duration-200
                 ${activeType === key 
@@ -103,7 +107,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
           {COMMON_PURITIES.map((code) => (
             <button
               key={code}
-              onClick={() => setSelectedPurity(code)}
+              onClick={() => { setSelectedPurity(code); track('koruarvio-karaatti', { purity: code }); }}
               className={`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200
                 ${selectedPurity === code
                   ? 'bg-gold-400 text-[#0B0F19] shadow-lg shadow-gold-400/20 scale-105'
@@ -122,7 +126,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
             return (
               <button
                 key={index}
-                onClick={() => setSelectedSize(index)}
+                onClick={() => { setSelectedSize(index); track('koruarvio-koko', { type: activeType, size: size.label }); }}
                 className={`
                   relative p-3 md:p-6 rounded-2xl border-2 text-center md:text-left transition-all duration-200 group flex flex-col items-center md:block
                   ${isSelected 
@@ -169,7 +173,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
 
             <div className="relative z-10 shrink-0 w-full md:w-auto">
               <button 
-                onClick={scrollToTop}
+                onClick={(e) => { track('koruarvio-laske-tarkka'); scrollToTop(e); }}
                 className="w-full md:w-auto bg-white text-[#0B0F19] px-6 py-4 rounded-xl font-bold hover:bg-gold-400 transition-colors shadow-lg flex items-center justify-center gap-2"
               >
                 <Circle size={18} className="text-gold-600 fill-current" />

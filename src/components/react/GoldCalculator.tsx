@@ -6,15 +6,22 @@ interface Props {
   spotPriceEurPerGram: number;
 }
 
+// Umami-tracking helper — ei kaadu jos Umami ei ole ladattu
+const track = (event: string, data?: Record<string, string | number>) => {
+  try { (window as any).umami?.track(event, data); } catch {}
+};
+
 export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
   const [weight, setWeight] = useState<string>('');
   const [purity, setPurity] = useState<PurityCode>('14K');
   const [result, setResult] = useState<CalculationResult | null>(null);
-  const [copied, setCopied] = useState(false); // Uusi tila kopioinnille
+  const [copied, setCopied] = useState(false);
+  const [hasTrackedResult, setHasTrackedResult] = useState(false);
 
   useEffect(() => {
     if (!weight) {
       setResult(null);
+      setHasTrackedResult(false);
       return;
     }
     const cleanWeight = weight.replace(',', '.').replace(/[^0-9.]/g, '');
@@ -23,6 +30,10 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
     if (!isNaN(numWeight) && numWeight > 0) {
       const res = calculateGoldValue(numWeight, purity, spotPriceEurPerGram);
       setResult(res);
+      if (res && !hasTrackedResult) {
+        track('laskuri-tulos', { purity, weight: numWeight });
+        setHasTrackedResult(true);
+      }
     } else {
       setResult(null);
     }
@@ -34,6 +45,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
     
     const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nTarkista kullan ajantasainen hinta: https://kultalaskuri.fi`;
     
+    track('laskuri-whatsapp', { purity, value: result.targetValue });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -41,6 +53,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText('https://kultalaskuri.fi');
+      track('laskuri-kopioi-linkki');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Palauttaa tekstin 2 sekunnin kuluttua
     } catch {
@@ -94,7 +107,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
               return (
                 <button
                   key={code}
-                  onClick={() => setPurity(code)}
+                  onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
                     flex flex-col items-center lg:items-start justify-center p-2 lg:p-3 rounded-xl border transition-all duration-200
                     ${isActive 
