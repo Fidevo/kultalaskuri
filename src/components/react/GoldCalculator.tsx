@@ -221,7 +221,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
             <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4 md:mb-6 border border-gray-100">
                <Calculator className="text-gray-300 w-8 h-8 md:w-12 md:h-12" />
             </div>
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Syötä paino ←</h3>
+            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Syötä paino <span className="lg:hidden">↑</span><span className="hidden lg:inline">←</span></h3>
             <p className="text-sm md:text-base text-gray-500 max-w-xs mx-auto mb-5">
               Valitse karaatit ja syötä paino niin näet arvon heti.
             </p>
