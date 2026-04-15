@@ -15,7 +15,6 @@
     "@astrojs/tailwind": "^5.1.5",
     "@supabase/supabase-js": "^2.95.3",
     "@tailwindcss/vite": "^4.1.18",
-    "@vite-pwa/astro": "^1.2.0",
     "astro": "^5.17.1",
     "lucide-react": "^0.563.0",
     "react": "^19.2.4",

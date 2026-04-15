@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kultalaskuri.fi/sitemap.xml
+Sitemap: https://kultalaskuri.fi/sitemap-index.xml
