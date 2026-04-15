@@ -1,9 +1,0 @@
-{
-  "name": "kultalaskuri-social",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "save": "node scripts/save-price.mjs",
-    "report": "node scripts/report.mjs"
-  }
-}
