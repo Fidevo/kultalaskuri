@@ -107,9 +107,10 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
               return (
                 <button
                   key={code}
+                  type="button"
                   onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
-                    flex flex-col items-center lg:items-start justify-center p-2 lg:p-3 rounded-xl border transition-all duration-200
+                    flex flex-col items-center lg:items-start justify-center p-3 min-h-[4rem] w-full rounded-xl border transition-all duration-200
                     ${isActive 
                       ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-md transform scale-[1.02] z-10' 
                       : 'bg-white border-gray-200 hover:border-gold-300 hover:shadow-sm text-gray-600'
@@ -217,9 +218,15 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
           </div>
         ) : (
           /* EMPTY STATE */
-          <div className="h-full flex flex-col items-center justify-center text-center py-8">
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4 md:mb-6 border border-gray-100">
-               <Calculator className="text-gray-300 w-8 h-8 md:w-12 md:h-12" />
+          <div
+            className="h-full flex flex-col items-center justify-center text-center py-8 cursor-pointer group/empty hover:bg-gray-50/50 transition-colors rounded-3xl"
+            onClick={() => document.getElementById('gold-weight')?.focus()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && document.getElementById('gold-weight')?.focus()}
+          >
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4 md:mb-6 border border-gray-100 group-hover/empty:border-gold-200 transition-colors">
+               <Calculator className="text-gray-300 w-8 h-8 md:w-12 md:h-12 group-hover/empty:text-gold-400 transition-colors" />
             </div>
             <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Syötä paino <span className="lg:hidden">↑</span><span className="hidden lg:inline">←</span></h3>
             <p className="text-sm md:text-base text-gray-500 max-w-xs mx-auto mb-5">
