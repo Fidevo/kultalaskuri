@@ -101,8 +101,42 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
           <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
             Pitoisuus
           </label>
-          <div className="grid grid-cols-4 lg:grid-cols-2 gap-2">
-            {(Object.keys(GOLD_PURITIES) as PurityCode[]).map((code) => {
+
+          {/* Päänapit: yleisimmät Suomessa */}
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            {(['14K', '18K', '24K', '9K'] as PurityCode[]).map((code) => {
+              const isActive = purity === code;
+              const isCommon = code === '14K' || code === '18K';
+              return (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
+                  className={`
+                    relative flex flex-col items-start justify-center px-4 py-3 w-full rounded-xl border transition-all duration-200
+                    ${isActive
+                      ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-md'
+                      : 'bg-white border-gray-200 hover:border-gold-300 hover:shadow-sm'
+                    }
+                  `}
+                >
+                  {isCommon && (
+                    <span className="absolute top-2 right-2 text-[9px] font-bold text-gold-500 uppercase tracking-wide">yleisin</span>
+                  )}
+                  <span className={`text-lg font-black ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
+                    {code}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {GOLD_PURITIES[code].label.split(' ')[1]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Pienet chipit: harvinaisemmat */}
+          <div className="grid grid-cols-4 gap-1.5">
+            {(['22K', '21K', '10K', '8K'] as PurityCode[]).map((code) => {
               const isActive = purity === code;
               return (
                 <button
@@ -110,24 +144,21 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   type="button"
                   onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
-                    flex flex-col items-center lg:items-start justify-center p-3 min-h-[4rem] w-full rounded-xl border transition-all duration-200
-                    ${isActive 
-                      ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-md transform scale-[1.02] z-10' 
-                      : 'bg-white border-gray-200 hover:border-gold-300 hover:shadow-sm text-gray-600'
+                    flex flex-col items-center justify-center py-2 w-full rounded-lg border text-xs transition-all duration-200
+                    ${isActive
+                      ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-sm'
+                      : 'bg-white border-gray-200 hover:border-gold-300 text-gray-500'
                     }
                   `}
                 >
-                  <span className={`text-base lg:text-lg font-black ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
-                    {code}
-                  </span>
-                  <span className="text-xs font-medium text-gray-500 hidden lg:block">
-                    {GOLD_PURITIES[code].label.split(' ')[1]}
-                  </span>
+                  <span className={`font-bold ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{code}</span>
+                  <span className="text-[10px] text-gray-400">{GOLD_PURITIES[code].label.split(' ')[1]}</span>
                 </button>
               );
             })}
           </div>
-          <div className="mt-4 flex gap-2 text-sm text-gray-500 bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+
+          <div className="mt-3 flex gap-2 text-sm text-gray-500 bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
             <Info size={18} className="text-gold-500 shrink-0" />
             <p className="text-xs leading-relaxed">{GOLD_PURITIES[purity].description}</p>
           </div>
