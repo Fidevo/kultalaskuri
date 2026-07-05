@@ -7,8 +7,9 @@ export async function fetchGoldPrice() {
   const apiKey = process.env.METALPRICE_API_KEY;
   if (!apiKey) throw new Error('METALPRICE_API_KEY puuttuu');
 
+  // EU-palvelin: matalampi latenssi (metalpriceapi.com/documentation#api_servers)
   const res = await fetch(
-    `https://api.metalpriceapi.com/v1/latest?api_key=${apiKey}&base=USD&currencies=XAU,EUR`
+    `https://api-eu.metalpriceapi.com/v1/latest?api_key=${apiKey}&base=USD&currencies=XAU,EUR`
   );
 
   if (!res.ok) throw new Error(`API HTTP ${res.status}`);

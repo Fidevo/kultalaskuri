@@ -4,8 +4,16 @@ const normalizedPath = pathname.endsWith('/') && pathname.length > 1 ? pathname.
 
 const navLinks = [
   { href: '/#laskuri', label: 'Laskuri', pagePath: '/' },
-  { href: '/kullan-myynti/', label: 'Kullan myynti', pagePath: '/kullan-myynti' }, // Kauttaviiva lisätty hrefiin
-  { href: '/kullan-leimat/', label: 'Kultaleimat', pagePath: '/kullan-leimat' }, // Kauttaviiva lisätty hrefiin
+  { href: '/kullan-hinta/', label: 'Kullan hinta', pagePath: '/kullan-hinta' },
+  { href: '/kullan-myynti/', label: 'Kullan myynti', pagePath: '/kullan-myynti' },
+  { href: '/kullan-leimat/', label: 'Kultaleimat', pagePath: '/kullan-leimat' },
+];
+
+// Toissijaiset sivut — näkyvät vain mobiilivalikossa (desktop-navi pidetään tiiviinä)
+const secondaryLinks = [
+  { href: '/kullan-myynti-verotus/', label: 'Myynnin verotus', pagePath: '/kullan-myynti-verotus' },
+  { href: '/sanasto/', label: 'Kultasanasto', pagePath: '/sanasto' },
+  { href: '/tietoa/', label: 'Tietoa palvelusta', pagePath: '/tietoa' },
 ];
 ---
 
@@ -42,11 +50,12 @@ const navLinks = [
       </nav>
 
       <div class="flex items-center gap-4 md:hidden">
-        <button 
+        <button
           id="mobile-menu-btn"
-          class="relative z-50 p-2 text-gold-400 hover:text-gold-200 transition-colors focus:outline-none"
+          class="relative z-50 p-2 text-gold-400 hover:text-gold-200 transition-colors"
           aria-label="Avaa valikko"
           aria-expanded="false"
+          aria-controls="mobile-menu"
         >
           <svg id="menu-icon" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -66,12 +75,12 @@ const navLinks = [
     <div class="flex flex-col space-y-6">
       {navLinks.map((link) => {
         const isActive = normalizedPath === link.pagePath;
-        
+
         return (
-          <a 
+          <a
             href={link.href}
             aria-current={isActive ? "page" : undefined}
-            class={`mobile-link text-2xl font-bold border-b border-white/5 pb-4 
+            class={`mobile-link text-2xl font-bold border-b border-white/5 pb-4
               ${isActive ? 'text-gold-400' : 'text-white hover:text-gold-400'}
             `}
           >
@@ -79,6 +88,27 @@ const navLinks = [
           </a>
         );
       })}
+    </div>
+
+    {/* Toissijaiset sivut mobiilivalikossa */}
+    <div class="mt-8">
+      <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold mb-4">Lisää</p>
+      <div class="flex flex-col space-y-4">
+        {secondaryLinks.map((link) => {
+          const isActive = normalizedPath === link.pagePath;
+          return (
+            <a
+              href={link.href}
+              aria-current={isActive ? "page" : undefined}
+              class={`mobile-link text-base font-medium
+                ${isActive ? 'text-gold-400' : 'text-gray-400 hover:text-gold-400'}
+              `}
+            >
+              {link.label}
+            </a>
+          );
+        })}
+      </div>
     </div>
   </div>
 </header>
@@ -116,7 +146,15 @@ const navLinks = [
   }
   
   btn?.addEventListener('click', toggleMenu);
-  
+
+  // Escape sulkee valikon ja palauttaa fokuksen nappiin
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isMenuOpen) {
+      toggleMenu();
+      btn?.focus();
+    }
+  });
+
   mobileLinks.forEach(link => {
     link.addEventListener('click', () => {
       if (isMenuOpen) toggleMenu();

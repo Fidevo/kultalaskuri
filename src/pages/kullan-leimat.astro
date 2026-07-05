@@ -5,6 +5,45 @@ import { Image } from 'astro:assets';
 import kuva585 from '../assets/585-kultaleima.jpeg';
 import kuva750 from '../assets/750-kultaleima.jpeg';
 
+const dateModified = new Date().toISOString();
+
+// ── Suomalaiset vuosileimat ──
+// Järjestelmä: kirjain + kierrosnumero. Sarja alkoi 1810 kirjaimella A.
+// Kierrossa 24 kirjainta (ei J, W, Å, Ä, Ö). Lähde: Tukes / leimat.fi
+// Ankkurit varmistettu: Z8 = 2001, A9 = 2002, K9 = 2011, Z9 = 2025, A10 = 2026.
+const YEAR_LETTERS = ['A','B','C','D','E','F','G','H','I','K','L','M','N','O','P','Q','R','S','T','U','V','X','Y','Z'];
+const cycleStart = (cycle: number) => 1810 + (cycle - 1) * 24;
+
+const yearMarkRows = (cycle: number) =>
+  YEAR_LETTERS.map((letter, i) => ({ mark: `${letter}${cycle}`, year: cycleStart(cycle) + i }));
+
+const cycle5 = yearMarkRows(5);  // 1906–1929
+const cycle6 = yearMarkRows(6);  // 1930–1953
+const cycle7 = yearMarkRows(7);  // 1954–1977
+const cycle8 = yearMarkRows(8);  // 1978–2001
+const cycle9 = yearMarkRows(9);  // 2002–2025
+const currentMark = { mark: 'A10', year: 2026 };
+
+// Ulkomaiset leimat — sama data taulukkoon (desktop) ja kortteihin (mobiili)
+const foreignMarks = [
+  { mark: '999', karat: '24K', pct: '99,9', use: 'Sijoituskulta ja standardiharkot' },
+  { mark: '965', karat: '23K', pct: '96,5', use: 'Thaimaan kansallinen kultastandardi (Thai gold)' },
+  { mark: '916', karat: '22K', pct: '91,6', use: 'Intian ja Lähi-idän hääkorut (esim. Dubai)' },
+  { mark: '875', karat: '21K', pct: '87,5', use: 'Erittäin suosittu Lähi-idässä ja Pohjois-Afrikassa (esim. Saudi-Arabia, Egypti)' },
+  { mark: '750', karat: '18K', pct: '75,0', use: 'Arvokorut, luksuskellot, arvostetut vihkisormukset', highlight: true },
+  { mark: '585', karat: '14K', pct: '58,5', use: 'Suomalaiset standardikorut, kestävät käyttöesineet', highlight: true },
+  { mark: '417', karat: '10K', pct: '41,7', use: 'Pohjois-Amerikan (USA, Kanada) alin kultastandardi, edulliset korut' },
+  { mark: '375', karat: '9K',  pct: '37,5', use: 'Yleinen Iso-Britanniassa, edulliset käyttökorut' },
+  { mark: '333', karat: '8K',  pct: '33,3', use: 'Edulliset korut, yleinen Saksassa ja Keski-Euroopassa' },
+];
+
+// Vanhemmat kierrokset perintökoruja varten
+const olderCycles = [
+  { title: 'Vuosileimat 1954–1977', rows: cycle7 },
+  { title: 'Vuosileimat 1930–1953', rows: cycle6 },
+  { title: 'Vuosileimat 1906–1929', rows: cycle5 },
+];
+
 const schemaData = {
   "@context": "https://schema.org",
   "@graph": [
@@ -16,12 +55,30 @@ const schemaData = {
       "inLanguage": "fi-FI"
     },
     {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Kultalaskuri.fi",
+          "item": "https://kultalaskuri.fi"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Kullan leimat",
+          "item": "https://kultalaskuri.fi/kullan-leimat/"
+        }
+      ]
+    },
+    {
       "@type": "WebPage",
-      "@id": "https://kultalaskuri.fi/kullan-leimat",
-      "url": "https://kultalaskuri.fi/kullan-leimat",
+      "@id": "https://kultalaskuri.fi/kullan-leimat/",
+      "url": "https://kultalaskuri.fi/kullan-leimat/",
       "name": "Kullan leimat 585 ja 750 – mitä ne tarkoittavat?",
       "description": "Opi tunnistamaan kullan leimat (585, 750 ja ulkomaiset leimat), erottamaan kullatut esineet aidosta kullasta ja tarkistamaan korujesi arvo laskurilla.",
       "inLanguage": "fi-FI",
+      "dateModified": dateModified,
       "isPartOf": {
         "@id": "https://kultalaskuri.fi/#website"
       }
@@ -67,7 +124,7 @@ const schemaData = {
 };
 
 // TS-turvallinen tapa hakea FAQ-objektit
-const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
+const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
 ---
 
 <BaseLayout 
@@ -87,19 +144,27 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
 
     <div class="max-w-4xl mx-auto text-center relative z-10">
 
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-400">Kullan leimat</li>
+        </ol>
+      </nav>
+
       {/* Badge */}
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-md shadow-lg mb-8">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <span class="text-xs text-gray-400 uppercase tracking-widest font-medium">Tunnistusopas</span>
       </div>
 
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kullan leimat <br class="md:hidden" />585&nbsp;ja&nbsp;750
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-2">
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1">
           mitä ne tarkoittavat?
         </span>
       </h1>
-      <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
         Ovatko korusi aitoa kultaa vai kullattua metallia? Opi tunnistamaan yleisimmät kultaleimat ja tarkista korujesi arvo laskurilla.
       </p>
     </div>
@@ -116,13 +181,26 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
           Laske arvo heti
         </a>
-        <span class="text-[11px] text-gray-400 font-medium mt-2 uppercase tracking-wide">Ilmainen, anonyymi • Vie alle 30s</span>
+        <span class="text-[11px] text-gray-500 font-medium mt-2 uppercase tracking-wide">Ilmainen, anonyymi • Vie alle 30s</span>
       </div>
     </div>
   </div>
 
   <section class="bg-white py-20 px-4 relative z-20">
     <div class="max-w-3xl mx-auto">
+
+      {/* Sisällysluettelo — nopea navigointi pitkällä opassivulla */}
+      <nav aria-label="Sisällysluettelo" class="mb-12 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Tällä sivulla</h2>
+        <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <li><a href="#leima-585" class="text-gold-600 font-bold hover:underline">Leima 585 (14K)</a></li>
+          <li><a href="#leima-750" class="text-gold-600 font-bold hover:underline">Leima 750 (18K)</a></li>
+          <li><a href="#leima-puuttuu" class="text-gold-600 font-bold hover:underline">Voiko leima puuttua?</a></li>
+          <li><a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">Nimileimat ja vuosileimat</a></li>
+          <li><a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">Ulkomaiset leimat ja karaatit</a></li>
+          <li><a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Tunnista aito leima kotona</a></li>
+        </ol>
+      </nav>
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Miksi kulta ylipäätään leimataan?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
@@ -132,7 +210,7 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
         Suomessa jalometallituotteiden merkintöjä säädellään tarkasti, ja kultaesineissä käytetään asianmukaisia leimoja, kuten pitoisuusleimaa ja nimileimaa.
       </p>
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Mitä kullan leima 585 tarkoittaa?</h2>
+      <h2 id="leima-585" class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight scroll-mt-24">Mitä kullan leima 585 tarkoittaa?</h2>
       <div class="bg-gray-50 rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group mb-12">
         <div class="aspect-video bg-white rounded-2xl mb-8 overflow-hidden relative flex items-center justify-center border border-gray-200">
           <Image 
@@ -156,7 +234,7 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
         </a>
       </div>
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Mitä kullan leima 750 tarkoittaa?</h2>
+      <h2 id="leima-750" class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight scroll-mt-24">Mitä kullan leima 750 tarkoittaa?</h2>
       <div class="bg-gold-50/30 rounded-3xl p-8 border border-gold-100 shadow-sm hover:shadow-md transition-shadow group mb-16">
         <div class="aspect-video bg-white rounded-2xl mb-8 overflow-hidden relative flex items-center justify-center border border-gold-200">
            <Image 
@@ -182,7 +260,7 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
 
       <hr class="border-gray-100 mb-16" />
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Voiko kullan leima puuttua aidosta korusta?</h2>
+      <h2 id="leima-puuttuu" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Voiko kullan leima puuttua aidosta korusta?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Kyllä voi. Leiman puuttuminen ei automaattisesti tarkoita, että kyseessä olisi väärennös tai arvoton koru. On useita täysin normaaleja syitä siihen, miksi aidosta kultakorusta voi puuttua leima:
       </p>
@@ -204,43 +282,157 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
         Jos olet epävarma leimattoman esineen aitoudesta, alan ammattilainen voi määrittää kultapitoisuuden turvallisesti ilman, että esinettä tarvitsee vahingoittaa, esimerkiksi XRF-mittauksella.
       </p>
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Tarkastus-, paikkakunta- ja vuosileimat</h2>
+      <h2 id="nimileimat-vuosileimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Nimileimat, vuosileimat ja muut merkinnät</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-8">
-        Vaikka pitoisuusleima ja nimileima ovat tärkeimmät tunnistetiedot, erityisesti arvokoruista ja vanhemmista esineistä löytyy usein muitakin merkintöjä.
+        Pitoisuusleiman lisäksi suomalaisista kultaesineistä löytyy usein muitakin merkintöjä,
+        jotka kertovat valmistajan, valmistusvuoden ja valmistuspaikan. Ne eivät vaikuta romukullan
+        arvoon, mutta auttavat tunnistamaan esineen alkuperän — ja joskus paljastamaan, että kyseessä
+        on keräilyarvoltaan romukultaa arvokkaampi design-koru.
       </p>
 
-      <div class="grid md:grid-cols-3 gap-6 mb-20">
+      <div class="grid md:grid-cols-2 gap-6 mb-12">
         <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-          <h3 class="text-lg font-bold text-gray-900 mb-2">Vuosileimat</h3>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Nimileima</h3>
           <p class="text-sm text-gray-600 leading-relaxed">
-            Koostuvat kirjaimesta ja numerosta, ja niiden avulla voidaan tunnistaa esineen valmistusvuosi.
-          </p>
-        </div>
-        
-        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-          <h3 class="text-lg font-bold text-gray-900 mb-2">Paikkakuntaleimat</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
-            Osoittavat valmistuspaikan tai kaupungin, jossa esine on tehty.
+            Valmistajan tai maahantuojan rekisteröity tunnus, esimerkiksi kirjainyhdistelmä.
+            Suomessa nimileimat rekisteröi Tukes, ja jokainen leima on julkisessa
+            nimileimarekisterissä. Nimileiman avulla voit selvittää, kuka korun on valmistanut —
+            esimerkiksi Kalevala Korun tai Lapponian leima voi tarkoittaa, että koru on ehjänä
+            arvokkaampi kuin sulatettuna.
           </p>
         </div>
 
         <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-          <h3 class="text-lg font-bold text-gray-900 mb-2">Tarkastusleimat</h3>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">Tarkastus- ja paikkakuntaleimat</h3>
           <p class="text-sm text-gray-600 leading-relaxed">
-            Kertovat, että esineen jalometallipitoisuus on aikanaan tarkastettu virallisen käytännön mukaisesti.
+            Tarkastusleima (Suomessa kruunuleima) kertoo, että esineen jalometallipitoisuus on
+            tarkastettu virallisesti. Paikkakuntaleima osoittaa valmistuskaupungin — esimerkiksi
+            Helsingin tunnus on vene. Näitä näkee erityisesti vanhemmissa kotimaisissa esineissä.
           </p>
         </div>
       </div>
 
+      <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Vuosileimataulukko — selvitä korun valmistusvuosi</h3>
+      <p class="text-gray-600 leading-relaxed mb-6">
+        Suomalainen vuosileima koostuu kirjaimesta ja numerosta (esim. <strong>K9</strong>).
+        Kirjainsarja alkoi vuonna 1810 kirjaimesta A, ja kirjaimet kiertävät 24 vuoden jaksoissa
+        (sarjassa ei käytetä kirjaimia J, W, Å, Ä ja Ö). Numero kertoo, monesko kierros on menossa.
+        Kuluva vuosi {currentMark.year} on merkitty leimalla <strong>{currentMark.mark}</strong>.
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-sm">
+            <caption class="bg-gray-50 border-b border-gray-200 py-3 px-4 text-left font-bold text-gray-900">Vuosileimat 1978–2001</caption>
+            <thead class="sr-only">
+              <tr><th>Leima</th><th>Vuosi</th><th>Leima</th><th>Vuosi</th></tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {Array.from({ length: 12 }, (_, i) => (
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="py-2 px-4 font-black text-gray-900">{cycle8[i].mark}</td>
+                  <td class="py-2 px-4 text-gray-600 tabular-nums">{cycle8[i].year}</td>
+                  <td class="py-2 px-4 font-black text-gray-900 border-l border-gray-100">{cycle8[i + 12].mark}</td>
+                  <td class="py-2 px-4 text-gray-600 tabular-nums">{cycle8[i + 12].year}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rounded-2xl border border-gold-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse text-sm">
+            <caption class="bg-gold-50 border-b border-gold-200 py-3 px-4 text-left font-bold text-gray-900">Vuosileimat 2002–{currentMark.year}</caption>
+            <thead class="sr-only">
+              <tr><th>Leima</th><th>Vuosi</th><th>Leima</th><th>Vuosi</th></tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {Array.from({ length: 12 }, (_, i) => (
+                <tr class="hover:bg-gold-50/50 transition-colors">
+                  <td class="py-2 px-4 font-black text-gray-900">{cycle9[i].mark}</td>
+                  <td class="py-2 px-4 text-gray-600 tabular-nums">{cycle9[i].year}</td>
+                  <td class="py-2 px-4 font-black text-gray-900 border-l border-gray-100">{cycle9[i + 12].mark}</td>
+                  <td class="py-2 px-4 text-gray-600 tabular-nums">{cycle9[i + 12].year}</td>
+                </tr>
+              ))}
+              <tr class="bg-gold-50/60">
+                <td class="py-2 px-4 font-black text-gold-700">{currentMark.mark}</td>
+                <td class="py-2 px-4 text-gray-700 font-bold tabular-nums">{currentMark.year}</td>
+                <td class="py-2 px-4 border-l border-gray-100" colspan="2"><span class="text-xs text-gray-500">kuluva vuosi</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Vanhemmat vuosileimat — perintökorujen ajoitus. Details-elementti pitää
+          sivun kompaktina, mutta sisältö on silti hakukoneiden luettavissa. */}
+      <details class="mb-8 group/vanhat rounded-2xl border border-gray-200 bg-gray-50 overflow-hidden">
+        <summary class="flex items-center justify-between gap-4 px-6 py-4 cursor-pointer select-none list-none font-bold text-gray-900 hover:bg-gray-100 transition-colors">
+          <span>Näytä vanhemmat vuosileimat 1906–1977 — ajoita perintökorut</span>
+          <span class="transition-transform duration-200 group-open/vanhat:rotate-180 text-gray-400 shrink-0">▼</span>
+        </summary>
+        <div class="px-6 pb-6">
+          <p class="text-sm text-gray-600 leading-relaxed mb-6">
+            Suurin osa suomalaisista perintökoruista on valmistettu 1900-luvulla. Alla olevista
+            taulukoista löydät isovanhempienkin korujen valmistusvuodet.
+          </p>
+          <div class="grid md:grid-cols-3 gap-6">
+            {olderCycles.map(c => (
+              <div class="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <table class="w-full text-left border-collapse text-sm">
+                  <caption class="bg-white border-b border-gray-200 py-2.5 px-4 text-left font-bold text-gray-900 text-sm">{c.title}</caption>
+                  <thead class="sr-only">
+                    <tr><th>Leima</th><th>Vuosi</th><th>Leima</th><th>Vuosi</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <tr>
+                        <td class="py-1.5 px-3 font-black text-gray-900">{c.rows[i].mark}</td>
+                        <td class="py-1.5 px-3 text-gray-600 tabular-nums">{c.rows[i].year}</td>
+                        <td class="py-1.5 px-3 font-black text-gray-900 border-l border-gray-100">{c.rows[i + 12].mark}</td>
+                        <td class="py-1.5 px-3 text-gray-600 tabular-nums">{c.rows[i + 12].year}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        </div>
+      </details>
+
+      <p class="text-sm text-gray-500 leading-relaxed mb-16 p-4 bg-gray-50 rounded-xl border border-gray-100">
+        Vuosileima on vapaaehtoinen merkintä, joten sen puuttuminen ei kerro esineen aitoudesta
+        mitään. Nimileimojen haltijat voi tarkistaa Tukesin julkisesta nimileimarekisteristä.
+      </p>
+
       <hr class="border-gray-100 mb-16" />
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Ulkomaiset kullan leimat ja karaatit</h2>
+      <h2 id="ulkomaiset-leimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Ulkomaiset kullan leimat ja karaatit</h2>
 <p class="text-lg text-gray-600 leading-relaxed mb-10">
   Suomessa kullan pitoisuus ilmoitetaan tavallisesti promillelukuna, kuten 585 tai 750. Monissa muissa maissa käytetään sen sijaan karaattimerkintöjä, kuten 14K, 18K ja 24K. Ulkomaisen leiman puuttuminen tai erilainen merkintätapa ei siis automaattisesti tarkoita, että esine olisi väärennös.
 </p>
 
-<div class="overflow-x-auto mb-20 rounded-2xl border border-gray-200 shadow-sm">
-  <table class="w-full text-left border-collapse min-w-[500px]">
+{/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+<div class="md:hidden space-y-3 mb-20">
+  {foreignMarks.map(row => (
+    <div class={`flex items-center gap-4 p-4 rounded-2xl border ${row.highlight ? 'border-gold-200 bg-gold-50/40' : 'border-gray-200 bg-white'} shadow-sm`}>
+      <div class={`w-14 h-14 rounded-full flex flex-col items-center justify-center shrink-0 border ${row.highlight ? 'bg-white border-gold-200 text-gold-700' : 'bg-gray-50 border-gray-200 text-gray-900'}`}>
+        <span class="font-black text-sm leading-none">{row.mark}</span>
+        <span class="text-[10px] text-gray-500 leading-none mt-0.5">{row.karat}</span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-bold text-gray-900">{row.pct} % kultaa</p>
+        <p class="text-xs text-gray-500 leading-snug mt-0.5">{row.use}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+{/* DESKTOP: taulukko */}
+<div class="hidden md:block mb-20 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+  <table class="w-full text-left border-collapse">
     <caption class="sr-only">Kansainväliset kultaleimat, karaatit ja niiden kultapitoisuus</caption>
     <thead>
       <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
@@ -251,70 +443,41 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
       </tr>
     </thead>
     <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">999</td>
-        <td class="py-4 px-6 font-bold text-gray-500">24K</td>
-        <td class="py-4 px-6">99,9 %</td>
-        <td class="py-4 px-6">Sijoituskulta, standardiharkot, keräilykolikot</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">965</td>
-        <td class="py-4 px-6 font-bold text-gray-500">23K</td>
-        <td class="py-4 px-6">96,5 %</td>
-        <td class="py-4 px-6">Thaimaan kansallinen kultastandardi (Thai gold)</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">916</td>
-        <td class="py-4 px-6 font-bold text-gray-500">22K</td>
-        <td class="py-4 px-6">91,6 %</td>
-        <td class="py-4 px-6">Intian ja Lähi-idän hääkorut (esim. Dubai), sijoituskolikot</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">875</td>
-        <td class="py-4 px-6 font-bold text-gray-500">21K</td>
-        <td class="py-4 px-6">87,5 %</td>
-        <td class="py-4 px-6">Erittäin suosittu Lähi-idässä ja Pohjois-Afrikassa (esim. Saudi-Arabia, Egypti)</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">750</td>
-        <td class="py-4 px-6 font-bold text-gray-500">18K</td>
-        <td class="py-4 px-6">75,0 %</td>
-        <td class="py-4 px-6">Arvokorut, luksuskellot, arvostetut vihkisormukset</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">585</td>
-        <td class="py-4 px-6 font-bold text-gray-500">14K</td>
-        <td class="py-4 px-6">58,5 %</td>
-        <td class="py-4 px-6">Suomalaiset standardikorut, kestävät käyttöesineet</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">417</td>
-        <td class="py-4 px-6 font-bold text-gray-500">10K</td>
-        <td class="py-4 px-6">41,7 %</td>
-        <td class="py-4 px-6">Pohjois-Amerikan (USA, Kanada) alin kultastandardi, edulliset korut</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">375</td>
-        <td class="py-4 px-6 font-bold text-gray-500">9K</td>
-        <td class="py-4 px-6">37,5 %</td>
-        <td class="py-4 px-6">Yleinen Iso-Britanniassa, edulliset käyttökorut</td>
-      </tr>
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="py-4 px-6 font-black text-gray-900 text-lg">333</td>
-        <td class="py-4 px-6 font-bold text-gray-500">8K</td>
-        <td class="py-4 px-6">33,3 %</td>
-        <td class="py-4 px-6">Edulliset korut, yleinen Saksassa ja Keski-Euroopassa</td>
-      </tr>
+      {foreignMarks.map(row => (
+        <tr class={`transition-colors ${row.highlight ? 'bg-gold-50/40 hover:bg-gold-50/70' : 'hover:bg-gray-50'}`}>
+          <td class="py-4 px-6 font-black text-gray-900 text-lg">{row.mark}</td>
+          <td class="py-4 px-6 font-bold text-gray-500">{row.karat}</td>
+          <td class="py-4 px-6">{row.pct} %</td>
+          <td class="py-4 px-6">{row.use}</td>
+        </tr>
+      ))}
     </tbody>
   </table>
 </div>
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Miten tunnistan aidon kultaleiman kotona?</h2>
+      <h2 id="tunnista-kotona" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Miten tunnistan aidon kultaleiman kotona?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-8">
-        Aito kultaleima kannattaa erottaa merkinnöistä, jotka viittaavat vain ohueen kultapinnoitteeseen muun metallin päällä. Näin vältät yleisimmät virhetulkinnat:
+        Käy esine läpi järjestyksessä: etsi ensin leima oikeista paikoista, tulkitse merkintä
+        ja varmista lopuksi kotikonsteilla, ettei kyseessä ole kullattu esine.
       </p>
 
-      <div class="grid grid-cols-1 gap-4 mb-20">
+      <div class="grid grid-cols-1 gap-4 mb-8">
+        <div class="flex items-start gap-5 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+          <div class="w-10 h-10 rounded-full bg-white text-gold-700 flex items-center justify-center shrink-0 font-black text-lg border border-gold-200">1</div>
+          <div>
+            <strong class="text-gray-900 block mb-2 text-lg">Etsi leima oikeasta paikasta</strong>
+            <span class="text-gray-600 text-base leading-relaxed">Leimat ovat pieniä ja piilossa: tarkista sormuksen sisäpinta, ketjun ja rannekorun lukko tai lukon viereinen lenkki, riipuksen ripustuslenkki ja korvakorun tappi. Kellon kuoressa leima on yleensä takakannen sisäpuolella.</span>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-5 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+          <div class="w-10 h-10 rounded-full bg-white text-gold-700 flex items-center justify-center shrink-0 font-black text-lg border border-gold-200">2</div>
+          <div>
+            <strong class="text-gray-900 block mb-2 text-lg">Käytä puhelimen kameraa suurennuslasina</strong>
+            <span class="text-gray-600 text-base leading-relaxed">Ota leimasta kuva hyvässä valossa ja zoomaa valmista kuvaa näytöllä — pienetkin numerot erottuvat usein yllättävän tarkasti. Etsi pitoisuuslukua (585, 750) sekä mahdollista nimi- ja <a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">vuosileimaa</a>.</span>
+          </div>
+        </div>
+
         <div class="flex items-start gap-5 p-6 bg-red-50 rounded-2xl border border-red-100">
           <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 font-black text-xl">!</div>
           <div>
@@ -322,15 +485,37 @@ const faqItems = schemaData["@graph"][2]?.mainEntity ?? [];
             <span class="text-red-800 text-base leading-relaxed">Nämä lyhenteet (esim. Gold Plated) kertovat, että kyseessä on vain ohuella kultakerroksella pinnoitettu esine, ei aito kultakoru. Tällaisilla esineillä ei valitettavasti ole markkinoilla varsinaista romukullan arvoa.</span>
           </div>
         </div>
-        
+
         <div class="flex items-start gap-5 p-6 bg-gray-50 rounded-2xl border border-gray-200">
-          <div class="w-10 h-10 rounded-full bg-white text-gray-600 flex items-center justify-center shrink-0 font-black text-xl border border-gray-200">?</div>
+          <div class="w-10 h-10 rounded-full bg-white text-gold-700 flex items-center justify-center shrink-0 font-black text-lg border border-gold-200">3</div>
           <div>
             <strong class="text-gray-900 block mb-2 text-lg">Tee magneettitesti</strong>
-            <span class="text-gray-600 text-base leading-relaxed">Aito kulta ei itsessään ole magneettista. Jos koru tarttuu selvästi voimakkaaseen magneettiin, kyseessä on usein muu metalli tai kullattu esine.</span>
+            <span class="text-gray-600 text-base leading-relaxed">Aito kulta ei itsessään ole magneettista. Jos koru tarttuu selvästi voimakkaaseen magneettiin, kyseessä on usein muu metalli tai kullattu esine. Huomaa kuitenkin, että lukkojen jouset voivat olla terästä — testaa korun runkoa, älä lukkoa.</span>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-5 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+          <div class="w-10 h-10 rounded-full bg-white text-gold-700 flex items-center justify-center shrink-0 font-black text-lg border border-gold-200">4</div>
+          <div>
+            <strong class="text-gray-900 block mb-2 text-lg">Tarkista kulumat ja väri</strong>
+            <span class="text-gray-600 text-base leading-relaxed">Aito kulta on samanväristä myös pinnan alta. Tutki eniten kuluvat kohdat — sormuksen alapinta, ketjun lenkit, reunat. Jos naarmuista kuultaa läpi harmaata, hopeanväristä tai punertavaa metallia, esine on todennäköisesti vain kullattu.</span>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-5 p-6 bg-gold-50/40 rounded-2xl border border-gold-200">
+          <div class="w-10 h-10 rounded-full bg-white text-gold-700 flex items-center justify-center shrink-0 font-black text-lg border border-gold-200">5</div>
+          <div>
+            <strong class="text-gray-900 block mb-2 text-lg">Epävarma? Anna ammattilaisen mitata</strong>
+            <span class="text-gray-600 text-base leading-relaxed">Jos leimaa ei löydy tai tulkinta jää epävarmaksi, jalometalliliike tai kullanostaja voi määrittää pitoisuuden XRF-mittauksella esinettä vahingoittamatta. Arvio on yleensä ilmainen eikä velvoita myymään. Vältä kotikonsteista happotestejä — ne voivat vaurioittaa korua.</span>
           </div>
         </div>
       </div>
+
+      <p class="text-gray-600 leading-relaxed mb-20">
+        Kun leima ja paino ovat selvillä, näet korun arvon heti
+        <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">laskurista</a> —
+        ja jos vaakaa ei ole, voit <a href="/#vaaka" class="text-gold-600 font-bold hover:underline">arvioida painon korutyypin perusteella</a>.
+      </p>
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kultaleimoista</h2>
       <div id="ukk" class="grid grid-cols-1 gap-4 mb-16">

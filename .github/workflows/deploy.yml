@@ -5,7 +5,12 @@ on:
     branches: [main]
   
   schedule:
-    - cron: '0 * * * *'  # ← VAIHDA: Joka tunti tasalta
+    # Joka tunti arkisin (ma–pe). Viikonloppuna kultapörssi on kiinni
+    # (pe ~24:00 UTC – su ~22:00 UTC), joten hinta ei liiku eikä buildia
+    # tarvita — säästää ~192 API-kutsua/kk. Push mainiin deployaa aina.
+    # Minuutti 17 eikä 0: GitHubin ajastin ruuhkautuu tasatunneilla ja
+    # jättää ajoja väliin — epätyypillinen minuutti parantaa toteutumaa.
+    - cron: '17 * * * 1-5'
   
   workflow_dispatch:
 

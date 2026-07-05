@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Scale, Calculator, Info, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Scale, Calculator, Info, AlertTriangle, Printer, BookOpen, Stamp, Camera, ArrowRight } from 'lucide-react';
 import { calculateGoldValue, formatEur, GOLD_PURITIES, type PurityCode, type CalculationResult } from '../../lib/calculations/goldCalculator';
 
 interface Props {
@@ -11,17 +11,73 @@ const track = (event: string, data?: Record<string, string | number>) => {
   try { (window as any).umami?.track(event, data); } catch {}
 };
 
+interface SavedCalculation {
+  weight: string;
+  purity: PurityCode;
+  value: number;
+  date: string;
+}
+
+interface ListItem {
+  weight: number;
+  purity: PurityCode;
+  value: number;
+}
+
+const STORAGE_KEY = 'kl-viimeisin';
+
 export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
   const [weight, setWeight] = useState<string>('');
   const [purity, setPurity] = useState<PurityCode>('14K');
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [copied, setCopied] = useState(false);
-  const [hasTrackedResult, setHasTrackedResult] = useState(false);
+  const [items, setItems] = useState<ListItem[]>([]);
+  const [lastVisit, setLastVisit] = useState<SavedCalculation | null>(null);
+  // Päivämäärä lasketaan vasta clientissä (useState-initializer) — ei hydration mismatchia
+  const [today] = useState(() => new Date().toLocaleDateString('fi-FI'));
+  const resultPanelRef = useRef<HTMLDivElement>(null);
+  const prevResultWasNull = useRef(true);
+  const hasTracked = useRef(false);
+
+  // Mount: lue jaettu laskelma URL-parametreista (?paino=4&karaatti=14K),
+  // muuten tarjoa viime käynnin laskelmaa localStoragesta.
+  // Kuuntele myös painoarvio-komponentin lähettämää tapahtumaa.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const w = params.get('paino');
+    const k = params.get('karaatti') as PurityCode | null;
+    if (k && GOLD_PURITIES[k]) setPurity(k);
+    if (w && /^[0-9]+([.,][0-9]+)?$/.test(w)) {
+      setWeight(w.replace('.', ','));
+    } else {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed: SavedCalculation = JSON.parse(saved);
+          if (parsed?.weight && GOLD_PURITIES[parsed.purity]) setLastVisit(parsed);
+        }
+      } catch {}
+    }
+
+    const onUseWeight = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      if (typeof detail.weight === 'number' && detail.weight > 0) {
+        setWeight(String(detail.weight).replace('.', ','));
+      }
+      if (detail.purity && GOLD_PURITIES[detail.purity as PurityCode]) {
+        setPurity(detail.purity);
+      }
+    };
+    window.addEventListener('kl:use-weight', onUseWeight);
+    return () => window.removeEventListener('kl:use-weight', onUseWeight);
+  }, []);
 
   useEffect(() => {
     if (!weight) {
       setResult(null);
-      setHasTrackedResult(false);
+      hasTracked.current = false;
+      prevResultWasNull.current = true;
       return;
     }
     const cleanWeight = weight.replace(',', '.').replace(/[^0-9.]/g, '');
@@ -30,29 +86,76 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
     if (!isNaN(numWeight) && numWeight > 0) {
       const res = calculateGoldValue(numWeight, purity, spotPriceEurPerGram);
       setResult(res);
-      if (res && !hasTrackedResult) {
-        track('laskuri-tulos', { purity, weight: numWeight });
-        setHasTrackedResult(true);
+      if (res) {
+        if (!hasTracked.current) {
+          track('laskuri-tulos', { purity, weight: numWeight });
+          hasTracked.current = true;
+        }
+        // Muista laskelma paluukäyntiä varten
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            weight, purity, value: res.targetValue,
+            date: new Date().toLocaleDateString('fi-FI'),
+          } satisfies SavedCalculation));
+        } catch {}
+      }
+      // Auto-scroll mobiilissa kun tulos ilmestyy ensimmäistä kertaa
+      if (res && prevResultWasNull.current && window.innerWidth < 1024) {
+        prevResultWasNull.current = false;
+        setTimeout(() => {
+          resultPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
       }
     } else {
       setResult(null);
+      prevResultWasNull.current = true;
     }
   }, [weight, purity, spotPriceEurPerGram]);
+
+  // Usean esineen summalaskuri
+  const itemsTotal = items.reduce((sum, item) => sum + item.value, 0);
+  const grandTotal = itemsTotal + (result?.targetValue ?? 0);
+
+  const addItemToList = () => {
+    if (!result) return;
+    setItems(prev => [...prev, { weight: result.weightGrams, purity, value: result.targetValue }]);
+    setWeight('');
+    track('laskuri-lisaa-listaan', { purity });
+    document.getElementById('gold-weight')?.focus();
+  };
+
+  const removeItem = (index: number) => {
+    setItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Jaettava linkki sisältää laskelman — vastaanottaja näkee saman tuloksen heti
+  const shareUrl = result
+    ? `https://kultalaskuri.fi/?paino=${encodeURIComponent(weight.replace(',', '.'))}&karaatti=${purity}`
+    : 'https://kultalaskuri.fi';
 
   // Asiallinen ja luottamusta herättävä WhatsApp-viesti
   const handleWhatsAppShare = () => {
     if (!result) return;
-    
-    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nTarkista kullan ajantasainen hinta: https://kultalaskuri.fi`;
-    
+
+    const totalLine = items.length > 0
+      ? `\nKaikki esineet yhteensä (${items.length + 1} kpl): vähintään ${formatEur(grandTotal)}\n`
+      : '';
+    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n${totalLine}\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nKatso sama laskelma: ${shareUrl}`;
+
     track('laskuri-whatsapp', { purity, value: result.targetValue });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // Kopioi linkki -toiminto
+  // Tulosta arvio -toiminto
+  const handlePrint = () => {
+    track('laskuri-tulosta', { purity, value: result?.targetValue ?? 0 });
+    window.print();
+  };
+
+  // Kopioi linkki -toiminto — linkki sisältää nykyisen laskelman
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText('https://kultalaskuri.fi');
+      await navigator.clipboard.writeText(shareUrl);
       track('laskuri-kopioi-linkki');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Palauttaa tekstin 2 sekunnin kuluttua
@@ -82,25 +185,31 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
           <div className="relative group">
             <input
               id="gold-weight"
-              type="number"
+              type="text"
               inputMode="decimal"
+              autoComplete="off"
               aria-label="Kullan paino grammoina"
               value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder="0.00"
+              onChange={(e) => {
+                // Salli vain numerot ja yksi desimaalierotin (pilkku tai piste).
+                // type="number" hylkäisi suomalaisen pilkun kokonaan.
+                const v = e.target.value;
+                if (/^[0-9]*[.,]?[0-9]*$/.test(v)) setWeight(v);
+              }}
+              placeholder="0,00"
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-gray-900 font-bold text-2xl placeholder-gray-300 outline-none transition-all duration-300 focus:border-gold-400 focus:ring-4 focus:ring-gold-400/10"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold group-focus-within:text-gold-500 transition-colors">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold group-focus-within:text-gold-500 transition-colors pointer-events-none select-none">
               g
             </span>
           </div>
         </div>
 
         {/* Pitoisuus */}
-        <div>
-          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+        <fieldset>
+          <legend className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
             Pitoisuus
-          </label>
+          </legend>
 
           {/* Päänapit: yleisimmät Suomessa */}
           <div className="grid grid-cols-2 gap-2 mb-2">
@@ -111,6 +220,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                 <button
                   key={code}
                   type="button"
+                  aria-pressed={isActive}
                   onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
                     relative flex flex-col items-start justify-center px-4 py-3 w-full rounded-xl border transition-all duration-200
@@ -121,12 +231,12 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   `}
                 >
                   {isCommon && (
-                    <span className="absolute top-2 right-2 text-[9px] font-bold text-gold-500 uppercase tracking-wide">yleisin</span>
+                    <span className="absolute top-2 right-2 text-[9px] font-bold text-gold-600 uppercase tracking-wide">yleisin</span>
                   )}
                   <span className={`text-lg font-black ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
                     {code}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {GOLD_PURITIES[code].label.split(' ')[1]}
                   </span>
                 </button>
@@ -142,6 +252,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                 <button
                   key={code}
                   type="button"
+                  aria-pressed={isActive}
                   onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
                     flex flex-col items-center justify-center py-2 w-full rounded-lg border text-xs transition-all duration-200
@@ -152,7 +263,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   `}
                 >
                   <span className={`font-bold ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{code}</span>
-                  <span className="text-[10px] text-gray-400">{GOLD_PURITIES[code].label.split(' ')[1]}</span>
+                  <span className="text-[11px] text-gray-500">{GOLD_PURITIES[code].label.split(' ')[1]}</span>
                 </button>
               );
             })}
@@ -162,11 +273,47 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
             <Info size={18} className="text-gold-500 shrink-0" />
             <p className="text-xs leading-relaxed">{GOLD_PURITIES[purity].description}</p>
           </div>
-        </div>
+        </fieldset>
       </div>
 
       {/* --- OIKEA PUOLI: TULOS --- */}
-      <div className="lg:col-span-7 p-6 md:p-10 bg-white relative min-h-[300px] lg:min-h-auto flex flex-col">
+      <div ref={resultPanelRef} className="lg:col-span-7 p-6 md:p-10 bg-white relative min-h-[300px] lg:min-h-auto flex flex-col">
+
+        {/* ESINELISTA — usean esineen summa */}
+        {items.length > 0 && (
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-100 rounded-2xl">
+            <h4 className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.15em] mb-3">
+              Esineesi ({items.length} kpl)
+            </h4>
+            <ul className="space-y-1.5 mb-3">
+              {items.map((item, i) => (
+                <li key={i} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="text-gray-600">
+                    {String(item.weight).replace('.', ',')} g · {item.purity}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="font-bold text-gray-900 tabular-nums">{formatEur(item.value)}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(i)}
+                      aria-label={`Poista esine ${String(item.weight).replace('.', ',')} g ${item.purity}`}
+                      className="w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors no-print"
+                    >
+                      ×
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+              <span className="text-sm font-bold text-gray-700">
+                Yhteensä{result ? ' (sis. nykyinen)' : ''}
+              </span>
+              <span className="text-lg font-black text-gray-900 tabular-nums">{formatEur(grandTotal)}</span>
+            </div>
+          </div>
+        )}
+
         {result ? (
           <div className="h-full flex flex-col justify-center animate-in fade-in duration-300">
             
@@ -199,7 +346,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
 
             {/* LISÄTIEDOT & NAPIT YHDESSÄ GRIDISSÄ */}
             <div className="mt-auto pt-6 border-t border-gray-100">
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
                     <p className="text-xs text-gray-500 uppercase font-bold mb-1">Puhdas kulta</p>
                     <p className="text-base md:text-lg font-bold text-gray-900 font-mono tabular-nums">{result.pureGoldContent.toFixed(2)}g</p>
@@ -210,9 +357,40 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                 </div>
               </div>
 
+              {/* Selittävä mikroteksti — asettaa odotukset oikein */}
+              <p className="text-xs text-gray-500 leading-relaxed mb-3 -mt-1">
+                Pörssiarvo on raaka-aineen markkinahinta. Liikkeiden ostohinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-600">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
+              </p>
+
+              {/* LÄPINÄKYVYYS: kaava auki — puolueettomuus on palvelun kilpailuetu */}
+              <details className="mb-4 no-print group/kaava">
+                <summary className="text-xs font-bold text-gray-500 cursor-pointer hover:text-gray-700 select-none list-none inline-flex items-center gap-1">
+                  <span className="transition-transform duration-200 group-open/kaava:rotate-90">›</span>
+                  Näin arvio lasketaan
+                </summary>
+                <p className="text-xs text-gray-500 leading-relaxed mt-2 pl-3 border-l-2 border-gold-200">
+                  {String(result.weightGrams).replace('.', ',')} g × {(result.purityDecimal * 100).toFixed(1).replace('.', ',')} % kultaa
+                  × {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g (pörssikurssi)
+                  = pörssiarvo {formatEur(result.spotValue)}.
+                  Arvioitu myyntihinta = pörssiarvo × {Math.round(GOLD_PURITIES[purity].targetPercent * 100)} %
+                  = <strong className="text-gray-700">{formatEur(result.targetValue)}</strong>.
+                  Kultalaskuri.fi ei itse osta kultaa — arvio perustuu suoraan markkinahintaan.
+                </p>
+              </details>
+
+              {/* LISÄÄ LISTAAN — usean esineen summa */}
+              <button
+                type="button"
+                onClick={addItemToList}
+                className="w-full mb-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-gold-400 hover:bg-gold-50/50 text-gray-600 hover:text-gray-900 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors no-print"
+              >
+                <span className="text-gold-600 font-black" aria-hidden="true">＋</span>
+                Lisää listaan ja laske seuraava esine
+              </button>
+
               {/* TOIMINTONAPIT: WhatsApp & Kopioi linkki */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button 
+              <div className="flex flex-col sm:flex-row gap-3 no-print">
+                <button
                   onClick={handleWhatsAppShare}
                   className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebd5a] text-white px-4 py-3 rounded-xl font-bold transition-colors shadow-sm"
                   aria-label="Jaa tulos WhatsAppissa"
@@ -244,34 +422,219 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   )}
                 </button>
               </div>
+
+              {/* MITÄ SEURAAVAKSI? -OHJEKORTTI */}
+              <div className="mt-6 p-5 bg-gradient-to-br from-gold-50/50 to-amber-50/20 border border-gold-100 rounded-2xl no-print">
+                <h4 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
+                  <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
+                  Mitä seuraavaksi?
+                </h4>
+                <ol className="space-y-2.5">
+                  {/* KOHTA 1 — DESKTOP: Tulosta-nappi, MOBIILI: Kuva-ohje */}
+                  <li className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg">
+                    <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">1</span>
+                    <div className="flex-1 min-w-0 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {/* Desktop: tulostin-ikoni */}
+                        <Printer size={15} className="hidden md:inline-block text-gray-400 shrink-0" />
+                        {/* Mobiili: kamera-ikoni */}
+                        <Camera size={15} className="md:hidden text-gray-400 shrink-0" />
+                        <span className="text-sm text-gray-700 leading-snug">
+                          <strong className="font-bold text-gray-900 hidden md:inline">Tulosta arvio</strong>
+                          <strong className="font-bold text-gray-900 md:hidden">Ota kuva näytöstä</strong>
+                          <span> mukaan liikkeeseen</span>
+                        </span>
+                      </div>
+                      {/* Tulosta-nappi vain desktopissa */}
+                      <button
+                        onClick={handlePrint}
+                        className="hidden md:inline-flex text-xs font-bold text-gold-700 bg-white border border-gold-200 hover:border-gold-400 hover:bg-gold-50 px-3 py-1.5 rounded-lg transition-colors shadow-sm whitespace-nowrap items-center gap-1"
+                        aria-label="Tulosta hinta-arvio"
+                      >
+                        Tulosta <ArrowRight size={13} />
+                      </button>
+                    </div>
+                  </li>
+
+                  {/* KOHTA 2 — Linkki /kullan-myynti/ */}
+                  <li>
+                    <a
+                      href="/kullan-myynti/"
+                      onClick={() => track('seuraavaksi-myyntivinkit')}
+                      className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
+                    >
+                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">2</span>
+                      <div className="flex-1 flex items-center gap-2 pt-0.5">
+                        <BookOpen size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-500 transition-colors" />
+                        <span className="text-sm text-gray-700 leading-snug">
+                          <strong className="font-bold text-gray-900">Lue myyntivinkit</strong> reilumman tarjouksen saamiseksi
+                        </span>
+                        <ArrowRight size={14} className="ml-auto text-gold-500 shrink-0 group-hover/step:translate-x-1 transition-transform" />
+                      </div>
+                    </a>
+                  </li>
+
+                  {/* KOHTA 3 — Linkki /kullan-leimat/ */}
+                  <li>
+                    <a
+                      href="/kullan-leimat/"
+                      onClick={() => track('seuraavaksi-leimat')}
+                      className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
+                    >
+                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">3</span>
+                      <div className="flex-1 flex items-center gap-2 pt-0.5">
+                        <Stamp size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-500 transition-colors" />
+                        <span className="text-sm text-gray-700 leading-snug">
+                          <strong className="font-bold text-gray-900">Tarkista korun aitous</strong> — leimat 585, 750
+                        </span>
+                        <ArrowRight size={14} className="ml-auto text-gold-500 shrink-0 group-hover/step:translate-x-1 transition-transform" />
+                      </div>
+                    </a>
+                  </li>
+                </ol>
+              </div>
+
+              {/* PRINT-ONLY ALATUNNISTE — näkyy vain tulostaessa */}
+              <div className="print-only mt-6 pt-4 border-t border-gray-300 text-[11px] text-gray-600 leading-relaxed">
+                <p className="mb-2">
+                  <strong>Laskelma:</strong> {String(result.weightGrams).replace('.', ',')} g
+                  × {(result.purityDecimal * 100).toFixed(1).replace('.', ',')} % kultaa
+                  × {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g
+                  = pörssiarvo {formatEur(result.spotValue)} · tavoitehinta {Math.round(GOLD_PURITIES[purity].targetPercent * 100)} % pörssiarvosta
+                  = <strong>{formatEur(result.targetValue)}</strong>
+                  {items.length > 0 && <> · Kaikki esineet yhteensä ({items.length + 1} kpl): <strong>{formatEur(grandTotal)}</strong></>}
+                </p>
+                <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
+                  <span><strong>Päivämäärä:</strong> {today}</span>
+                  <span><strong>Pörssikurssi:</strong> {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g (24K)</span>
+                  <span><strong>Lähde:</strong> kultalaskuri.fi</span>
+                </div>
+                <p className="mt-2 text-gray-500">
+                  Suuntaa-antava arvio. Lopullinen ostohinta riippuu kullanostajan käytännöistä, esineen kunnosta ja päivän pörssikurssista.
+                </p>
+              </div>
             </div>
 
           </div>
         ) : (
-          /* EMPTY STATE */
-          <div
-            className="h-full flex flex-col items-center justify-center text-center py-8 cursor-pointer group/empty hover:bg-gray-50/50 transition-colors rounded-3xl"
-            onClick={() => document.getElementById('gold-weight')?.focus()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && document.getElementById('gold-weight')?.focus()}
-          >
-            <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4 md:mb-6 border border-gray-100 group-hover/empty:border-gold-200 transition-colors">
-               <Calculator className="text-gray-300 w-8 h-8 md:w-12 md:h-12 group-hover/empty:text-gold-400 transition-colors" />
-            </div>
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Syötä paino <span className="lg:hidden">↑</span><span className="hidden lg:inline">←</span></h3>
-            <p className="text-sm md:text-base text-gray-500 max-w-xs mx-auto mb-5">
-              Valitse karaatit ja syötä paino niin näet arvon heti.
-            </p>
-            {spotPriceEurPerGram > 0 && (
-              <div className="bg-gray-50 border border-gray-100 rounded-xl px-5 py-3 text-sm text-gray-500">
-                Esim. <span className="font-bold text-gray-700">14K sormus 4 g</span>
-                {' '}≈{' '}
-                <span className="font-black text-gray-900">
-                  {(4 * spotPriceEurPerGram * 0.585 * 0.81).toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €
-                </span>
+          /* EMPTY STATE — C-hybridi (desktop = ohjeet+vaaka+esim, mobiili = vaaka+esim) */
+          <div className="h-full flex flex-col justify-center py-2 md:py-4 gap-5">
+
+            {/* PALUUKÄYNTI: viime kerran laskelma ja sen arvo tänään */}
+            {lastVisit && spotPriceEurPerGram > 0 && (() => {
+              const num = parseFloat(lastVisit.weight.replace(',', '.'));
+              const nowRes = !isNaN(num) && num > 0
+                ? calculateGoldValue(num, lastVisit.purity, spotPriceEurPerGram)
+                : null;
+              if (!nowRes) return null;
+              const diff = nowRes.targetValue - lastVisit.value;
+              const diffPct = lastVisit.value > 0 ? (diff / lastVisit.value) * 100 : 0;
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWeight(lastVisit.weight);
+                    setPurity(lastVisit.purity);
+                    track('laskuri-palaava', { purity: lastVisit.purity });
+                  }}
+                  className="text-left p-4 rounded-2xl bg-[#0B0F19] text-white hover:ring-2 hover:ring-gold-400/50 transition-all"
+                >
+                  <span className="text-[10px] text-gold-300 uppercase tracking-wider font-bold block mb-1">
+                    Viime käynnilläsi {lastVisit.date}
+                  </span>
+                  <span className="text-sm text-gray-300 block">
+                    {lastVisit.purity}, {lastVisit.weight} g → {formatEur(lastVisit.value)}
+                  </span>
+                  <span className="text-sm font-bold block mt-1">
+                    Tänään sama kulta:{' '}
+                    <span className="text-gold-400">{formatEur(nowRes.targetValue)}</span>
+                    {Math.abs(diffPct) >= 0.05 && (
+                      <span className={diff >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+                        {' '}({diff >= 0 ? '+' : '−'}{Math.abs(diffPct).toFixed(1).replace('.', ',')} %)
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })()}
+
+            {/* DESKTOP-VERSIO: Näin laskuri toimii (3 askelta) */}
+            <div className="hidden lg:block">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
+                <h3 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em]">Näin laskuri toimii</h3>
               </div>
+              <p className="text-base font-bold text-gray-900 mb-4">Kolme yksinkertaista askelta</p>
+
+              <ol className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">1</span>
+                  <div>
+                    <strong className="text-sm font-bold text-gray-900">Punnitse esineesi</strong>
+                    <p className="text-xs text-gray-500 mt-0.5">Vaaka, mielellään 0,1 g tarkkuudella</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">2</span>
+                  <div>
+                    <strong className="text-sm font-bold text-gray-900">Valitse pitoisuus</strong>
+                    <p className="text-xs text-gray-500 mt-0.5">Etsi leima — yleisin Suomessa on 585 (14K)</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">3</span>
+                  <div>
+                    <strong className="text-sm font-bold text-gray-900">Saat reilun tavoitehinnan</strong>
+                    <p className="text-xs text-gray-500 mt-0.5">Numero, jota kannattaa tavoitella liikkeessä</p>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            {/* SEKÄ MOBILE ETTÄ DESKTOP: Ei vaakaa? -kortti */}
+            <a
+              href="#vaaka"
+              onClick={() => track('empty-vaaka-click')}
+              className="group/vaaka flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-gold-50/50 to-amber-50/20 border border-gold-100 hover:border-gold-300 hover:shadow-sm transition-all"
+            >
+              <div className="w-11 h-11 rounded-full bg-white border border-gold-100 flex items-center justify-center shrink-0 shadow-sm">
+                <Scale size={20} className="text-gold-500" />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-sm font-bold text-gray-900 leading-tight">Ei vaakaa kotona?</div>
+                <div className="text-xs text-gray-500 mt-0.5">Arvioi paino tästä</div>
+              </div>
+              <ArrowRight size={18} className="text-gold-500 shrink-0 group-hover/vaaka:translate-x-1 transition-transform" />
+            </a>
+
+            {/* Esimerkki-laatikko (klikattava → täyttää arvot ja näyttää tuloksen heti) */}
+            {spotPriceEurPerGram > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setWeight('4');
+                  setPurity('14K');
+                  track('laskuri-esimerkki');
+                }}
+                className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 hover:border-gray-200 transition-all text-left w-full"
+                aria-label="Kokeile esimerkkiä — laske 14 karaatin 4 gramman sormuksen arvo"
+              >
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold block mb-1">Kokeile esimerkkiä</span>
+                <span className="text-sm">
+                  <span className="font-bold text-gray-700">14K sormus 4 g</span>
+                  {' '}≈{' '}
+                  <span className="font-black text-gray-900">
+                    {(calculateGoldValue(4, '14K', spotPriceEurPerGram)?.targetValue ?? 0).toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €
+                  </span>
+                </span>
+              </button>
             )}
+
+            {/* Mobile-only: vihje vasemmalle ylhäälle (mobiilissa "vasen" on oikeasti yläpuolella) */}
+            <p className="lg:hidden text-xs text-gray-400 text-center -mt-1">
+              <Calculator size={12} className="inline -mt-0.5 mr-1" />
+              Syötä paino ja valitse pitoisuus yltä
+            </p>
           </div>
         )}
       </div>

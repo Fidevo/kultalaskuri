@@ -1,0 +1,285 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
+import priceHistory from '../../social/data/price-history.json';
+import { getGoldPrice } from '../lib/api/metalPriceApi';
+import { calculateGoldValue } from '../lib/calculations/goldCalculator';
+
+const goldPrice = await getGoldPrice();
+const spot = goldPrice?.priceEurGram || 0;
+
+const p14k = spot > 0 ? (calculateGoldValue(1, '14K', spot)?.targetValue ?? 0) : 0;
+const p18k = spot > 0 ? (calculateGoldValue(1, '18K', spot)?.targetValue ?? 0) : 0;
+
+// ── Tilastot hintahistoriasta (build-aikana, ei client-JS:ää) ──
+const last = priceHistory[priceHistory.length - 1];
+const first = priceHistory[0];
+const allPrices = priceHistory.map(d => d.price);
+const allHigh = Math.max(...allPrices);
+const allLow = Math.min(...allPrices);
+const totalChangePct = first.price > 0 ? ((last.price - first.price) / first.price) * 100 : 0;
+
+// Kuukausikooste — staattinen HTML-taulukko on hakukoneille ja tekoälyille
+// luettavampi kuin SVG-graafi
+const MONTH_NAMES = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu',
+  'heinäkuu', 'elokuu', 'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu'];
+
+interface MonthRow {
+  key: string;
+  label: string;
+  avg: number;
+  min: number;
+  max: number;
+  lastPrice: number;
+  firstPrice: number;
+}
+
+const monthMap = new Map<string, { prices: number[]; first: number; last: number }>();
+for (const d of priceHistory) {
+  const key = d.date.slice(0, 7); // YYYY-MM
+  const entry = monthMap.get(key);
+  if (entry) {
+    entry.prices.push(d.price);
+    entry.last = d.price;
+  } else {
+    monthMap.set(key, { prices: [d.price], first: d.price, last: d.price });
+  }
+}
+
+const monthRows: MonthRow[] = [...monthMap.entries()]
+  .sort(([a], [b]) => b.localeCompare(a)) // uusin ensin
+  .map(([key, v]) => {
+    const [y, m] = key.split('-').map(Number);
+    return {
+      key,
+      label: `${MONTH_NAMES[m - 1].charAt(0).toUpperCase() + MONTH_NAMES[m - 1].slice(1)} ${y}`,
+      avg: v.prices.reduce((s, p) => s + p, 0) / v.prices.length,
+      min: Math.min(...v.prices),
+      max: Math.max(...v.prices),
+      lastPrice: v.last,
+      firstPrice: v.first,
+    };
+  });
+
+// Kuluva kuukausi merkitään keskeneräiseksi (luvut täydentyvät päivittäin)
+const currentMonthKey = new Date().toLocaleDateString('sv-SE').slice(0, 7); // YYYY-MM
+
+const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+const fmtDateFi = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d}.${m}.${y}`;
+};
+
+const dateModified = new Date().toISOString();
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Kullan hinta", "item": "https://kultalaskuri.fi/kullan-hinta/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://kultalaskuri.fi/kullan-hinta/",
+      "url": "https://kultalaskuri.fi/kullan-hinta/",
+      "name": "Kullan hinta ja hintakehitys – päivittyvä kurssi euroissa",
+      "description": `Kullan hinta tänään ${spot > 0 ? fmt(spot) + ' €/g' : ''} ja hintakehitys päivä päivältä. Seuraa kullan spot-hintaa euroissa per gramma ja katso kuukausitilastot.`,
+      "inLanguage": "fi-FI",
+      "dateModified": dateModified,
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Mikä on kullan hinta tänään euroissa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": spot > 0
+              ? `Puhtaan kullan (24K) spot-hinta on tänään noin ${fmt(spot)} €/g. Korukullasta maksettava hinta on tätä matalampi: 14K-kullan reilu vähimmäistaso on noin ${fmt(p14k)} €/g ja 18K-kullan noin ${fmt(p18k)} €/g.`
+              : 'Kullan ajantasainen hinta päivittyy tälle sivulle päivittäin. Tarkista tuorein kurssi sivun kuvaajasta.'
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miksi kullan hinta muuttuu päivittäin?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kullan spot-hinta määräytyy kansainvälisillä rahoitusmarkkinoilla kysynnän ja tarjonnan mukaan. Hintaan vaikuttavat muun muassa Yhdysvaltain dollarin kurssi, korkotaso, inflaatio-odotukset, keskuspankkien kultaostot ja geopoliittinen epävarmuus. Euromääräiseen hintaan vaikuttaa lisäksi EUR/USD-valuuttakurssi."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kannattaako kullan hinnan nousua jäädä odottamaan?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pitkällä aikavälillä — vuosikymmenten mittaan — kullan hinta on noussut selvästi. Lyhyen aikavälin liikkeitä ei kuitenkaan voi ennustaa luotettavasti: lähikuukausien hinta voi yhtä hyvin laskea kuin nousta, joten myyntiaikeissa olevalle odottelu on spekulointia. Hintakehityskuvaajasta näet, missä nykyhinta on suhteessa lähihistoriaan — historiallisesti korkea hintataso on myyjälle hyvä lähtökohta riippumatta siitä, mihin kurssi seuraavaksi liikkuu."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miksi kullanostajan maksama hinta on spot-hintaa matalampi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Spot-hinta on puhtaan kullan tukkuhinta maailmanmarkkinoilla. Kun myyt koruja, ostohinnasta vähennetään sulatus- ja jalostuskulut sekä liikkeen kate. Kultalaskuri.fi:n laskuri näyttää suoraan reilun vähimmäistason, jota kullasta kannattaa vähintään tavoitella."
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
+---
+
+<BaseLayout
+  title={`Kullan hinta tänään ${spot > 0 ? fmt(spot) + ' €/g' : ''} – hintakehitys | Kultalaskuri.fi`}
+  description="Kullan hinta tänään ja hintakehitys päivä päivältä euroissa per gramma. Päivittyvä spot-kurssi, kuukausitilastot ja 24K/18K/14K-hinnat yhdellä sivulla."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative bg-[#0B0F19] pt-28 pb-16 px-4 overflow-hidden">
+
+    {/* Blob-taustaefektit (kevyt CSS-only) */}
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
+      <div class="absolute top-20 right-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+    </div>
+
+    <div class="max-w-5xl mx-auto relative z-10">
+
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center gap-2 text-xs text-gray-500">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-400">Kullan hinta</li>
+        </ol>
+      </nav>
+
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-400/10 text-gold-400 text-[10px] font-bold uppercase tracking-widest mb-4 border border-gold-400/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse"></span>
+          Hintahistoria päivittyy päivittäin klo 18
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+          Kullan hinta ja
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600">hintakehitys</span>
+        </h1>
+        <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+          Puhtaan kullan (24K) spot-hinta on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
+          Alla näet hinnan kehityksen päivä päivältä sekä kuukausitilastot euroissa per gramma.
+        </p>
+      </div>
+
+      {/* min-h varaa tilan islandille → ei layout-hyppäystä hydraatiossa */}
+      <div class="min-h-[560px] md:min-h-[480px]">
+        <GoldPriceChart client:load data={priceHistory} />
+      </div>
+
+      <p class="text-center text-gray-400 text-xs mt-6 leading-relaxed">
+        Kullan spot-hinta euroina per gramma (24K, puhdas kulta). Lähde: MetalPrice API ·
+        {priceHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
+      </p>
+    </div>
+  </div>
+
+  <section class="bg-white py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Kullan hinta kuukausittain</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        Taulukossa on kullan spot-hinnan keskiarvo sekä korkein ja matalin noteeraus kuukausittain
+        seurantajaksolla {fmtDateFi(first.date)} – {fmtDateFi(last.date)}. Koko jakson
+        {' '}{totalChangePct >= 0 ? 'nousu' : 'lasku'} on {Math.abs(totalChangePct).toFixed(1).replace('.', ',')} %
+        (korkein {fmt(allHigh)} €/g, matalin {fmt(allLow)} €/g).
+      </p>
+      <p class="text-sm text-gray-500 leading-relaxed mb-8">
+        Huomaa: luvut ovat <strong>euroissa grammalta</strong>. Dollarimääräiset noteeraukset
+        (esim. pankkien ja välittäjien USD/unssi-kurssit) voivat kehittyä eri tahtiin,
+        koska EUR/USD-valuuttakurssin muutos vaikuttaa euromääräiseen hintaan.
+      </p>
+
+      <div class="overflow-x-auto mb-12 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[480px]">
+          <caption class="sr-only">Kullan spot-hinta kuukausittain euroissa per gramma</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-4 px-5 font-bold">Kuukausi</th>
+              <th class="py-4 px-5 font-bold text-right">Keskihinta €/g</th>
+              <th class="py-4 px-5 font-bold text-right">Korkein €/g</th>
+              <th class="py-4 px-5 font-bold text-right">Matalin €/g</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {monthRows.map(row => (
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-gray-900">
+                  {row.label}
+                  {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-400">(kesken)</span>}
+                </td>
+                <td class="py-3.5 px-5 text-right tabular-nums font-bold">{fmt(row.avg)}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.max)}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.min)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Mistä kullan hinta muodostuu?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kullan <strong>spot-hinta</strong> on puhtaan kullan tukkuhinta kansainvälisillä markkinoilla.
+        Se noteerataan Yhdysvaltain dollareissa troy-unssia (31,103 g) kohden ja muunnetaan
+        euroiksi valuuttakurssilla. Tällä sivulla hinta näytetään suoraan euroina grammalta,
+        jotta vertailu omiin koruihin on helppoa.
+      </p>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Hintaan vaikuttavat muun muassa korkotaso, inflaatio-odotukset, keskuspankkien kultaostot,
+        dollarin kurssi ja geopoliittinen epävarmuus. Siksi hinta liikkuu joka päivä — ja siksi
+        oman kullan arvo kannattaa tarkistaa juuri ennen myyntiä, ei viime kuun muistikuvasta.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-12 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+        <strong>Huomaa:</strong> korukullasta maksettava hinta on aina spot-hintaa matalampi, koska
+        ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa.
+        <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">Laskurimme</a> näyttää
+        suoraan reilun vähimmäistason, jota kannattaa tavoitella. Tänään 14K-kullan reilu taso on
+        noin <strong>{fmt(p14k)} €/g</strong> ja 18K-kullan noin <strong>{fmt(p18k)} €/g</strong>.
+      </p>
+
+      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Paljonko sinun kultasi on arvoltaan?</h2>
+        <p class="text-gray-400 mb-6 max-w-xl mx-auto">Syötä paino ja pitoisuus, niin näet reilun tavoitehinnan päivän kurssilla.</p>
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+          Laske kultasi arvo →
+        </a>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kullan hinnasta</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-12">
+        {faqItems.map((item: any) => (
+          <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
+        ))}
+      </div>
+
+      <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti – näin saat parhaan hinnan →</a>
+        <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Tunnista kullan leimat →</a>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>

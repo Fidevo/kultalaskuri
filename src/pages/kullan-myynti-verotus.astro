@@ -1,0 +1,247 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+
+const dateModified = new Date().toISOString();
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Kullan myynti", "item": "https://kultalaskuri.fi/kullan-myynti/" },
+        { "@type": "ListItem", "position": 3, "name": "Verotus", "item": "https://kultalaskuri.fi/kullan-myynti-verotus/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://kultalaskuri.fi/kullan-myynti-verotus/",
+      "url": "https://kultalaskuri.fi/kullan-myynti-verotus/",
+      "name": "Kullan myynti ja verotus – milloin kullan myynnistä maksetaan veroa?",
+      "description": "Pitääkö kullan myynnistä maksaa veroa? Selkeä opas: koti-irtaimiston 5 000 euron verovapaus, hankintameno-olettama, perintökulta ja sijoituskulta.",
+      "inLanguage": "fi-FI",
+      "dateModified": dateModified,
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Pitääkö kullan myynnistä maksaa veroa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Useimmiten ei. Omien, kotona käytettyjen kultakorujen myynti kuuluu tavanomaisen koti-irtaimiston luovutuksiin, joiden voitot ovat verovapaita 5 000 euroon asti vuodessa. Vasta tämän rajan ylittävältä osalta voitto on veronalaista pääomatuloa. Sijoituskulta (harkot ja sijoituskolikot) ei kuulu koti-irtaimistoon, joten sen myyntivoitto on lähtökohtaisesti aina veronalaista."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten kullan myyntivoitto lasketaan?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Luovutusvoitto on myyntihinta miinus hankintameno ja myynnistä aiheutuneet kulut. Jos alkuperäistä ostohintaa ei tiedetä, voi käyttää hankintameno-olettamaa: 20 % myyntihinnasta, jos omaisuus on omistettu alle 10 vuotta, ja 40 %, jos vähintään 10 vuotta."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten perintönä saadun kullan verotus toimii?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Perintönä tai lahjana saadun kullan hankintamenona käytetään perintö- tai lahjaverotuksessa vahvistettua arvoa. Jos myyntihinta on tätä arvoa korkeampi, erotus on luovutusvoittoa. Vaihtoehtoisesti voi käyttää hankintameno-olettamaa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Onko sijoituskullan myynti verollista?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kyllä. Sijoituskulta, kuten kultaharkot ja sijoituskolikot, ei ole tavanomaista koti-irtaimistoa, joten sen myyntivoitto on veronalaista pääomatuloa ensimmäisestä eurosta alkaen (pienten luovutusten 1 000 euron rajaa lukuun ottamatta). Sijoituskullan ostaminen on sen sijaan arvonlisäverotonta."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten kullan myynti ilmoitetaan verottajalle?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Veronalainen luovutusvoitto ilmoitetaan OmaVerossa tai lomakkeella 9 sen vuoden veroilmoituksella, jona kauppa tehtiin. Tavanomaisen koti-irtaimiston verovapaita myyntejä (voitot enintään 5 000 €/vuosi) ei tarvitse ilmoittaa lainkaan."
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
+---
+
+<BaseLayout
+  title="Kullan myynnin verotus – milloin maksat veroa? | Kultalaskuri.fi"
+  description="Pitääkö kullan myynnistä maksaa veroa? Selkeä opas: koti-irtaimiston 5 000 € verovapaus, hankintameno-olettama 20/40 %, perintökulta ja sijoituskulta."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative bg-[#0B0F19] pt-28 pb-20 px-4 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto relative z-10 text-center">
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li><a href="/kullan-myynti/" class="hover:text-gold-400 transition-colors">Kullan myynti</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-400">Verotus</li>
+        </ol>
+      </nav>
+
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+        Kullan myynti ja
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600">verotus</span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-400 leading-relaxed max-w-2xl mx-auto">
+        Hyvä uutinen useimmille: omien korujen myynti on tavallisesti verovapaata.
+        Tällä sivulla käydään läpi, milloin veroa maksetaan, miten voitto lasketaan
+        ja miten perintö- ja sijoituskulta eroavat tavallisista koruista.
+      </p>
+    </div>
+  </div>
+
+  <section class="bg-white py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Pääsääntö: korujen myynti on verovapaata 5 000 euroon asti</h2>
+      <div class="space-y-4 text-lg text-gray-600 leading-relaxed mb-8">
+        <p>
+          Omat, kotona käytetyt kultakorut — sormukset, ketjut, rannekorut ja vastaavat —
+          lasketaan verotuksessa <strong>tavanomaiseksi koti-irtaimistoksi</strong>. Niiden myynnistä
+          saadut <strong>voitot ovat verovapaita siltä osin kuin ne ovat yhteensä enintään
+          5 000 euroa vuodessa</strong> (tuloverolaki 48 §).
+        </p>
+        <p>
+          Käytännössä tämä tarkoittaa, että tyypillinen romukullan myynti — muutama sormus ja
+          rikkinäinen ketju — ei aiheuta veroseuraamuksia eikä sitä tarvitse edes ilmoittaa
+          veroilmoituksella.
+        </p>
+        <p class="text-base">
+          <strong>Huomaa kuitenkin rajaus:</strong> verovapaus koskee <em>tavanomaista</em>
+          koti-irtaimistoa. Erityisen arvokkaat yksittäiset esineet — esimerkiksi arvokkaat
+          taide-esineet tai sijoitusmielessä hankittu omaisuus — eivät välttämättä kuulu sen
+          piiriin. Jos myyt poikkeuksellisen arvokasta esineistöä, varmista kohtelu Verohallinnolta.
+        </p>
+      </div>
+
+      <div class="bg-gold-50/50 border border-gold-200 rounded-2xl p-6 mb-12">
+        <h3 class="font-black text-gray-900 mb-2">Lisäksi: pienten luovutusten sääntö</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Jos kaiken verovuonna myymäsi omaisuuden myyntihinnat ovat <strong>yhteensä enintään
+          1 000 euroa</strong>, luovutusvoitot ovat verovapaita omaisuuslajista riippumatta —
+          myös sijoituskullan osalta.
+        </p>
+      </div>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Miten mahdollinen voitto lasketaan?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Jos verovapaan rajan ylität, veronalainen luovutusvoitto lasketaan näin:
+      </p>
+      <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 mb-8">
+        <p class="font-mono text-sm md:text-base text-gray-800 mb-4 text-center">
+          Voitto = myyntihinta − hankintameno − myyntikulut
+        </p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Jos et tiedä alkuperäistä ostohintaa (esim. vuosikymmeniä vanha koru), voit käyttää
+          <strong>hankintameno-olettamaa</strong>:
+        </p>
+        <ul class="mt-4 space-y-2 text-gray-600 text-sm">
+          <li class="flex items-start gap-3">
+            <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+            <span><strong>20 % myyntihinnasta</strong>, jos olet omistanut esineen alle 10 vuotta</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+            <span><strong>40 % myyntihinnasta</strong>, jos olet omistanut esineen vähintään 10 vuotta</span>
+          </li>
+        </ul>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-12">
+        Veronalainen voitto on pääomatuloa, jonka veroprosentti on 30 % (ja 34 % siltä osin kuin
+        pääomatulot ylittävät 30 000 euroa vuodessa).
+      </p>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Perintökulta ja lahjaksi saatu kulta</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-12">
+        Perintönä tai lahjana saadun kullan hankintamenona käytetään
+        <strong>perintö- tai lahjaverotuksessa vahvistettua arvoa</strong>. Jos myyt korut tätä
+        arvoa korkeammalla hinnalla, erotus on luovutusvoittoa — mutta muista, että kotikäytössä
+        olleet perintökorut kuuluvat nekin koti-irtaimiston 5 000 euron verovapauden piiriin.
+        Ennen myyntiä kannattaa myös tarkistaa, onko kyseessä design-koru, jonka arvo ehjänä
+        ylittää romukulta-arvon — <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">lue lisää kullan myynnin oppaasta</a>.
+      </p>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Sijoituskulta on eri asia</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-12">
+        Kultaharkot ja sijoituskolikot <strong>eivät ole tavanomaista koti-irtaimistoa</strong>,
+        joten niiden myyntivoitto on veronalaista pääomatuloa ensimmäisestä eurosta alkaen
+        (pienten luovutusten 1 000 euron sääntöä lukuun ottamatta). Sijoituskullan
+        <em>ostaminen</em> on sen sijaan EU:ssa arvonlisäverotonta. Voiton laskennassa voi
+        käyttää hankintameno-olettamaa samoin kuin muussakin omaisuudessa.
+      </p>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Ilmoittaminen verottajalle</h2>
+      <ul class="space-y-3 text-gray-600 mb-12">
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 mt-0.5 text-sm">✓</span>
+          <span><strong>Verovapaat koti-irtaimiston myynnit</strong> (voitot enintään 5 000 €/v): ei ilmoitusvelvollisuutta.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-gold-100 text-gold-700 flex items-center justify-center shrink-0 mt-0.5 text-sm">!</span>
+          <span><strong>Veronalaiset voitot</strong>: ilmoita OmaVerossa tai lomakkeella 9 sen vuoden veroilmoituksella, jona kauppa tehtiin. Säilytä ostokuitit ja myyntitositteet.</span>
+        </li>
+      </ul>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kullan myynnin verotuksesta</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-12">
+        {faqItems.map((item: any) => (
+          <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
+        ))}
+      </div>
+
+      <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-12">
+        <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Lähteet</h2>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li>
+            <a href="https://www.vero.fi/henkiloasiakkaat/omaisuus/asunnon-myynti/kotiirtaimiston-myynti/" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Vero.fi: Koti-irtaimiston myynti</a>
+          </li>
+          <li>
+            <a href="https://www.vero.fi/syventavat-vero-ohjeet/ohje-hakusivu/48935/omaisuuden-luovutusvoitot-ja-tappiot-luonnollisen-henkilon-tuloverotuksessa3/" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Vero.fi: Omaisuuden luovutusvoitot ja -tappiot tuloverotuksessa</a>
+          </li>
+        </ul>
+        <p class="text-xs text-gray-500 mt-4 leading-relaxed">
+          Tämä sivu on yleisluontoinen opas, ei veroneuvontaa. Verosäännöt voivat muuttua —
+          varmista oma tilanteesi aina vero.fi:stä tai Verohallinnolta.
+          Sivu tarkistettu viimeksi 4.7.2026.
+        </p>
+      </div>
+
+      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center">
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Selvitä ensin, paljonko kultasi on arvoltaan</h2>
+        <p class="text-gray-400 mb-6 max-w-xl mx-auto">Vero lasketaan vasta voitosta — ensin kannattaa tietää reilu myyntihinta.</p>
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+          Laske kultasi arvo →
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>
