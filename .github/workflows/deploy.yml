@@ -27,13 +27,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Action-versiot päivitetty 4.7.2026: GitHub pakottaa 16.6.2026 alkaen
+      # actionit Node 24:lle, ja vanhat versiot kaatuivat deploy-vaiheessa.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "22"
           cache: 'npm'
 
       - name: Install dependencies
@@ -43,6 +45,9 @@ jobs:
         run: npm run build
         env:
           METALPRICE_API_KEY: ${{ secrets.METALPRICE_API_KEY }}
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
