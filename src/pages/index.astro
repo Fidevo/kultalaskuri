@@ -40,6 +40,8 @@ const hasClockTime = updatedAtDate.getHours() !== 0 || updatedAtDate.getMinutes(
 const updatedTime = hasClockTime
   ? updatedAtDate.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })
   : null;
+// Mobiilissa lyhyt muoto ilman vuotta, jotta badge mahtuu yhdelle riville
+const updatedDateShort = updatedAtDate.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric' });
 
 const result24k = spot > 0 ? calculateGoldValue(1, '24K', spot) : null;
 const result18k = spot > 0 ? calculateGoldValue(1, '18K', spot) : null;
@@ -137,13 +139,17 @@ const faqItems = [
 
     <div class="max-w-4xl mx-auto text-center relative z-10 no-print">
 
-      {/* Päivitysaika-indikaattori — täsmällinen aikaleima herättää luottamusta */}
-      <div class="flex items-center justify-center gap-2 mb-4 pointer-events-none select-none">
-        <span class="relative flex h-2 w-2">
+      {/* Päivitysaika-indikaattori — täsmällinen aikaleima herättää luottamusta.
+          Mobiilissa lyhyt muoto, jotta pallukka ja teksti pysyvät samalla rivillä. */}
+      <div class="flex items-center justify-center gap-2 mb-4 pointer-events-none select-none whitespace-nowrap">
+        <span class="relative flex h-2 w-2 shrink-0">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
         </span>
-        <span class="text-gray-400 text-xs uppercase tracking-[0.2em] font-medium">Pörssihinta · päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}</span>
+        <span class="text-gray-400 text-[11px] sm:text-xs uppercase tracking-widest sm:tracking-[0.2em] font-medium">
+          <span class="sm:hidden">Päivitetty {updatedDateShort}{updatedTime && ` klo ${updatedTime}`}</span>
+          <span class="hidden sm:inline">Pörssihinta · päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}</span>
+        </span>
       </div>
 
       {/* ISO HINTANÄYTTÖ — ei animaatiota, arvo näkyy heti */}

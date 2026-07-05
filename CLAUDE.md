@@ -21,10 +21,12 @@ sivustoa **puhelimella** — mobile-first on pakollinen lähtökohta kaikessa.
    ilman omistajan nimenomaista lupaa.
 3. **Älä käytä sanaa "reaaliaikainen".** Hinta päivittyy buildeissa (arkisin tunneittain).
    Oikeat ilmaisut: "päivittyvä", "päivän kurssilla", "päivitetty {pvm} klo {aika}".
-4. **Ei prosenttihaarukoita ostohinnoista** (esim. "70–85 % pörssiarvosta") näkyvissä
-   teksteissä. Viestintä keskittyy tavoitehintaan: "taso, jota kannattaa vähintään
-   tavoitella". Poikkeus: laskurin "Näin arvio lasketaan" -erittely saa näyttää
-   tarkan kertoimen (läpinäkyvyys).
+4. **Laskennan kerrointa (targetPercent) ei näytetä käyttäjälle MISSÄÄN** —
+   ei UI:ssa, tulosteessa, jaettavissa viesteissä eikä erittelyissä. Myöskään
+   prosenttihaarukoita ostohinnoista (esim. "70–85 % pörssiarvosta") ei kirjoiteta
+   näkyviin teksteihin. Viestintä keskittyy tavoitehintaan: "taso, jota kannattaa
+   vähintään tavoitella". Erittelyissä saa näyttää painon, pitoisuuden, pörssikurssin
+   ja pörssiarvon — mutta EI kerrointa, jolla myyntihinta johdetaan pörssiarvosta.
 5. **Kultakolikoita ei esitetä romukultana/sulatuskohteena** — kolikoista maksetaan
    keräilypreemio. 24K-esimerkeissä puhutaan kultaharkoista.
 6. **Ei vahvistamattomia faktaväitteitä** (esim. maksutavat, "maksavat käteisellä").

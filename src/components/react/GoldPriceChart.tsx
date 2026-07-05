@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 
 interface PricePoint {
   date: string;
@@ -11,11 +11,10 @@ interface Props {
   data: PricePoint[];
 }
 
-// SVG canvas
-const VW = 800, VH = 260;
+// SVG canvas -reunukset. Leveys/korkeus lasketaan komponentissa
+// responsiivisesti: kapealla näytöllä käytetään pienempää viewBoxia,
+// jolloin kuvaaja renderöityy korkeampana ja tekstit luettavina.
 const P = { t: 16, r: 20, b: 40, l: 58 } as const;
-const CW = VW - P.l - P.r; // 722
-const CH = VH - P.t - P.b; // 204
 
 const RANGES: { label: string; key: Range; days: number }[] = [
   { label: '7 pv',    key: '7D',  days: 7 },
@@ -52,7 +51,22 @@ function fmtDateFull(s: string): string {
 export default function GoldPriceChart({ data }: Props) {
   const [range, setRange] = useState<Range>('90D');
   const [hovIdx, setHovIdx] = useState<number | null>(null);
+  const [isNarrow, setIsNarrow] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Mobiilissa (≤640 px) kapeampi viewBox → kuvaaja korkeampi ja tekstit isompia
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 640px)');
+    setIsNarrow(mql.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsNarrow(e.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  const VW = isNarrow ? 400 : 800;
+  const VH = isNarrow ? 300 : 260;
+  const CW = VW - P.l - P.r;
+  const CH = VH - P.t - P.b;
 
   const filtered = useMemo(() => {
     const cfg = RANGES.find(r => r.key === range)!;
@@ -75,7 +89,7 @@ export default function GoldPriceChart({ data }: Props) {
       price: d.price,
     }));
     return { pts, minP, maxP };
-  }, [filtered]);
+  }, [filtered, CW, CH]);
 
   const linePath = useMemo(() => smoothPath(pts), [pts]);
 
@@ -83,7 +97,7 @@ export default function GoldPriceChart({ data }: Props) {
     if (!pts.length || !linePath) return '';
     const bot = (P.t + CH).toFixed(1);
     return `${linePath} L${pts[pts.length - 1].x.toFixed(1)},${bot} L${pts[0].x.toFixed(1)},${bot}Z`;
-  }, [linePath, pts]);
+  }, [linePath, pts, CH]);
 
   const yTicks = useMemo(() => {
     const n = 4;
@@ -91,11 +105,12 @@ export default function GoldPriceChart({ data }: Props) {
       price: minP + (i / n) * (maxP - minP),
       y: P.t + CH - (i / n) * CH,
     }));
-  }, [minP, maxP]);
+  }, [minP, maxP, CH]);
 
   const xTicks = useMemo(() => {
     if (pts.length < 2) return pts;
-    const count = Math.min(5, pts.length - 1);
+    // Mobiilissa vähemmän x-akselin päivämääriä, etteivät ne mene päällekkäin
+    const count = Math.min(isNarrow ? 3 : 5, pts.length - 1);
     const seen = new Set<string>();
     return Array.from({ length: count + 1 }, (_, i) => {
       const idx = Math.round((i / count) * (pts.length - 1));
@@ -105,7 +120,7 @@ export default function GoldPriceChart({ data }: Props) {
       seen.add(p.date);
       return true;
     });
-  }, [pts]);
+  }, [pts, isNarrow]);
 
   // Stats always computed from full dataset
   const stats = useMemo(() => {
@@ -134,7 +149,7 @@ export default function GoldPriceChart({ data }: Props) {
       if (d < bestDist) { bestDist = d; best = i; }
     });
     setHovIdx(best);
-  }, [pts]);
+  }, [pts, VW]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     handlePointer(e.clientX);
@@ -154,7 +169,7 @@ export default function GoldPriceChart({ data }: Props) {
     const yAbove = hovPt.y - h - gap;
     const y = yAbove < P.t ? hovPt.y + gap : yAbove;
     return { x, y, w, h };
-  }, [hovPt]);
+  }, [hovPt, VW]);
 
   if (!stats) return null;
 

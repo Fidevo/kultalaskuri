@@ -362,22 +362,6 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                 Pörssiarvo on raaka-aineen markkinahinta. Liikkeiden ostohinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-600">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
               </p>
 
-              {/* LÄPINÄKYVYYS: kaava auki — puolueettomuus on palvelun kilpailuetu */}
-              <details className="mb-4 no-print group/kaava">
-                <summary className="text-xs font-bold text-gray-500 cursor-pointer hover:text-gray-700 select-none list-none inline-flex items-center gap-1">
-                  <span className="transition-transform duration-200 group-open/kaava:rotate-90">›</span>
-                  Näin arvio lasketaan
-                </summary>
-                <p className="text-xs text-gray-500 leading-relaxed mt-2 pl-3 border-l-2 border-gold-200">
-                  {String(result.weightGrams).replace('.', ',')} g × {(result.purityDecimal * 100).toFixed(1).replace('.', ',')} % kultaa
-                  × {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g (pörssikurssi)
-                  = pörssiarvo {formatEur(result.spotValue)}.
-                  Arvioitu myyntihinta = pörssiarvo × {Math.round(GOLD_PURITIES[purity].targetPercent * 100)} %
-                  = <strong className="text-gray-700">{formatEur(result.targetValue)}</strong>.
-                  Kultalaskuri.fi ei itse osta kultaa — arvio perustuu suoraan markkinahintaan.
-                </p>
-              </details>
-
               {/* LISÄÄ LISTAAN — usean esineen summa */}
               <button
                 type="button"
@@ -500,7 +484,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   <strong>Laskelma:</strong> {String(result.weightGrams).replace('.', ',')} g
                   × {(result.purityDecimal * 100).toFixed(1).replace('.', ',')} % kultaa
                   × {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g
-                  = pörssiarvo {formatEur(result.spotValue)} · tavoitehinta {Math.round(GOLD_PURITIES[purity].targetPercent * 100)} % pörssiarvosta
+                  = pörssiarvo {formatEur(result.spotValue)} · arvioitu myyntihinta
                   = <strong>{formatEur(result.targetValue)}</strong>
                   {items.length > 0 && <> · Kaikki esineet yhteensä ({items.length + 1} kpl): <strong>{formatEur(grandTotal)}</strong></>}
                 </p>
