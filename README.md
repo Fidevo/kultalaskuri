@@ -1,46 +1,108 @@
-# Astro Starter Kit: Basics
+# Kultalaskuri.fi
+
+Suomenkielinen jalometallilaskuri: kävijä syöttää kultaesineen painon ja pitoisuuden ja näkee
+heti realistisen euromääräisen myyntihinnan päivän pörssikurssilla.
+
+**Tuotanto:** https://kultalaskuri.fi (GitHub Pages, custom domain `public/CNAME`)
+
+> 🤖 Teetkö muutoksia tekoälyagentilla? Lue ensin [CLAUDE.md](CLAUDE.md) — siellä ovat
+> projektin pelisäännöt ja tunnetut sudenkuopat.
+
+## Stack
+
+| Osa | Teknologia |
+|---|---|
+| Runko | Astro v5, `output: 'static'` (SSG) |
+| Interaktiiviset osat | React 19 -islandit (`client:load` / `client:visible`) |
+| Tyylit | **Tailwind CSS v3** (`@astrojs/tailwind`-integraatio) + custom gold-paletti |
+| Fontti | Plus Jakarta Sans (Google Fonts) |
+| Ikonit | lucide-react (React-komponenteissa), inline-SVG (Astro-tiedostoissa) |
+| Hintadata | [MetalPrice API](https://metalpriceapi.com) (EU-palvelin `api-eu.metalpriceapi.com`) |
+| Analytiikka | Umami (evästeetön) + Microsoft Clarity — vain tuotannossa |
+| Hosting | GitHub Pages, deploy GitHub Actionsilla |
+
+## Komennot
 
 ```sh
-npm create astro@latest -- --template basics
+npm install        # riippuvuudet
+npm run dev        # dev-palvelin (localhost:4321) — käyttää hintahistorian viimeisintä hintaa, EI kuluta API-kutsuja
+npm run build      # tuotantobuild ./dist — hakee oikean hinnan API:sta (1 kutsu), fallback hintahistoriaan
+npm run preview    # buildatun sivuston esikatselu
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Ympäristömuuttujat (`.env`, ei versionhallinnassa):
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```
+METALPRICE_API_KEY=...       # pakollinen tuotantobuildissa
+PUBLIC_SUPABASE_URL=...      # käytössä vain julkaisemattomassa _yrityksille-draftissa
+PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Sivut
 
-## 🧞 Commands
+| URL | Tiedosto | Sisältö |
+|---|---|---|
+| `/` | `src/pages/index.astro` | Päälaskuri, tavoitehinnat, painoarvio, hintagraafi, leimaopas-tiiviste, FAQ |
+| `/kullan-hinta/` | `kullan-hinta.astro` | Hintakehityssivu: graafi + kuukausitaulukko + FAQ |
+| `/kullan-myynti/` | `kullan-myynti.astro` | Myyntiopas + laskuri + FAQ |
+| `/kullan-myynti-verotus/` | `kullan-myynti-verotus.astro` | Verotusopas (faktat Vero.fi-lähteistä — katso CLAUDE.md) |
+| `/kullan-leimat/` | `kullan-leimat.astro` | Leimaopas: 585/750, nimileimat, vuosileimataulukot 1906–, ulkomaiset leimat |
+| `/sanasto/` | `sanasto.astro` | 15 termin sanasto (DefinedTermSet-schema) |
+| `/tietoa/` | `tietoa.astro` | Tietoa palvelusta (E-E-A-T) |
+| `/widget/` | `widget.astro` | Upotettavan hintawidgetin ohjesivu |
+| `/hinta.json` | `hinta.json.ts` | Avoin JSON-hintadata (widgetin datalähde, CORS `*`) |
+| `/tietosuoja/`, `/kayttoehdot/` | | Legal |
 
-All commands are run from the root of the project, from a terminal:
+Alaviivalla alkavat tiedostot (`_yrityksille.astro`, `drafts/`, `api/_partner-inquiry.ts`)
+ovat luonnoksia, jotka **eivät buildaudu**.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Arkkitehtuuri ja datavirrat
 
-## 👀 Want to learn more?
+```
+MetalPrice API (api-eu.metalpriceapi.com)
+  │
+  ├─► src/lib/api/metalPriceApi.ts ── buildin aikana: spot-hinta €/g
+  │      └─ fallback: social/data/price-history.json viimeisin piste
+  │
+  ├─► social/scripts/save-price.mjs ── arkisin klo ~18: lisää päivän hinnan
+  │      └─ social/data/price-history.json  (max 1095 pv)
+  │            ├─► GoldPriceChart (graafi), kuukausitaulukko, muutos-%
+  │            └─► fallback-hinta
+  │
+  └─► social/scripts/backfill-price-history.mjs ── manuaalinen historian täydennys
+         (timeframe-endpoint: 365 pv / 1 API-kutsu)
+```
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Laskentalogiikka: `src/lib/calculations/goldCalculator.ts` — `GOLD_PURITIES` sisältää
+pitoisuudet ja tavoitehintakertoimet. **Kaikki hintalaskenta kulkee `calculateGoldValue()`-funktion
+kautta** — älä kovakoodaa kertoimia muualle.
+
+## Automaatio (GitHub Actions)
+
+| Workflow | Ajastus | Tehtävä |
+|---|---|---|
+| `deploy.yml` | Arkisin joka tunti (min 17) + push main + manuaalinen | Build + deploy GitHub Pagesiin. Jokainen build = 1 API-kutsu. |
+| `social-save-price.yml` | Arkisin ~18.07 Suomen aikaa | Tallentaa päivän hinnan historiaan ja committaa. |
+
+Viikonloppuisin ei ajoja — kultapörssi on kiinni (pe ~24 UTC – su ~22 UTC), hinta ei liiku.
+Huom: GitHubin cron ei ole täsmällinen; ajoja jää ajoittain väliin ruuhkan takia.
+API-kiintiö näkyy MetalPrice-hallintapaneelista tai vastausheaderista `X-API-CURRENT`.
+
+## Upotettava widget
+
+Muille sivustoille tarjottava hintawidget: `public/widget.js` hakee datan `/hinta.json`-endpointista.
+Käyttö isäntäsivulla:
+
+```html
+<div id="kultalaskuri-widget"></div>
+<script async src="https://kultalaskuri.fi/widget.js"></script>
+```
+
+## Hintahistorian täydennys
+
+```sh
+node social/scripts/backfill-price-history.mjs 2025-07-01 2025-12-31
+```
+
+Yksi kutsu kattaa enintään 365 päivää. Skripti ei ylikirjoita olemassa olevia päiviä ja
+ottaa varmuuskopion (`price-history.backup.json`).

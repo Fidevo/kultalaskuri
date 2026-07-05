@@ -113,3 +113,110 @@
     transform: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PRINT-TYYLIT — käyttäjälle siisti tulostettava hinta-arvio
+   ───────────────────────────────────────────────────────────── */
+
+/* Oletuksena print-only -elementit piilossa näytöllä */
+.print-only {
+  display: none;
+}
+
+@media print {
+  /* Sivun asetukset */
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
+  /* Reset html/body — vaalea, neutraali */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Globaalit chromen elementit pois */
+  body > header,
+  body > footer,
+  #global-scroll-to-top,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Animaatiot pois */
+  .animate-blob,
+  .animate-ping {
+    display: none !important;
+    animation: none !important;
+  }
+
+  /* Main reset */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Piilota kaikki main-sectionit ja div-lapset paitsi hero (jossa laskuri) */
+  main > section,
+  main > div:not(:first-child) {
+    display: none !important;
+  }
+
+  /* Hero — vaaleaksi ja paddingit pois */
+  main > div:first-child {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Näytä print-only-elementit */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Laskurikortin viimeistely tulosteeseen */
+  #laskuri {
+    max-width: 100% !important;
+    margin: 0 !important;
+    page-break-inside: avoid !important;
+  }
+  #laskuri > div {
+    box-shadow: none !important;
+    border: 1px solid #999999 !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+  }
+
+  /* Estä epätoivottu sivunvaihto laskurin sisällä */
+  #laskuri * {
+    page-break-inside: avoid !important;
+  }
+
+  /* Värit: pakota CMYK-ystävälliset värit näkyviin */
+  .bg-green-50,
+  .bg-red-50,
+  .bg-gold-50,
+  .bg-amber-50,
+  [class*="from-gold"],
+  [class*="to-amber"] {
+    background: #ffffff !important;
+  }
+
+  /* Linkit alleviivattuna tulosteessa (luettavuus) */
+  a {
+    text-decoration: underline;
+    color: #000000 !important;
+  }
+
+  /* Iso hinta — varmista että näkyy mustana */
+  .text-gray-900 {
+    color: #000000 !important;
+  }
+}

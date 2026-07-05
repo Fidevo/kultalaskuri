@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const dateModified = new Date().toISOString();
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Tietoa palvelusta", "item": "https://kultalaskuri.fi/tietoa/" }
+      ]
+    },
+    {
+      "@type": "AboutPage",
+      "@id": "https://kultalaskuri.fi/tietoa/",
+      "url": "https://kultalaskuri.fi/tietoa/",
+      "name": "Tietoa palvelusta – Kultalaskuri.fi",
+      "description": "Kultalaskuri.fi on ilmainen ja puolueeton suomalainen palvelu kullan arvon laskemiseen. Lue miten hinta lasketaan, mistä data tulee ja miksi emme osta kultaa.",
+      "inLanguage": "fi-FI",
+      "dateModified": dateModified,
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" },
+      "about": { "@id": "https://kultalaskuri.fi/#organization" }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://kultalaskuri.fi/#organization",
+      "name": "Kultalaskuri.fi",
+      "url": "https://kultalaskuri.fi",
+      "email": "info@kultalaskuri.fi",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://kultalaskuri.fi/kultalaskuri-logo.png"
+      },
+      "areaServed": { "@type": "Country", "name": "Finland" },
+      "knowsLanguage": "fi",
+      "foundingDate": "2024"
+    }
+  ]
+};
+---
+
+<BaseLayout
+  title="Tietoa palvelusta – näin Kultalaskuri.fi toimii | Kultalaskuri.fi"
+  description="Kultalaskuri.fi on ilmainen ja puolueeton suomalainen palvelu kullan arvon laskemiseen. Lue miten hinta lasketaan, mistä data tulee ja miksi emme osta kultaa."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative bg-[#0B0F19] pt-28 pb-20 px-4 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto relative z-10 text-center">
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-400">Tietoa palvelusta</li>
+        </ol>
+      </nav>
+
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+        Tietoa
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600">palvelusta</span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-400 leading-relaxed max-w-2xl mx-auto">
+        Kultalaskuri.fi on ilmainen, suomalainen ja puolueeton työkalu, jolla selvität
+        kultakorujen ja romukullan arvon päivän pörssikurssilla — ennen kuin astut kullanostajan liikkeeseen.
+      </p>
+    </div>
+  </div>
+
+  <section class="bg-white py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Riippumaton hinta-arvio</h2>
+      <div class="space-y-4 text-lg text-gray-600 leading-relaxed mb-12">
+        <p>
+          <strong>Kultalaskuri.fi ei itse osta kultaa.</strong> Laskurin näyttämä arvio lasketaan
+          suoraan kansainvälisestä markkinahinnasta, joten se ei riipu yksittäisen ostajan
+          hinnoittelusta.
+        </p>
+        <p>
+          Palvelun tarkoitus on yksinkertainen: että kukaan ei myisi kultaansa tietämättä
+          sen todellista arvoa. Kun tiedät reilun vähimmäistason, osaat vertailla tarjouksia
+          ja neuvotella.
+        </p>
+      </div>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Mistä hintatieto tulee?</h2>
+      <div class="space-y-4 text-lg text-gray-600 leading-relaxed mb-8">
+        <p>
+          Kullan spot-hinta haetaan kansainvälisestä <strong>MetalPrice API</strong> -hintapalvelusta,
+          ja se päivittyy sivustolle <strong>automaattisesti useita kertoja päivässä</strong>.
+          Hintahistoria (kuvaaja) tallennetaan kerran päivässä klo 18. Hinta noteerataan
+          maailmanmarkkinoilla dollareissa troy-unssia kohden; muunnamme sen euroiksi grammalta,
+          jotta vertailu omiin koruihin on helppoa.
+        </p>
+        <p>
+          Näytetty päivämäärä kertoo aina, milloin hinta on viimeksi päivitetty. Seuraamme myös
+          hinnan kehitystä — katso <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a>.
+        </p>
+      </div>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Miten laskuri laskee arvon?</h2>
+      <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 mb-8">
+        <p class="text-gray-700 font-medium mb-4">Laskenta on läpinäkyvä ja koostuu kolmesta tekijästä:</p>
+        <ol class="space-y-3 text-gray-600">
+          <li class="flex items-start gap-3">
+            <span class="w-7 h-7 rounded-full bg-gold-100 text-gold-700 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <span><strong>Puhtaan kullan määrä:</strong> paino × pitoisuus (esim. 10 g × 58,5 % = 5,85 g puhdasta kultaa).</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-7 h-7 rounded-full bg-gold-100 text-gold-700 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <span><strong>Pörssiarvo:</strong> puhtaan kullan määrä × päivän spot-hinta €/g.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="w-7 h-7 rounded-full bg-gold-100 text-gold-700 text-xs font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <span><strong>Reilu tavoitehinta:</strong> pörssiarvosta vähennetään tyypilliset sulatus-, jalostus- ja katekulut. Tavoitehinta on se taso, jota luotettavat ostajat yleensä vähintään maksavat.</span>
+          </li>
+        </ol>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-12">
+        Laskurin antama arvo on <strong>suuntaa-antava vähimmäistaso</strong>, ei sitova tarjous.
+        Lopullinen ostohinta riippuu ostajan käytännöistä ja esineen tarkasta pitoisuudesta.
+        Design-koruilla (esim. Kalevala, Lapponia) voi olla romukulta-arvoa selvästi korkeampi
+        keräilyarvo — <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">lue lisää kullan myynnistä</a>.
+      </p>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Yksityisyys</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-12">
+        Laskurin käyttö ei vaadi rekisteröitymistä eikä syöttämiäsi tietoja lähetetä minnekään —
+        laskenta tapahtuu selaimessasi. Kävijämittaukseen käytämme evästeetöntä analytiikkaa.
+        Lue tarkemmin <a href="/tietosuoja/" class="text-gold-600 font-bold hover:underline">tietosuojaselosteesta</a>.
+      </p>
+
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Lähteet ja lisätietoa</h2>
+      <ul class="space-y-3 text-gray-600 mb-12">
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2.5 shrink-0"></span>
+          <span><a href="https://tukes.fi/tuotteet-ja-palvelut/jalometallituotteet" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Tukes: Jalometallituotteet</a> — jalometallituotteiden leimaus ja valvonta Suomessa.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2.5 shrink-0"></span>
+          <span><a href="https://www.finlex.fi/fi/laki/ajantasa/2000/20001029" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Laki jalometallituotteista (1029/2000)</a> — pitoisuusleimoja koskeva lainsäädäntö.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2.5 shrink-0"></span>
+          <span><a href="https://metalpriceapi.com" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">MetalPrice API</a> — kullan spot-hinnan datalähde.</span>
+        </li>
+      </ul>
+
+      <div class="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-200 text-center">
+        <h2 class="text-xl font-black text-gray-900 mb-2">Palaute ja yhteistyö</h2>
+        <p class="text-gray-600 mb-4">Kehitysehdotukset ja kysymykset ovat tervetulleita.</p>
+        <a href="mailto:info@kultalaskuri.fi" class="inline-flex items-center gap-2 text-gold-600 font-bold hover:underline">
+          ✉️ info@kultalaskuri.fi
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>

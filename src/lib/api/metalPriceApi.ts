@@ -1,7 +1,16 @@
 // src/lib/api/metalPriceApi.ts
 
+import priceHistory from '../../../social/data/price-history.json';
+
 const API_KEY = import.meta.env.METALPRICE_API_KEY;
 const TROY_OUNCE_IN_GRAMS = 31.1034768;
+
+// 'YYYY-MM-DD' → paikallinen keskiyö (ei UTC), jotta kellonaikaa ei näytetä
+// silloin kun tarkkaa hakuaikaa ei tiedetä (fallback-data)
+function localMidnight(isoDate: string): Date {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
 const CACHE_DURATION_MS = 45 * 60 * 1000; // 45 min cache (säästää API-quotaa)
 
 interface CachedPrice {
@@ -26,15 +35,17 @@ export interface GoldPriceResult {
 }
 
 export async function getGoldPrice(): Promise<GoldPriceResult | null> {
-  // 1. DEV-MODE: Säästetään API-kutsuja kehityksen aikana
+  // 1. DEV-MODE: Säästetään API-kutsuja kehityksen aikana.
+  // Hinta luetaan hintahistorian viimeisestä pisteestä, jotta dev vastaa tuotantoa.
   if (import.meta.env.DEV) {
-    console.log("🛠️ DEV-MODE: Käytetään testi-hintaa");
+    console.log("🛠️ DEV-MODE: Käytetään hintahistorian viimeisintä hintaa");
+    const last = priceHistory[priceHistory.length - 1];
     return {
-      priceEurGram: 84.50,
-      priceUsdOz: 2750.00,
-      usdEurRate: 0.95,
-      updatedAt: new Date(),
-      fromCache: false
+      priceEurGram: last.price,
+      priceUsdOz: 0,
+      usdEurRate: 0,
+      updatedAt: localMidnight(last.date),
+      fromCache: true
     };
   }
 
@@ -57,8 +68,9 @@ export async function getGoldPrice(): Promise<GoldPriceResult | null> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
+    // EU-palvelin: matalampi latenssi Suomesta (metalpriceapi.com/documentation#api_servers)
     const response = await fetch(
-      `https://api.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=USD&currencies=XAU,EUR`,
+      `https://api-eu.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=USD&currencies=XAU,EUR`,
       { signal: controller.signal }
     );
     clearTimeout(timeoutId);
@@ -99,13 +111,14 @@ function getFallbackPrice(): GoldPriceResult {
   if (priceCache) {
     return { ...priceCache.data, fromCache: true };
   }
-  
-  // Viimeinen hätävara, jos mikään ei toimi
+
+  // Viimeinen hätävara: hintahistorian tuorein piste (ei kovakoodattua vanhentuvaa hintaa)
+  const last = priceHistory[priceHistory.length - 1];
   return {
-    priceEurGram: 85.00,
-    priceUsdOz: 2800.00,
-    usdEurRate: 0.92,
-    updatedAt: new Date(),
+    priceEurGram: last.price,
+    priceUsdOz: 0,
+    usdEurRate: 0,
+    updatedAt: localMidnight(last.date),
     fromCache: true
   };
 }

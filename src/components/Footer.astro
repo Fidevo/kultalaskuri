@@ -5,13 +5,17 @@ const contactEmail = "info@kultalaskuri.fi";
 const footerLinks = {
   main: [
     { href: '/#laskuri', label: 'Hintalaskuri' },
-    { href: '/kullan-myynti/', label: 'Kullan myynti' }, // Kauttaviiva lisätty
-    { href: '/kullan-leimat/', label: 'Tunnista kulta' }, // Kauttaviiva lisätty
-    { href: '/#ukk', label: 'Usein kysyttyä' },       
+    { href: '/kullan-hinta/', label: 'Kullan hintakehitys' },
+    { href: '/kullan-myynti/', label: 'Kullan myynti' },
+    { href: '/kullan-myynti-verotus/', label: 'Myynnin verotus' },
+    { href: '/kullan-leimat/', label: 'Tunnista kulta' },
+    { href: '/sanasto/', label: 'Kultasanasto' },
+    { href: '/widget/', label: 'Hintawidget sivullesi' },
   ],
   legal: [
-    { href: '/tietosuoja/', label: 'Tietosuojaseloste' }, // Kauttaviiva lisätty
-    { href: '/kayttoehdot/', label: 'Käyttöehdot' }, // Kauttaviiva lisätty
+    { href: '/tietoa/', label: 'Tietoa palvelusta' },
+    { href: '/tietosuoja/', label: 'Tietosuojaseloste' },
+    { href: '/kayttoehdot/', label: 'Käyttöehdot' },
   ],
 };
 ---
@@ -30,15 +34,15 @@ const footerLinks = {
         </a>
         
         <p class="text-gray-400 leading-relaxed max-w-sm mb-6 text-sm">
-          Suomen helpoin tapa selvittää kultakorujen arvo. 
-          Tarjoamme reaaliaikaista markkinadataa, jotta tiedät arvometalliesi todellisen hinnan.
+          Suomen helpoin tapa selvittää kultakorujen arvo.
+          Tarjoamme päivittyvää markkinadataa, jotta tiedät jalometalliesi todellisen hinnan.
         </p>
 
         {/* YHTEYDENOTTO LINKKI */}
         <div class="pt-4">
           <a href={`mailto:${contactEmail}`} class="text-sm font-bold text-gold-400 hover:text-white transition-colors flex items-center gap-2">
-            <span>✉️</span>
-            <span>Yhteistyö & Palaute: {contactEmail}</span>
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span>Yhteistyö & palaute: {contactEmail}</span>
           </a>
         </div>
       </div>
@@ -72,16 +76,16 @@ const footerLinks = {
 
         <div class="space-y-3 pt-6 border-t border-white/5">
           <div class="flex items-center gap-3 text-sm text-gray-400">
-            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            <span>SSL-suojattu yhteys</span>
+            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Puolueeton — emme osta kultaa</span>
           </div>
           <div class="flex items-center gap-3 text-sm text-gray-400">
-            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path><path d="M8.5 8.5v.01"></path><path d="M16 15.5v.01"></path><path d="M12 12v.01"></path><path d="M11 17v.01"></path><path d="M7 14v.01"></path></svg>
+            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path><path d="M8.5 8.5v.01"></path><path d="M16 15.5v.01"></path><path d="M12 12v.01"></path><path d="M11 17v.01"></path><path d="M7 14v.01"></path></svg>
             <span>Suomalainen palvelu</span>
           </div>
           <div class="flex items-center gap-3 text-sm text-gray-400">
-            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-            <span>Reaaliaikainen data</span>
+            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Hinta päivittyy automaattisesti</span>
           </div>
         </div>
       </div>

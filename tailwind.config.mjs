@@ -10,12 +10,14 @@ export default {
       },
       colors: {
         gold: {
+          50:  '#FDFBF3',
           100: '#FBF8EB',
           200: '#F5ECCD',
           300: '#ECD895',
           400: '#D4AF37', // Classic Gold
           500: '#B59428',
           600: '#8E731C',
+          700: '#6B5615',
           glow: '#F9E29C', // Hehkuva vaalea
         },
         dark: {

@@ -8,16 +8,16 @@ interface Props {
 const { question, answer } = Astro.props;
 ---
 
-<details class="group bg-white p-6 rounded-2xl border border-gray-100 
-  shadow-sm hover:shadow-md transition-all">
-  <summary class="flex justify-between items-center font-bold text-gray-900 
-    list-none cursor-pointer md:cursor-default">
+<details class="group bg-white p-6 rounded-2xl border border-gray-100
+  shadow-sm hover:shadow-md hover:border-gold-200 transition-all">
+  <summary class="flex justify-between items-center font-bold text-gray-900
+    list-none cursor-pointer select-none">
     <span>{question}</span>
-    <span class="transition group-open:rotate-180 md:hidden text-gray-400">
+    <span class="transition-transform duration-200 group-open:rotate-180 text-gray-400 shrink-0 ml-4">
       ▼
     </span>
   </summary>
   {/* Turvallinen: data tulee staattisesta frontmatterista */}
-  <p class="text-gray-600 mt-4 leading-relaxed text-sm md:text-base" 
+  <p class="text-gray-600 mt-4 leading-relaxed text-sm md:text-base"
     set:html={answer} />
 </details>

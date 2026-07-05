@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Circle, User, Gem, Link as LinkIcon } from 'lucide-react';
-import { GOLD_PURITIES, type PurityCode } from '../../lib/calculations/goldCalculator';
+import { GOLD_PURITIES, calculateGoldValue, type PurityCode } from '../../lib/calculations/goldCalculator';
 
 // FAKTATIEDOT: Keskimääräiset painot (g)
 const JEWELRY_DATA = {
@@ -59,17 +59,37 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
   const [selectedSize, setSelectedSize] = useState<number | null>(1); // Oletus: Keskikoko
   const [selectedPurity, setSelectedPurity] = useState<PurityCode>('14K');
 
-  const calculateEstimate = (weight: number) => {
-    const purity = GOLD_PURITIES[selectedPurity];
-    const estimate = weight * spotPrice * purity.decimal * purity.targetPercent;
-    return new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' }).format(estimate);
-  };
+  // Kaikki hintalaskenta kulkee calculateGoldValue()-funktion kautta,
+  // jotta pitoisuuskohtaiset tavoitehintakertoimet osuvat aina oikein
+  const estimateValue = (weight: number) =>
+    calculateGoldValue(weight, selectedPurity, spotPrice)?.targetValue ?? 0;
+
+  const calculateEstimate = (weight: number) =>
+    new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' }).format(estimateValue(weight));
+
+  // Kokokortteihin kompakti arvio ilman desimaaleja
+  const compactEstimate = (weight: number) =>
+    new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(estimateValue(weight));
 
   const currentData = JEWELRY_DATA[activeType];
 
-  const scrollToTop = (e: React.MouseEvent) => {
+  // Siirrä valittu paino ja pitoisuus päälaskuriin (CustomEvent, islandit ovat erillisiä)
+  const useInCalculator = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (selectedSize !== null) {
+      window.dispatchEvent(new CustomEvent('kl:use-weight', {
+        detail: {
+          weight: currentData.sizes[selectedSize].weight,
+          purity: selectedPurity,
+        },
+      }));
+    }
+    const target = document.getElementById('laskuri');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -87,6 +107,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
           {(Object.entries(JEWELRY_DATA) as [JewelryType, typeof JEWELRY_DATA[JewelryType]][]).map(([key, data]) => (
             <button
               key={key}
+              aria-pressed={activeType === key}
               onClick={() => { setActiveType(key); setSelectedSize(1); track('koruarvio-tyyppi', { type: key }); }}
               className={`
                 flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-5 md:py-3 rounded-xl font-bold text-xs md:text-sm transition-all duration-200
@@ -107,6 +128,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
           {COMMON_PURITIES.map((code) => (
             <button
               key={code}
+              aria-pressed={selectedPurity === code}
               onClick={() => { setSelectedPurity(code); track('koruarvio-karaatti', { purity: code }); }}
               className={`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200
                 ${selectedPurity === code
@@ -126,6 +148,7 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
             return (
               <button
                 key={index}
+                aria-pressed={isSelected}
                 onClick={() => { setSelectedSize(index); track('koruarvio-koko', { type: activeType, size: size.label }); }}
                 className={`
                   relative p-3 md:p-6 rounded-2xl border-2 text-center md:text-left transition-all duration-200 group flex flex-col items-center md:block
@@ -149,6 +172,12 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
                 <div className="text-xl md:text-3xl font-black text-gray-900 tracking-tight mt-1 md:mt-0">
                   ~{size.weight}<span className="text-sm md:text-lg font-bold text-gray-400 ml-0.5">g</span>
                 </div>
+                {/* Euroarvio suoraan korttiin — kaikki koot vertailtavissa yhdellä silmäyksellä */}
+                {spotPrice > 0 && (
+                  <div className={`text-xs md:text-sm font-bold mt-1 tabular-nums ${isSelected ? 'text-gold-600' : 'text-gray-400'}`}>
+                    ≈ {compactEstimate(size.weight)}
+                  </div>
+                )}
               </button>
             );
           })}
@@ -169,11 +198,14 @@ export default function JewelryWeightEstimator({ spotPrice }: Props) {
               <p className="text-gray-400 text-xs md:text-sm">
                 Laskelma: {currentData.sizes[selectedSize].weight}g × {selectedPurity} × tavoitehinta
               </p>
+              <p className="text-gray-500 text-[11px] mt-2">
+                Suuntaa-antava arvio keskipainolla — tarkka arvo selviää punnitsemalla.
+              </p>
             </div>
 
             <div className="relative z-10 shrink-0 w-full md:w-auto">
-              <button 
-                onClick={(e) => { track('koruarvio-laske-tarkka'); scrollToTop(e); }}
+              <button
+                onClick={(e) => { track('koruarvio-laske-tarkka'); useInCalculator(e); }}
                 className="w-full md:w-auto bg-white text-[#0B0F19] px-6 py-4 rounded-xl font-bold hover:bg-gold-400 transition-colors shadow-lg flex items-center justify-center gap-2"
               >
                 <Circle size={18} className="text-gold-600 fill-current" />

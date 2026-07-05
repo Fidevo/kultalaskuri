@@ -34,9 +34,10 @@ async function main() {
     console.log(`✅ Tallennettu: ${today} → ${priceEurGram} €/g`);
   }
 
-  // Säilytä max 365 päivää
-  if (history.length > 365) {
-    history.splice(0, history.length - 365);
+  // Säilytä max 3 vuotta (ei leikkaa backfill-skriptillä täydennettyä historiaa)
+  const MAX_DAYS = 1095;
+  if (history.length > MAX_DAYS) {
+    history.splice(0, history.length - MAX_DAYS);
   }
 
   saveHistory(history);
