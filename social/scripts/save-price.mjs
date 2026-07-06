@@ -18,11 +18,22 @@ function saveHistory(history) {
   writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
 }
 
+function getHelsinkiDate() {
+  return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' });
+}
+
 async function main() {
-  const { priceEurGram } = await fetchGoldPrice();
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = getHelsinkiDate(); // YYYY-MM-DD Suomen ajassa
 
   const history = loadHistory();
+  const lastEntry = history[history.length - 1];
+
+  if (process.env.SAVE_PRICE_ONLY_MISSING === 'true' && lastEntry?.date === today) {
+    console.log(`Historia on jo ajan tasalla: ${today}`);
+    return;
+  }
+
+  const { priceEurGram } = await fetchGoldPrice();
 
   // Älä tallenna duplikaattia samalle päivälle
   if (history.length > 0 && history[history.length - 1].date === today) {

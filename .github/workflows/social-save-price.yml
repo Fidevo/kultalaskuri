@@ -9,6 +9,9 @@ on:
     - cron: '7 15 * * 1-5'
   workflow_dispatch: # Manuaalinen ajo
 
+permissions:
+  contents: write
+
 jobs:
   save-price:
     runs-on: ubuntu-latest

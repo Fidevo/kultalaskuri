@@ -34,6 +34,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Save daily graph price if missing
+        if: github.event_name == 'schedule'
+        run: |
+          helsinki_hour="$(TZ=Europe/Helsinki date +%H)"
+          if [ "$helsinki_hour" -ge 18 ]; then
+            SAVE_PRICE_ONLY_MISSING=true node social/scripts/save-price.mjs
+          else
+            echo "Hintahistorian tallennus ohitetaan ennen klo 18 Suomen aikaa."
+          fi
+        env:
+          METALPRICE_API_KEY: ${{ secrets.METALPRICE_API_KEY }}
+
       - name: Bump scheduled deploy version
         id: pages-sha
         if: github.event_name == 'schedule'
@@ -43,6 +55,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/deploy-version.json
+          git add social/data/price-history.json
           git commit -m "Päivitä Pages-julkaisuleima [skip ci]"
           git push
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
