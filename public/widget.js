@@ -43,8 +43,8 @@
           ? '<div style="font-size:28px;font-weight:800;color:#fff;line-height:1;margin-bottom:2px;font-variant-numeric:tabular-nums;">' + fmt(data.spotEurPerGram) + ' <span style="font-size:14px;color:#D4AF37;">€/g</span></div>' +
             '<div style="font-size:10px;color:#6b7280;margin-bottom:12px;">24K spot-hinta</div>' +
             '<div style="margin-bottom:12px;">' +
-              (data.target14k ? row('585 (14K) myyntihinta', fmt(data.target14k), true) : '') +
-              (data.target18k ? row('750 (18K) myyntihinta', fmt(data.target18k), false) : '') +
+              (data.target14k ? row('585 (14K) tavoitehinta', fmt(data.target14k), true) : '') +
+              (data.target18k ? row('750 (18K) tavoitehinta', fmt(data.target18k), false) : '') +
             '</div>'
           : '<div style="font-size:13px;color:#9ca3af;margin-bottom:12px;">Hinta ei juuri nyt saatavilla.</div>') +
         '<a href="' + SITE_URL + '" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:12px;font-weight:700;color:#0B0F19;background:#D4AF37;border-radius:8px;padding:8px 10px;text-decoration:none;">Laske kultasi arvo &rarr;</a>' +

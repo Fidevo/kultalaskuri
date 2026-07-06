@@ -36,7 +36,7 @@ const schemaData = {
       "@id": "https://kultalaskuri.fi/widget/",
       "url": "https://kultalaskuri.fi/widget/",
       "name": "Ilmainen kullan hinta -widget sivullesi",
-      "description": "Upota päivittyvä kullan hinta omalle sivustollesi ilmaiseksi. Kevyt widget näyttää spot-hinnan ja myyntihintatasot — asennus yhdellä koodirivillä.",
+      "description": "Upota päivittyvä kullan hinta omalle sivustollesi ilmaiseksi. Kevyt widget näyttää spot-hinnan ja tavoitehintatasot — asennus yhdellä koodirivillä.",
       "inLanguage": "fi-FI",
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
     }
@@ -46,7 +46,7 @@ const schemaData = {
 
 <BaseLayout
   title="Ilmainen kullan hinta -widget sivullesi | Kultalaskuri.fi"
-  description="Upota päivittyvä kullan hinta omalle sivustollesi ilmaiseksi. Kevyt widget näyttää spot-hinnan ja myyntihintatasot — asennus yhdellä koodirivillä."
+  description="Upota päivittyvä kullan hinta omalle sivustollesi ilmaiseksi. Kevyt widget näyttää spot-hinnan ja tavoitehintatasot — asennus yhdellä koodirivillä."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -99,11 +99,11 @@ const schemaData = {
             <div class="text-[10px] text-gray-500 mb-3">24K spot-hinta</div>
             <div class="mb-3">
               <div class="flex justify-between items-baseline py-1.5 border-b border-white/10">
-                <span class="text-xs text-gray-400">585 (14K) myyntihinta</span>
+                <span class="text-xs text-gray-400">585 (14K) tavoitehinta</span>
                 <span class="text-sm font-bold text-gold-400 tabular-nums">{fmt(p14k)} €/g</span>
               </div>
               <div class="flex justify-between items-baseline py-1.5 border-b border-white/10">
-                <span class="text-xs text-gray-400">750 (18K) myyntihinta</span>
+                <span class="text-xs text-gray-400">750 (18K) tavoitehinta</span>
                 <span class="text-sm font-bold text-white tabular-nums">{fmt(p18k)} €/g</span>
               </div>
             </div>
@@ -150,7 +150,7 @@ const schemaData = {
       <p class="text-gray-600 leading-relaxed mb-4">
         Sama data on saatavilla suoraan JSON-muodossa osoitteesta
         <a href="/hinta.json" class="text-gold-600 font-bold hover:underline font-mono text-sm">kultalaskuri.fi/hinta.json</a>.
-        Vastaus sisältää 24K-spot-hinnan sekä 14K/18K/24K-myyntihintatasot euroina grammalta.
+        Vastaus sisältää 24K-spot-hinnan sekä 14K/18K/24K-tavoitehintatasot euroina grammalta.
         Data päivittyy kerran päivässä. Käyttö on vapaata, kunhan mainitset lähteeksi Kultalaskuri.fi:n.
       </p>
       <p class="text-sm text-gray-500 leading-relaxed">
