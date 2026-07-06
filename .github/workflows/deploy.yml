@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -26,11 +26,31 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages-sha: ${{ steps.pages-sha.outputs.sha || steps.pages-sha-current.outputs.sha }}
     steps:
       # Action-versiot päivitetty 4.7.2026: GitHub pakottaa 16.6.2026 alkaen
       # actionit Node 24:lle, ja vanhat versiot kaatuivat deploy-vaiheessa.
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Bump scheduled deploy version
+        id: pages-sha
+        if: github.event_name == 'schedule'
+        run: |
+          mkdir -p public
+          printf '{\n  "updatedAt": "%s",\n  "runId": "%s"\n}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" > public/deploy-version.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/deploy-version.json
+          git commit -m "Päivitä Pages-julkaisuleima [skip ci]"
+          git push
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Use current commit for deploy version
+        id: pages-sha-current
+        if: github.event_name != 'schedule'
+        run: echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node
         uses: actions/setup-node@v5
@@ -69,8 +89,12 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         continue-on-error: true
+        env:
+          GITHUB_SHA: ${{ needs.build.outputs.pages-sha }}
 
       - name: Retry deploy (1. yritys epäonnistui)
         id: deployment-retry
         if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
+        env:
+          GITHUB_SHA: ${{ needs.build.outputs.pages-sha }}
