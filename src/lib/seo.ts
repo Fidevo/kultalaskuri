@@ -24,7 +24,7 @@ export function generateIndexSchema(
         '@type': 'Organization',
         '@id': 'https://kultalaskuri.fi/#organization',
         'name': 'Kultalaskuri.fi',
-        'url': 'https://kultalaskuri.fi',
+        'url': 'https://kultalaskuri.fi/',
         'logo': {
           '@type': 'ImageObject',
           'url': 'https://kultalaskuri.fi/kultalaskuri-logo.png'
@@ -45,7 +45,7 @@ export function generateIndexSchema(
         '@type': 'WebSite',
         '@id': 'https://kultalaskuri.fi/#website',
         'name': 'Kultalaskuri.fi',
-        'url': 'https://kultalaskuri.fi',
+        'url': 'https://kultalaskuri.fi/',
         'description': 'Laske kullan arvo päivän kurssilla. Ilmainen ja puolueeton suomalainen palvelu.',
         'publisher': { '@id': 'https://kultalaskuri.fi/#organization' },
         'inLanguage': 'fi-FI'
@@ -55,9 +55,9 @@ export function generateIndexSchema(
       {
         '@type': 'WebPage',
         '@id': 'https://kultalaskuri.fi/#webpage',
-        'url': 'https://kultalaskuri.fi',
+        'url': 'https://kultalaskuri.fi/',
         'name': 'Kullan hinta tänään – Laske kultasi arvo',
-        'description': 'Tarkista kullan hinta tänään reaaliajassa. Laske kultakorujen, romukullan tai kultaharkkojen arvo ilmaisella kultalaskurilla.',
+        'description': 'Tarkista kullan hinta tänään päivän kurssilla. Laske kultakorujen, romukullan tai kultaharkkojen arvo ilmaisella kultalaskurilla.',
         'isPartOf': { '@id': 'https://kultalaskuri.fi/#website' },
         'publisher': { '@id': 'https://kultalaskuri.fi/#organization' },
         'inLanguage': 'fi-FI',
@@ -70,7 +70,7 @@ export function generateIndexSchema(
         '@type': 'WebApplication',
         '@id': 'https://kultalaskuri.fi/#app',
         'name': 'Kultalaskuri',
-        'url': 'https://kultalaskuri.fi',
+        'url': 'https://kultalaskuri.fi/',
         'applicationCategory': 'FinanceApplication',
         'description': 'Ilmainen kultalaskuri, joka laskee kultakorujen, kultaharkkojen ja romukullan arvon päivittäin päivittyvällä pörssikurssilla.',
         'operatingSystem': 'Web',
@@ -123,7 +123,7 @@ export function generateIndexSchema(
             '@type': 'HowToStep',
             'position': 3,
             'name': 'Lue laskennallinen arvo',
-            'text': 'Kultalaskuri näyttää välittömästi kultaesineen laskennallisen markkina-arvon euroissa nykyisellä pörssikurssilla. Tämä on realistinen arvio kullan minimiarvosta – vertaa saamiisi tarjouksiin.'
+            'text': 'Kultalaskuri näyttää välittömästi kultaesineen laskennallisen arvion euroissa päivän pörssikurssilla. Tämä on suuntaa-antava tavoitehintataso – vertaa sitä saamiisi tarjouksiin.'
           }
         ]
       },
