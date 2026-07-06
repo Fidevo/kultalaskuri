@@ -28,5 +28,13 @@ social/output/*.png
 
 # local AI agent notes and workspace state
 AGENTS.md
+CLAUDE.md
 .agent/
 .claude/
+
+# private drafts and unpublished business experiments
+src/drafts/
+src/pages/_yrityksille.astro
+src/pages/api/_partner-inquiry.ts
+src/data/cities.ts
+src/lib/supabase/

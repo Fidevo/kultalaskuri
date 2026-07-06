@@ -5,9 +5,6 @@ heti realistisen euromääräisen myyntihinnan päivän pörssikurssilla.
 
 **Tuotanto:** https://kultalaskuri.fi (GitHub Pages, custom domain `public/CNAME`)
 
-> 🤖 Teetkö muutoksia tekoälyagentilla? Lue ensin [CLAUDE.md](CLAUDE.md) — siellä ovat
-> projektin pelisäännöt ja tunnetut sudenkuopat.
-
 ## Stack
 
 | Osa | Teknologia |
@@ -34,8 +31,6 @@ Ympäristömuuttujat (`.env`, ei versionhallinnassa):
 
 ```
 METALPRICE_API_KEY=...       # pakollinen tuotantobuildissa
-PUBLIC_SUPABASE_URL=...      # käytössä vain julkaisemattomassa _yrityksille-draftissa
-PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
 ## Sivut
@@ -45,7 +40,7 @@ PUBLIC_SUPABASE_ANON_KEY=...
 | `/` | `src/pages/index.astro` | Päälaskuri, tavoitehinnat, painoarvio, hintagraafi, leimaopas-tiiviste, FAQ |
 | `/kullan-hinta/` | `kullan-hinta.astro` | Hintakehityssivu: graafi + kuukausitaulukko + FAQ |
 | `/kullan-myynti/` | `kullan-myynti.astro` | Myyntiopas + laskuri + FAQ |
-| `/kullan-myynti-verotus/` | `kullan-myynti-verotus.astro` | Verotusopas (faktat Vero.fi-lähteistä — katso CLAUDE.md) |
+| `/kullan-myynti-verotus/` | `kullan-myynti-verotus.astro` | Verotusopas (faktat Vero.fi-lähteistä) |
 | `/kullan-leimat/` | `kullan-leimat.astro` | Leimaopas: 585/750, nimileimat, vuosileimataulukot 1906–, ulkomaiset leimat |
 | `/sanasto/` | `sanasto.astro` | 15 termin sanasto (DefinedTermSet-schema) |
 | `/tietoa/` | `tietoa.astro` | Tietoa palvelusta (E-E-A-T) |
@@ -53,8 +48,7 @@ PUBLIC_SUPABASE_ANON_KEY=...
 | `/hinta.json` | `hinta.json.ts` | Avoin JSON-hintadata (widgetin datalähde, CORS `*`) |
 | `/tietosuoja/`, `/kayttoehdot/` | | Legal |
 
-Alaviivalla alkavat tiedostot (`_yrityksille.astro`, `drafts/`, `api/_partner-inquiry.ts`)
-ovat luonnoksia, jotka **eivät buildaudu**.
+Alaviivalla alkavat sivut eivät buildaudu.
 
 ## Arkkitehtuuri ja datavirrat
 
