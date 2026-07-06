@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
 import priceHistory from '../../social/data/price-history.json';
+import { fillMissingDays } from '../lib/utils/priceHistory';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import GoldCalculator from '../components/react/GoldCalculator.tsx';
 import JewelryWeightEstimator from '../components/react/JewelryWeightEstimator.tsx';
@@ -24,6 +25,9 @@ const HELSINKI_TZ = 'Europe/Helsinki';
 
 const lastHist = priceHistory[priceHistory.length - 1];
 const prevHist = priceHistory[priceHistory.length - 2];
+// Graafiin täytetään viikonloppujen puuttuvat päivät edellisen hinnan toistolla,
+// jotta aikajana ei hyppää perjantaista maanantaihin
+const chartHistory = fillMissingDays(priceHistory);
 const buildDay = new Date().toLocaleDateString('sv-SE', { timeZone: HELSINKI_TZ }); // YYYY-MM-DD Suomen ajassa
 const refHist = lastHist?.date === buildDay ? prevHist : lastHist;
 const dayChangePct = spot > 0 && refHist && refHist.price > 0
@@ -300,12 +304,12 @@ const faqItems = [
 
       {/* min-h varaa tilan islandille → ei layout-hyppäystä hydraatiossa (CLS) */}
       <div class="reveal min-h-[560px] md:min-h-[480px]">
-        <GoldPriceChart client:visible data={priceHistory} />
+        <GoldPriceChart client:visible data={chartHistory} />
       </div>
 
       <p class="text-center text-gray-400 text-xs mt-6 leading-relaxed">
         Kullan spot-hinta euroina per gramma (24K, puhdas kulta). Päivitetään päivittäin klo 18.
-        Lähde: MetalPrice API · {priceHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
+        Lähde: MetalPrice API · {chartHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
 
       <p class="text-center mt-4">

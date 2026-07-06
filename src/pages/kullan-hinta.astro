@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FaqItem from '../components/FaqItem.astro';
 import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
 import priceHistory from '../../social/data/price-history.json';
+import { fillMissingDays } from '../lib/utils/priceHistory';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import { calculateGoldValue } from '../lib/calculations/goldCalculator';
 
@@ -12,10 +13,14 @@ const spot = goldPrice?.priceEurGram || 0;
 const p14k = spot > 0 ? (calculateGoldValue(1, '14K', spot)?.targetValue ?? 0) : 0;
 const p18k = spot > 0 ? (calculateGoldValue(1, '18K', spot)?.targetValue ?? 0) : 0;
 
+// Viikonloppujen puuttuvat päivät täytetään edellisen hinnan toistolla, jotta
+// graafi ja kuukausikooste eivät hyppää suoraan perjantaista maanantaihin
+const chartHistory = fillMissingDays(priceHistory);
+
 // ── Tilastot hintahistoriasta (build-aikana, ei client-JS:ää) ──
-const last = priceHistory[priceHistory.length - 1];
-const first = priceHistory[0];
-const allPrices = priceHistory.map(d => d.price);
+const last = chartHistory[chartHistory.length - 1];
+const first = chartHistory[0];
+const allPrices = chartHistory.map(d => d.price);
 const allHigh = Math.max(...allPrices);
 const allLow = Math.min(...allPrices);
 const totalChangePct = first.price > 0 ? ((last.price - first.price) / first.price) * 100 : 0;
@@ -36,7 +41,7 @@ interface MonthRow {
 }
 
 const monthMap = new Map<string, { prices: number[]; first: number; last: number }>();
-for (const d of priceHistory) {
+for (const d of chartHistory) {
   const key = d.date.slice(0, 7); // YYYY-MM
   const entry = monthMap.get(key);
   if (entry) {
@@ -187,12 +192,12 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       {/* min-h varaa tilan islandille → ei layout-hyppäystä hydraatiossa */}
       <div class="min-h-[560px] md:min-h-[480px]">
-        <GoldPriceChart client:load data={priceHistory} />
+        <GoldPriceChart client:load data={chartHistory} />
       </div>
 
       <p class="text-center text-gray-400 text-xs mt-6 leading-relaxed">
         Kullan spot-hinta euroina per gramma (24K, puhdas kulta). Lähde: MetalPrice API ·
-        {priceHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
+        {chartHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
     </div>
   </div>
