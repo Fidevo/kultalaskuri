@@ -25,3 +25,8 @@ pnpm-debug.log*
 
 # social media generated images
 social/output/*.png
+
+# local AI agent notes and workspace state
+AGENTS.md
+.agent/
+.claude/

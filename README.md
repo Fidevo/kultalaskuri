@@ -88,6 +88,16 @@ Viikonloppuisin ei ajoja — kultapörssi on kiinni (pe ~24 UTC – su ~22 UTC),
 Huom: GitHubin cron ei ole täsmällinen; ajoja jää ajoittain väliin ruuhkan takia.
 API-kiintiö näkyy MetalPrice-hallintapaneelista tai vastausheaderista `X-API-CURRENT`.
 
+### GitHub Pages -julkaisuleima
+
+Scheduled deploy päivittää `public/deploy-version.json`-tiedoston ja tekee pienen commitin
+ennen buildiä. Tämä on tarkoituksella: GitHub Pages käyttää deployn versiona commit-SHA:ta,
+ja jos sama SHA deployataan uudelleen, Pages voi merkitä ajon onnistuneeksi mutta palvella
+vanhaa staattista sisältöä.
+
+Älä poista `deploy-version.json`-päivitystä workflowsta ilman korvaavaa tapaa varmistaa, että
+ajastetuilla deployilla on uusi Pages-versio.
+
 ## Upotettava widget
 
 Muille sivustoille tarjottava hintawidget: `public/widget.js` hakee datan `/hinta.json`-endpointista.
