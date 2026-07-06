@@ -1,7 +1,7 @@
 {
   "name": "Kultalaskuri.fi – Kullan hinta tänään",
   "short_name": "Kultalaskuri",
-  "description": "Laske kultakorujesi ja romukullan arvo reaaliaikaisella pörssikurssilla.",
+  "description": "Laske kultakorujesi ja romukullan arvo päivittyvällä pörssikurssilla.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

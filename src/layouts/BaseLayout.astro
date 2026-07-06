@@ -134,6 +134,19 @@ const isProd = import.meta.env.PROD;
     </button>
 
     <script>
+      const track = (event: string, data?: Record<string, string | number>) => {
+        try {
+          const umami = (window as any).umami;
+          if (umami?.track) {
+            umami.track(event, data);
+          } else {
+            window.setTimeout(() => {
+              try { (window as any).umami?.track(event, data); } catch {}
+            }, 1200);
+          }
+        } catch {}
+      };
+
       // 1. Yhdistetty scroll-kuuntelija: scroll-to-top -nappi + Umami scroll-syvyys
       const globalScrollBtn = document.getElementById('global-scroll-to-top');
       const scrollThresholds = [25, 50, 75, 100];
@@ -154,7 +167,7 @@ const isProd = import.meta.env.PROD;
           for (const t of scrollThresholds) {
             if (pct >= t && !firedDepths.has(t)) {
               firedDepths.add(t);
-              try { (window as any).umami?.track('scroll-depth', { depth: t }); } catch {}
+              track('scroll-depth', { depth: t });
             }
           }
         }
@@ -179,10 +192,24 @@ const isProd = import.meta.env.PROD;
       (function () {
         const installBtn = document.getElementById('pwa-install');
         let deferredPrompt: any = null;
+        const isStandalone =
+          window.matchMedia('(display-mode: standalone)').matches ||
+          (window.navigator as any).standalone === true;
+
+        if (isStandalone && !sessionStorage.getItem('kl-pwa-open-tracked')) {
+          sessionStorage.setItem('kl-pwa-open-tracked', '1');
+          track('pwa-open', { path: window.location.pathname });
+        }
+
+        window.addEventListener('appinstalled', () => {
+          localStorage.setItem('kl-pwa-installed', '1');
+          track('pwa-installed');
+        });
 
         window.addEventListener('beforeinstallprompt', (e) => {
           e.preventDefault();
           deferredPrompt = e;
+          track('pwa-install-available');
           if (localStorage.getItem('kl-pwa-dismissed')) return;
           installBtn?.classList.remove('hidden');
           installBtn?.classList.add('flex');
@@ -192,10 +219,13 @@ const isProd = import.meta.env.PROD;
           installBtn.classList.add('hidden');
           installBtn.classList.remove('flex');
           if (!deferredPrompt) return;
-          try { (window as any).umami?.track('pwa-install-prompt'); } catch {}
+          track('pwa-install-prompt');
           deferredPrompt.prompt();
           const choice = await deferredPrompt.userChoice;
-          if (choice?.outcome !== 'accepted') {
+          if (choice?.outcome === 'accepted') {
+            track('pwa-install-accepted');
+          } else {
+            track('pwa-install-dismissed');
             localStorage.setItem('kl-pwa-dismissed', '1');
           }
           deferredPrompt = null;
@@ -205,7 +235,20 @@ const isProd = import.meta.env.PROD;
       // --- Umami: CTA-linkkien seuranta ---
       document.querySelectorAll('a[href*="#laskuri"], a[href*="#myyntilaskuri"]').forEach(el => {
         el.addEventListener('click', () => {
-          try { (window as any).umami?.track('cta-click', { href: (el as HTMLAnchorElement).href, text: (el as HTMLElement).textContent?.trim().slice(0, 50) || '' }); } catch {}
+          track('cta-click', { href: (el as HTMLAnchorElement).href, text: (el as HTMLElement).textContent?.trim().slice(0, 50) || '' });
+        });
+      });
+
+      // --- Umami: päävalikon ja footerin linkit ---
+      document.querySelectorAll('header a[href], footer a[href]').forEach(el => {
+        el.addEventListener('click', () => {
+          const link = el as HTMLAnchorElement;
+          const area = link.closest('header') ? 'header' : 'footer';
+          track('nav-click', {
+            area,
+            href: link.getAttribute('href') || '',
+            text: link.textContent?.trim().replace(/\s+/g, ' ').slice(0, 60) || '',
+          });
         });
       });
 

@@ -33,7 +33,7 @@ const dayChangePct = spot > 0 && refHist && refHist.price > 0
 const showDayChange = dayChangePct !== null && Math.abs(dayChangePct) >= 0.05;
 const dayChangeUp = (dayChangePct ?? 0) >= 0;
 
-// Näkyvä päivitysaika — täsmällinen aikaleima on vahvempi trust-signaali kuin "reaaliaikainen".
+// Näkyvä päivitysaika — täsmällinen aikaleima on vahva trust-signaali.
 // Tuotannossa build ajetaan tunneittain, joten myös kellonaika näytetään.
 // Fallback-datassa (hintahistoria) aikaleima on keskiyöllä → näytetään vain päivämäärä.
 const updatedAtDate = goldPrice?.updatedAt ? new Date(goldPrice.updatedAt) : new Date();

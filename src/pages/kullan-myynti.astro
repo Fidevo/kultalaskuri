@@ -5,11 +5,11 @@ import GoldCalculator from '../components/react/GoldCalculator.tsx';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import { calculateGoldValue } from '../lib/calculations/goldCalculator';
 
-// Reaaliaikainen kullan hinta
+// Päivittyvä kullan hinta
 const goldPrice = await getGoldPrice();
 const spot = goldPrice?.priceEurGram || 0;
 
-// Reaaliaikaiset tavoitehinnat samalla logiikalla kuin etusivulla
+// Päivittyvät tavoitehinnat samalla logiikalla kuin etusivulla
 const result24k = spot > 0 ? calculateGoldValue(1, '24K', spot) : null;
 const result18k = spot > 0 ? calculateGoldValue(1, '18K', spot) : null;
 const result14k = spot > 0 ? calculateGoldValue(1, '14K', spot) : null;

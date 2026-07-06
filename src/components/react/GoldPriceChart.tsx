@@ -11,6 +11,10 @@ interface Props {
   data: PricePoint[];
 }
 
+const track = (event: string, data?: Record<string, string | number>) => {
+  try { (window as any).umami?.track(event, data); } catch {}
+};
+
 // SVG canvas -reunukset. Leveys/korkeus lasketaan komponentissa
 // responsiivisesti: kapealla näytöllä käytetään pienempää viewBoxia,
 // jolloin kuvaaja renderöityy korkeampana ja tekstit luettavina.
@@ -53,6 +57,7 @@ export default function GoldPriceChart({ data }: Props) {
   const [hovIdx, setHovIdx] = useState<number | null>(null);
   const [isNarrow, setIsNarrow] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const hasTrackedInteraction = useRef(false);
 
   // Mobiilissa (≤640 px) kapeampi viewBox → kuvaaja korkeampi ja tekstit isompia
   useEffect(() => {
@@ -141,6 +146,10 @@ export default function GoldPriceChart({ data }: Props) {
   // Yhteinen osoitinlogiikka hiirelle ja kosketukselle
   const handlePointer = useCallback((clientX: number) => {
     if (!pts.length || !svgRef.current) return;
+    if (!hasTrackedInteraction.current) {
+      hasTrackedInteraction.current = true;
+      track('hintahistoria-interaktio', { range });
+    }
     const rect = svgRef.current.getBoundingClientRect();
     const svgX = ((clientX - rect.left) / rect.width) * VW;
     let best = 0, bestDist = Infinity;
@@ -149,7 +158,7 @@ export default function GoldPriceChart({ data }: Props) {
       if (d < bestDist) { bestDist = d; best = i; }
     });
     setHovIdx(best);
-  }, [pts, VW]);
+  }, [pts, VW, range]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     handlePointer(e.clientX);
@@ -227,7 +236,10 @@ export default function GoldPriceChart({ data }: Props) {
               <button
                 key={r.key}
                 aria-pressed={range === r.key}
-                onClick={() => setRange(r.key)}
+                onClick={() => {
+                  setRange(r.key);
+                  track('hintahistoria-range', { range: r.key });
+                }}
                 className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all duration-150 ${
                   range === r.key
                     ? 'bg-[#D4AF37] text-[#0B0F19] shadow-sm'
