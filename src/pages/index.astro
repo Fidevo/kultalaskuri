@@ -18,9 +18,13 @@ const spot = goldPrice?.priceEurGram || 0;
 // Muutos edellisestä pörssipäivästä: verrataan tuoretta spot-hintaa viimeisimpään
 // hintahistorian pisteeseen, joka EI ole tältä päivältä (build ajetaan tunneittain,
 // historia tallennetaan kerran päivässä klo 18).
+// Kaikki aikaleimat Suomen ajassa — build ajetaan UTC-palvelimella,
+// joten aikavyöhyke on annettava eksplisiittisesti
+const HELSINKI_TZ = 'Europe/Helsinki';
+
 const lastHist = priceHistory[priceHistory.length - 1];
 const prevHist = priceHistory[priceHistory.length - 2];
-const buildDay = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD paikallisajassa
+const buildDay = new Date().toLocaleDateString('sv-SE', { timeZone: HELSINKI_TZ }); // YYYY-MM-DD Suomen ajassa
 const refHist = lastHist?.date === buildDay ? prevHist : lastHist;
 const dayChangePct = spot > 0 && refHist && refHist.price > 0
   ? ((spot - refHist.price) / refHist.price) * 100
@@ -34,14 +38,18 @@ const dayChangeUp = (dayChangePct ?? 0) >= 0;
 // Fallback-datassa (hintahistoria) aikaleima on keskiyöllä → näytetään vain päivämäärä.
 const updatedAtDate = goldPrice?.updatedAt ? new Date(goldPrice.updatedAt) : new Date();
 const updatedDate = updatedAtDate.toLocaleDateString('fi-FI', {
-  day: 'numeric', month: 'numeric', year: 'numeric',
+  day: 'numeric', month: 'numeric', year: 'numeric', timeZone: HELSINKI_TZ,
 });
-const hasClockTime = updatedAtDate.getHours() !== 0 || updatedAtDate.getMinutes() !== 0;
-const updatedTime = hasClockTime
-  ? updatedAtDate.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })
-  : null;
+// Fallback-datan aikaleima on keskiyöllä → kellonaikaa ei näytetä ('00.00').
+// Oikea API-haku osuu keskiyöhön käytännössä vain teoriassa.
+const timeStr = updatedAtDate.toLocaleTimeString('fi-FI', {
+  hour: '2-digit', minute: '2-digit', timeZone: HELSINKI_TZ,
+});
+const updatedTime = timeStr === '00.00' ? null : timeStr;
 // Mobiilissa lyhyt muoto ilman vuotta, jotta badge mahtuu yhdelle riville
-const updatedDateShort = updatedAtDate.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric' });
+const updatedDateShort = updatedAtDate.toLocaleDateString('fi-FI', {
+  day: 'numeric', month: 'numeric', timeZone: HELSINKI_TZ,
+});
 
 const result24k = spot > 0 ? calculateGoldValue(1, '24K', spot) : null;
 const result18k = spot > 0 ? calculateGoldValue(1, '18K', spot) : null;

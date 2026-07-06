@@ -62,8 +62,9 @@ const monthRows: MonthRow[] = [...monthMap.entries()]
     };
   });
 
-// Kuluva kuukausi merkitään keskeneräiseksi (luvut täydentyvät päivittäin)
-const currentMonthKey = new Date().toLocaleDateString('sv-SE').slice(0, 7); // YYYY-MM
+// Kuluva kuukausi merkitään keskeneräiseksi (luvut täydentyvät päivittäin).
+// Suomen aikavyöhyke eksplisiittisesti — build ajetaan UTC-palvelimella.
+const currentMonthKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' }).slice(0, 7); // YYYY-MM
 
 const fmt = (n: number) => n.toFixed(2).replace('.', ',');
 const fmtDateFi = (iso: string) => {

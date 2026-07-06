@@ -45,6 +45,8 @@ jobs:
         run: npm run build
         env:
           METALPRICE_API_KEY: ${{ secrets.METALPRICE_API_KEY }}
+          # Runner on UTC-ajassa — aikaleimat muotoillaan Suomen ajassa
+          TZ: Europe/Helsinki
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
