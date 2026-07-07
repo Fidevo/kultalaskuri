@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Save daily graph price if missing
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           helsinki_hour="$(TZ=Europe/Helsinki date +%H)"
           if [ "$helsinki_hour" -ge 18 ]; then
@@ -48,7 +48,7 @@ jobs:
 
       - name: Bump scheduled deploy version
         id: pages-sha
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           mkdir -p public
           printf '{\n  "updatedAt": "%s",\n  "runId": "%s"\n}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" > public/deploy-version.json
@@ -62,7 +62,7 @@ jobs:
 
       - name: Use current commit for deploy version
         id: pages-sha-current
-        if: github.event_name != 'schedule'
+        if: github.event_name == 'push'
         run: echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node
