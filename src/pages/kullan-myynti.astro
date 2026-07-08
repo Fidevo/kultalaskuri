@@ -118,7 +118,7 @@ const schemaData = {
           "name": "Voiko rikkinäistä tai vaurioitunutta kultaa myydä?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Kyllä. Rikkinäiset korut, irronneet osat, kuluneet sormukset ja parittomiksi jääneet korvakorut käyvät kaikki kaupaksi. Kullanostajat maksavat kultapitoisuuden ja painon perusteella, ei esineen kunnon mukaan. Rikkinäinen kultakoru on yhtä arvokas raaka-aineena kuin ehjäkin."
+            "text": "Kyllä. Rikkinäiset korut, irronneet osat, kuluneet sormukset ja parittomiksi jääneet korvakorut — eli romukulta — käyvät kaikki kaupaksi. Kullanostajat maksavat kultapitoisuuden ja painon perusteella, ei esineen kunnon mukaan. Rikkinäinen kultakoru on yhtä arvokas raaka-aineena kuin ehjäkin."
           }
         },
         {
@@ -155,7 +155,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
 <BaseLayout
   title="Kullan myynti: paljonko kullasta saa? | Kultalaskuri.fi"
-  description="Myy kulta fiksusti. Laske kullan arvo sekunneissa ja katso paljonko koruistasi voi saada. Vältä alihinnoittelu ja löydä paras hinta."
+  description="Myy kulta fiksusti. Laske kullanostajien ostohinta sekunneissa ja katso paljonko koruistasi voi saada. Vältä alihinnoittelu ja löydä paras hinta."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -241,7 +241,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 id="paljonko-saa" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Paljonko kullasta saa rahaa?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Kullan myyntihinta perustuu maailmanmarkkinoiden spot-hintaan eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen arvio riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
+        Kullan myyntihinta — eli kullan ostohinta, jonka kullanostaja sinulle maksaa — perustuu maailmanmarkkinoiden spot-hintaan eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen arvio riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
       </p>
       <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
         <ul class="space-y-4 text-gray-700 font-medium">
