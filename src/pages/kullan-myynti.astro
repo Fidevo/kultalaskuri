@@ -78,7 +78,7 @@ const schemaData = {
           "name": "Paljonko kullasta saa per gramma?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": `Kullasta maksettava hinta riippuu maailmanmarkkinahinnasta ja pitoisuudesta. Kullan reilu vähimmäistaso on juuri nyt noin ${fmt(p14k)} €/g 14 karaatin kullalle, ${fmt(p18k)} €/g 18 karaatin kullalle ja ${fmt(p24k)} €/g puhtaalle kullalle.`
+            "text": "Kullasta maksettava hinta riippuu maailmanmarkkinahinnasta ja pitoisuudesta, ja se päivittyy päivittäin. Yllä olevalla laskurilla näet heti oman korusi tai kultasi reilun vähimmäistason tämänpäiväisellä kurssilla."
           }
         },
         {
@@ -153,8 +153,8 @@ const schemaData = {
 const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
 ---
 
-<BaseLayout 
-  title="Kullan myynti – Paljonko kullasta saa rahaa? | Kultalaskuri.fi" 
+<BaseLayout
+  title="Kullan myynti: paljonko kullasta saa? | Kultalaskuri.fi"
   description="Myy kulta fiksusti. Laske kullan arvo sekunneissa ja katso paljonko koruistasi voi saada. Vältä alihinnoittelu ja löydä paras hinta."
   schema={JSON.stringify(schemaData)}
 >

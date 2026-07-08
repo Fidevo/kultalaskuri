@@ -127,8 +127,8 @@ const schemaData = {
 const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
 ---
 
-<BaseLayout 
-  title="Kullan leimat 585 ja 750 – mitä ne tarkoittavat? | Kultalaskuri.fi" 
+<BaseLayout
+  title="Kullan leimat 585 ja 750 selitettynä | Kultalaskuri.fi"
   description="Mitä tarkoittaa kullan leima 585 tai 750? Opi tunnistamaan aidot kultaleimat, karaatit ja kullatut esineet. Laske kullan arvo ilmaiseksi."
   schema={JSON.stringify(schemaData)}
   ogImage={kuva750.src}

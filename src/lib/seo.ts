@@ -1,20 +1,18 @@
 // src/lib/seo.ts
 
+interface FaqEntry {
+  question: string;
+  answer: string;
+}
+
+// JSON-LD:n Answer.text-kenttään ei pidä laittaa HTML-merkkausta (Google-ohjeistus) —
+// näkyvässä UI:ssa <strong>/<a> säilyvät, schema saa vain puhtaan tekstin.
+const stripHtml = (html: string) => html.replace(/<[^>]+>/g, '').trim();
+
 export function generateIndexSchema(
-  spotPrice: number,
-  price14k: string,
+  faqItems: FaqEntry[],
   dateModified: string = new Date().toISOString()
 ) {
-  const isValidPrice = spotPrice && spotPrice > 0;
-
-  const priceText24k = isValidPrice
-    ? `Juuri nyt puhtaan kullan (24K) markkinahinta on noin ${spotPrice.toFixed(2).replace('.', ',')} €/g.`
-    : 'Tarkista ajantasainen kullan hinta sivustomme laskurista.';
-
-  const priceText14k = isValidPrice
-    ? `14K (leima 585) on Suomen yleisin korukulta. Tänään sen laskennallinen markkinahinta on n. ${price14k} €/g.`
-    : '14K (leima 585) on Suomen yleisin korukulta. Sen arvo määräytyy päivän pörssikurssin mukaan.';
-
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
@@ -128,87 +126,21 @@ export function generateIndexSchema(
         ]
       },
 
-      // 6. FAQPage — kaikki 8 kysymystä (AI-näkyvyyden kannalta kriittinen)
+      // 6. FAQPage — sama sisältö kuin sivulla näkyvä UKK-osio (Google vaatii,
+      // että structured data vastaa näkyvää sisältöä; ei enää oma, ajan myötä
+      // eriytynyt kysymyssarja).
       {
         '@type': 'FAQPage',
         '@id': 'https://kultalaskuri.fi/#faq',
         'isPartOf': { '@id': 'https://kultalaskuri.fi/#webpage' },
-        'mainEntity': [
-          {
-            '@type': 'Question',
-            'name': 'Paljonko on kullan hinta grammalta?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': priceText24k + ' Hinta muuttuu pörssikurssin mukaan päivittäin.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Mikä on kullan hinta tänään?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': isValidPrice
-                ? `${priceText24k} 14 karaatin (585) kullan hinta on tänään noin ${price14k} €/g. Seuraa päivittyvää hintaa kultalaskuri.fi:ssä.`
-                : priceText24k + ' Seuraa päivittyvää hintaa kultalaskuri.fi:ssä.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Mitä eroa on 14K ja 18K kullalla?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Ero on kultapitoisuudessa. ' + priceText14k + ' 18K (leima 750) sisältää 75 % kultaa ja on arvokkaampaa, mutta myös pehmeämpää ja herkempää naarmuille.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Mitä tarkoittaa leima 585?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Leima 585 tarkoittaa 14 karaatin kultaa. Luku kertoo, että seoksesta 585 tuhannesosaa eli 58,5 % on puhdasta kultaa. Loput ovat seosmetalleja, kuten kuparia ja hopeaa, jotka tekevät korusta kestävämmän. 585 on Suomen yleisin kultaleima.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Paljonko kultasormus tai ketju painaa?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Korujen paino vaihtelee suuresti. Kevyt naisten sormus painaa tyypillisesti 2–4 grammaa, miesten sormus 5–10 grammaa. Ohut kaulaketju voi olla alle 3 grammaa, paksut panssariketjut kymmeniä grammoja.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Onko kultakoruissa aina leima?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Suomessa myytävissä, yli 1 gramman painoisissa kultatuotteissa tulee lain mukaan olla pitoisuusleima. Hyvin vanhoissa koruissa, ulkomailta tuoduissa esineissä tai itse tehdyissä töissä leima voi kuitenkin puuttua tai se on voinut kulua näkymättömiin.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Mistä tietää onko esine kultaa vai kullattu?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Varmin keino on etsiä pitoisuusleima (esim. 585 tai 750). Toinen kotikonsti on magneetti: aito kulta ei ole magneettista. Jos koru tarttuu magneettiin, se on todennäköisesti kullattua rautaa. Kuluneet kohdat, joista paistaa läpi eri väri, paljastavat esineen olevan vain kullattu pintakerrokseltaan.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Kannattaako kulta myydä juuri nyt?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Kullan hinta on historiallisesti erittäin korkealla tasolla. Jos sinulla on tarpeettomia koruja, rikkinäistä kultaa tai parittomia korvakoruja, nykyinen markkinatilanne on myyjän kannalta erinomainen. Tarkista ensin kullan arvo ilmaisella laskurilla, jotta tiedät reilun hinnan.'
-            }
-          },
-          {
-            '@type': 'Question',
-            'name': 'Miten kullan maailmanmarkkinahinta määräytyy?',
-            'acceptedAnswer': {
-              '@type': 'Answer',
-              'text': 'Kullan hinta (spot-hinta) määräytyy kansainvälisissä pörsseissä kysynnän ja tarjonnan mukaan. Siihen vaikuttavat maailmantalouden tilanne, dollarin kurssi, inflaatio ja geopoliittinen epävarmuus. Kultalaskuri.fi seuraa tätä hintaa päivittäin.'
-            }
+        'mainEntity': faqItems.map(item => ({
+          '@type': 'Question',
+          'name': item.question,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': stripHtml(item.answer)
           }
-        ]
+        }))
       }
     ]
   });

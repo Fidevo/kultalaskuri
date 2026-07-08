@@ -101,7 +101,7 @@ const schemaData = {
       "@id": "https://kultalaskuri.fi/kullan-hinta/",
       "url": "https://kultalaskuri.fi/kullan-hinta/",
       "name": "Kullan hinta ja hintakehitys – päivittyvä kurssi euroissa",
-      "description": `Kullan hinta tänään ${spot > 0 ? fmt(spot) + ' €/g' : ''} ja hintakehitys päivä päivältä. Seuraa kullan spot-hintaa euroissa per gramma ja katso kuukausitilastot.`,
+      "description": "Kullan hinta tänään ja hintakehitys päivä päivältä. Seuraa kullan spot-hintaa euroissa per gramma ja katso kuukausitilastot.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
@@ -114,9 +114,7 @@ const schemaData = {
           "name": "Mikä on kullan hinta tänään euroissa?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": spot > 0
-              ? `Puhtaan kullan (24K) spot-hinta on tänään noin ${fmt(spot)} €/g. Korukullasta maksettava hinta on tätä matalampi: 14K-kullan reilu vähimmäistaso on noin ${fmt(p14k)} €/g ja 18K-kullan noin ${fmt(p18k)} €/g.`
-              : 'Kullan ajantasainen hinta päivittyy tälle sivulle päivittäin. Tarkista tuorein kurssi sivun kuvaajasta.'
+            "text": "Puhtaan kullan (24K) spot-hinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena. Korukullasta maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 14K tai 18K) ja ostajan katteesta."
           }
         },
         {
@@ -152,7 +150,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 ---
 
 <BaseLayout
-  title={`Kullan hinta tänään ${spot > 0 ? fmt(spot) + ' €/g' : ''} – hintakehitys | Kultalaskuri.fi`}
+  title="Kullan hinnan kehitys ja kuukausitilastot | Kultalaskuri.fi"
   description="Kullan hinta tänään ja hintakehitys päivä päivältä euroissa per gramma. Päivittyvä spot-kurssi, kuukausitilastot ja 24K/18K/14K-hinnat yhdellä sivulla."
   schema={JSON.stringify(schemaData)}
 >

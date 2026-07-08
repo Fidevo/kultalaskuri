@@ -63,8 +63,6 @@ const p24k = result24k?.targetValue ?? 0;
 const p18k = result18k?.targetValue ?? 0;
 const p14k = result14k?.targetValue ?? 0;
 
-const schemaData = generateIndexSchema(spot, p14k.toFixed(2).replace('.', ','), new Date().toISOString());
-
 // ── Data-taulukot toistorakenteita varten ──
 
 const priceCards = [
@@ -100,9 +98,9 @@ const stampCards = [
 ];
 
 const faqItems = [
-  { 
-    question: 'Paljonko on kullan hinta grammalta?', 
-    answer: `Kullan hinta grammalta vaihtelee pörssikurssin mukaan. Juuri nyt puhtaan kullan (24K) markkinahinta on noin <strong>${spot > 0 ? spot.toFixed(2).replace('.', ',') + ' €/g' : 'tarkistettavissa laskuristamme'}</strong>.`
+  {
+    question: 'Paljonko on kullan hinta grammalta?',
+    answer: 'Kullan hinta grammalta vaihtelee pörssikurssin mukaan päivittäin. Tämän sivun yläreunassa näkyvä hinta on aina päivän kurssin mukainen puhtaan kullan (24K) markkinahinta.'
   },
   { 
     question: 'Mitä eroa on 14K ja 18K kullalla?', 
@@ -133,6 +131,10 @@ const faqItems = [
     answer: 'Kullan hinta (spot-hinta) määräytyy kansainvälisissä pörsseissä kysynnän ja tarjonnan mukaan. Siihen vaikuttavat maailmantalouden tilanne, dollarin kurssi, inflaatio ja geopoliittinen epävarmuus. Kultalaskuri.fi seuraa tätä hintaa päivittäin — katso <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a>.'
   },
 ];
+
+// JSON-LD-skeema rakennetaan samasta faqItems-datasta kuin näkyvä UKK-osio,
+// jotta rakenteinen data ei koskaan eriydy sivun oikeasta sisällöstä.
+const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
 ---
 
 <BaseLayout 
