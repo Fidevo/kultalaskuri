@@ -34,3 +34,9 @@ jobs:
           git add social/data/price-history.json
           git diff --cached --quiet || git commit -m "Kullan hinta tallennettu"
           git push
+
+      # Dead man's switch: pingi tulee vain jos edelliset vaiheet onnistuivat
+      # (GitHub Actions pysäyttää jobin automaattisesti epäonnistuneen stepin
+      # jälkeen). Jos pingi jää tulematta, healthchecks.io hälyttää sähköpostilla.
+      - name: Ping healthcheck (hinta tallennettu)
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECK_PRICE_URL }}" || true

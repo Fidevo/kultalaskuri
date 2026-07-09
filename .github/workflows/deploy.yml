@@ -111,3 +111,11 @@ jobs:
         uses: actions/deploy-pages@v4
         env:
           GITHUB_SHA: ${{ needs.build.outputs.pages-sha }}
+
+      # Dead man's switch: ilmoittaa healthchecks.io:lle onnistuneesta deploysta.
+      # Jos pingi jää tulematta (esim. schedule lakkaa laukeamasta), hälytys tulee
+      # sähköpostiin — muuten hinta jähmettyisi vanhaksi kenenkään huomaamatta.
+      # "|| true" ettei monitoroinnin oma katkos kaada muuten onnistunutta deployta.
+      - name: Ping healthcheck (deploy onnistui)
+        if: steps.deployment.outcome == 'success' || steps.deployment-retry.outcome == 'success'
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECK_DEPLOY_URL }}" || true
