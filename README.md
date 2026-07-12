@@ -79,7 +79,10 @@ kautta** — älä kovakoodaa kertoimia muualle.
 | `social-save-price.yml` | Arkisin ~18.07 Suomen aikaa | Tallentaa päivän hinnan historiaan ja committaa. |
 
 Viikonloppuisin ei ajoja — kultapörssi on kiinni (pe ~24 UTC – su ~22 UTC), hinta ei liiku.
-Huom: GitHubin cron ei ole täsmällinen; ajoja jää ajoittain väliin ruuhkan takia.
+Huom: GitHubin oma `schedule`-cron ei ole täsmällinen (ajoja jää ajoittain väliin ruuhkan
+takia), joten sen rinnalla on ulkoinen palvelin, joka laukaisee `deploy.yml`:n
+`workflow_dispatch`-kutsulla arkipäivinä ensisijaisena ajastimena — siksi ajohistoriassa
+näkyy paljon "Manually run" -merkintöjä, vaikka mitään ei klikata käsin.
 API-kiintiö näkyy MetalPrice-hallintapaneelista tai vastausheaderista `X-API-CURRENT`.
 
 ### GitHub Pages -julkaisuleima
