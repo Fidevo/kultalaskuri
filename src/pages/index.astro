@@ -158,15 +158,25 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
     <div class="max-w-4xl mx-auto text-center relative z-10 no-print">
 
       {/* Päivitysaika-indikaattori — täsmällinen aikaleima herättää luottamusta.
-          Mobiilissa lyhyt muoto, jotta pallukka ja teksti pysyvät samalla rivillä. */}
+          Mobiilissa lyhyt muoto, jotta pallukka ja teksti pysyvät samalla rivillä.
+          Viikonloppuna (pörssi kiinni) vaihdetaan clientillä "kiinni"-tilaan — sivu
+          on SSG eikä buildaa la-su, joten build-hetken viikonpäivä ei vastaa kävijän
+          "tänään"; tarkistus on siksi tehtävä selaimessa, ei server-renderissä. */}
       <div class="flex items-center justify-center gap-2 mb-4 pointer-events-none select-none whitespace-nowrap">
-        <span class="relative flex h-2 w-2 shrink-0">
+        <span id="price-status-dot-live" class="relative flex h-2 w-2 shrink-0">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
         </span>
+        <span id="price-status-dot-closed" class="hidden inline-block h-2 w-2 rounded-full bg-gray-400 shrink-0"></span>
         <span class="text-gray-400 text-[11px] sm:text-xs uppercase tracking-widest sm:tracking-[0.2em] font-medium">
-          <span class="sm:hidden">Päivitetty {updatedDateShort}{updatedTime && ` klo ${updatedTime}`}</span>
-          <span class="hidden sm:inline">Pörssihinta · päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}</span>
+          <span id="price-status-text-live">
+            <span class="sm:hidden">Päivitetty {updatedDateShort}{updatedTime && ` klo ${updatedTime}`}</span>
+            <span class="hidden sm:inline">Pörssihinta · päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}</span>
+          </span>
+          <span id="price-status-text-closed" class="hidden">
+            <span class="sm:hidden">Pörssi kiinni · viikonloppu</span>
+            <span class="hidden sm:inline">Pörssi kiinni viikonloppuna · hinta ennallaan maanantaihin</span>
+          </span>
         </span>
       </div>
 
@@ -450,6 +460,16 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
   </section>
 
   <script>
+    // Pörssi kiinni viikonloppuna: sivu on SSG eikä buildaa la-su, joten
+    // "tänään" pitää tarkistaa clientillä kävijän hetkellä, ei build-hetkellä.
+    const helsinkiWeekday = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Helsinki', weekday: 'short' }).format(new Date());
+    if (helsinkiWeekday === 'Sat' || helsinkiWeekday === 'Sun') {
+      document.getElementById('price-status-dot-live')?.classList.add('hidden');
+      document.getElementById('price-status-dot-closed')?.classList.remove('hidden');
+      document.getElementById('price-status-text-live')?.classList.add('hidden');
+      document.getElementById('price-status-text-closed')?.classList.remove('hidden');
+    }
+
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Reveal-animaatiot
