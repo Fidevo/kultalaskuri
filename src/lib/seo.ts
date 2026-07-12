@@ -25,7 +25,7 @@ export function generateIndexSchema(
         'url': 'https://kultalaskuri.fi/',
         'logo': {
           '@type': 'ImageObject',
-          'url': 'https://kultalaskuri.fi/kultalaskuri-logo.png'
+          'url': 'https://kultalaskuri.fi/icon-512.png'
         },
         'description': 'Suomen kattavin ilmainen kultalaskuri — laske kultakorujen, harkkojen ja romukullan arvo päivittäin päivittyvällä pörssikurssilla.',
         'areaServed': { '@type': 'Country', 'name': 'Finland' },
