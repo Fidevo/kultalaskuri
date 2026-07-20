@@ -13,6 +13,10 @@ export default defineConfig({
     tailwind({
       applyBaseStyles: false,
     }),
-    sitemap(),
+    sitemap({
+      // Käyttöehdot ja tietosuojaseloste ovat noindex (ks. BaseLayout `noindex`-propi)
+      // — pidetään sitemap ja robots-meta samassa linjassa.
+      filter: (page) => !page.endsWith('/kayttoehdot/') && !page.endsWith('/tietosuoja/'),
+    }),
   ],
 });

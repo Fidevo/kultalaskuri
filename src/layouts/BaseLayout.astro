@@ -9,6 +9,7 @@ interface Props {
   canonical?: string;
   schema?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
 
 const {
@@ -16,7 +17,8 @@ const {
   description,
   canonical,
   schema,
-  ogImage = '/kultalaskuri-logo.png'
+  ogImage = '/kultalaskuri-logo.png',
+  noindex = false
 } = Astro.props;
 
 
@@ -40,7 +42,7 @@ const isProd = import.meta.env.PROD;
     <meta name="description" content={description} />
     
     <link rel="canonical" href={finalCanonical} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
     
     <meta name="google-site-verification" content="X9EntxvR0l_Tx3Uj-Zy_rr89c-c_hqQpcMNEuIW6mBA" />
     
