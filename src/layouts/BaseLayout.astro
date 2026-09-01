@@ -254,6 +254,30 @@ const isProd = import.meta.env.PROD;
         });
       });
 
+      // --- Umami: merkityt linkit (oppaat-hubin kortit) ---
+      document.querySelectorAll('a[data-track]').forEach(el => {
+        el.addEventListener('click', () => {
+          const link = el as HTMLAnchorElement;
+          track(link.dataset.track || 'linkki', {
+            href: link.getAttribute('href') || '',
+            text: (link.dataset.trackName || link.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60),
+          });
+        });
+      });
+
+      // --- Umami: "Lue myös" -rivien ja muiden merkittyjen linkkiryhmien linkit ---
+      document.querySelectorAll('[data-track-group] a[href]').forEach(el => {
+        el.addEventListener('click', () => {
+          const link = el as HTMLAnchorElement;
+          const group = (link.closest('[data-track-group]') as HTMLElement | null)?.dataset.trackGroup || 'linkkiryhma';
+          track(group, {
+            href: link.getAttribute('href') || '',
+            text: link.textContent?.trim().replace(/\s+/g, ' ').slice(0, 60) || '',
+            from: window.location.pathname,
+          });
+        });
+      });
+
       // FAQ: auki desktopilla, kiinni mobiilissa. Synkataan vain latauksessa ja
       // kun breakpoint oikeasti ylittyy — ei jokaisella resizellä (mobiiliselainten
       // osoitepalkin piiloutuminen laukaisee resizen ja sulkisi käyttäjän avaaman FAQ:n).

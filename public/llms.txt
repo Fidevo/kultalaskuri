@@ -1,0 +1,60 @@
+# Kultalaskuri.fi
+
+> Kultalaskuri.fi on ilmainen, suomalainen ja riippumaton palvelu kullan arvon
+> laskemiseen. Käyttäjä syöttää kultaesineen painon ja pitoisuuden ja näkee
+> arvion reilusta myyntihinnasta päivän pörssikurssilla. Palvelu ei osta kultaa
+> eikä ole sidoksissa yksittäiseen kullanostajaan.
+
+## Tietoa palvelusta
+
+- Kohderyhmä: kuluttajat, jotka harkitsevat kultakorujen tai romukullan myyntiä
+  ja haluavat tietää esineen arvon ennen kullanostajalle menoa.
+- Laskenta: puhtaan kullan määrä (paino × pitoisuus) × päivän spot-hinta =
+  pörssiarvo. Pörssiarvosta vähennetään tyypilliset sulatus-, jalostus- ja
+  katekulut, jolloin saadaan reilu tavoitehinta — vähimmäistaso, jota myynnissä
+  kannattaa tavoitella.
+- Datalähde: kullan spot-hinta haetaan MetalPrice API -palvelusta ja päivittyy
+  automaattisesti useita kertoja arkipäivisin. Täsmällinen €/g-hinta vaihtelee
+  päivittäin; päivittyvä luku näkyy aina sivuston laskurissa ja hintakorteissa,
+  ei tässä tiedostossa.
+- Hinnat esitetään euroina grammaa kohti. Kaikki sisältö on suomeksi.
+
+## Keskeiset sivut
+
+- [Kullan hinta tänään ja laskuri](https://kultalaskuri.fi/): laskuri, päivittyvät
+  24K/18K/14K-tavoitehinnat ja korupainon arviointi ilman vaakaa.
+- [Kullan myynnin oppaat](https://kultalaskuri.fi/oppaat/): kaikkien opassivujen
+  hakemisto kolmessa ryhmässä (tunnista ja arvioi · myyntipäätös · verotus ja termit).
+- [Kullan myynti](https://kultalaskuri.fi/kullan-myynti/): opas kullan myyntiin —
+  paljonko kullasta saa, näin vertaat kullanostajien tarjouksia tavoitehintaan,
+  yleisimmät virheet.
+- [Missä kultaa kannattaa myydä](https://kultalaskuri.fi/kullan-myyntipaikat/):
+  myyntikanavien vertailu — paikallinen kullanostaja, posti-/verkkopalvelu,
+  panttilainaamo, huutokauppa ja yksityismyynti; aikataulu, kulut, riskit ja
+  kenelle kukin sopii, sekä ostajan luotettavuuden tarkistus.
+- [Kullan hinta ja hintakehitys](https://kultalaskuri.fi/kullan-hinta/): spot-hinnan
+  päiväkohtainen historia, kuukausitilastot ja selitys siitä mistä kullan hinta
+  muodostuu (korkotaso, dollarin kurssi, keskuspankkien ostot, geopolitiikka).
+- [Kullan leimat](https://kultalaskuri.fi/kullan-leimat/): pitoisuusleimat
+  (585, 750, 375, 999), nimileimat, vuosileimat ja ulkomaiset karaattimerkinnät.
+- [Paljonko kultaa eri esineissä on](https://kultalaskuri.fi/kulta-esineet/):
+  kultaosuus esinetyypeittäin — sormukset, ketjut, kultakellot, hammaskulta,
+  harkot sekä kolikot (mm. Suomen markka-ajan 10 ja 20 markan kultarahat ja
+  sijoituskolikot puhtaan kullan määrineen); mikä osa esineestä on kultaa ja mikä ei.
+- [Kullan myynti ja verotus](https://kultalaskuri.fi/kullan-myynti-verotus/):
+  korujen myynnin verovapaus 5 000 euroon asti, luovutusvoiton laskenta ja
+  sijoituskullan verotus. Perustuu Verohallinnon ohjeisiin.
+- [Sanasto](https://kultalaskuri.fi/sanasto/): kullan myyntiin ja pitoisuuksiin
+  liittyvät termit selitettyinä.
+- [Tietoa palvelusta](https://kultalaskuri.fi/tietoa/): miten laskuri toimii,
+  mistä hintatieto tulee, miksi palvelu ei osta kultaa.
+
+## Huomioita
+
+- Laskurin antama arvo on suuntaa-antava vähimmäistaso, ei sitova tarjous.
+  Lopullinen ostohinta riippuu kullanostajan käytännöistä.
+- Kultakolikoista maksetaan yleensä keräilypreemio, joten niitä ei arvoteta
+  pelkkänä romukultana.
+- Design- ja merkkikoruilla (esim. Kalevala, Lapponia) voi olla romukulta-arvoa
+  korkeampi keräilyarvo.
+- Palvelu ei anna sijoitusneuvontaa.

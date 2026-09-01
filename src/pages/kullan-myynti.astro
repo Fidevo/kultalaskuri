@@ -86,7 +86,7 @@ const schemaData = {
           "name": "Kannattaako kulta myydä nyt?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Kullan myynti voi olla kannattavaa silloin, kun markkinahinta on korkealla ja sinulla on tarpeettomia koruja tai muuta kultaa, jota et enää käytä. Ennen myyntiä kannattaa aina tarkistaa ajantasainen arvo laskurilla."
+            "text": "Kullan myynti voi olla kannattavaa silloin, kun markkinahinta on korkealla ja sinulla on tarpeettomia koruja tai muuta kultaa, jota et enää käytä. Ennen myyntiä kannattaa aina tarkistaa kullan arvo laskurilla päivän kurssilla."
           }
         },
         {
@@ -144,6 +144,14 @@ const schemaData = {
             "@type": "Answer",
             "text": "Laske ensin kullan reilu vähimmäistaso ilmaisella kultalaskurilla, jotta tiedät tavoitteesi. Sen jälkeen pyydä tarjous vähintään kahdesta tai kolmesta eri liikkeestä tai verkkopalvelusta. Kerro avoimesti, että kilpailutat tarjouksia — usein ostaja on halukas parantamaan hintaa, jos hän tietää sinulla olevan muitakin vaihtoehtoja."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten vertaan eri kullanostajien tarjouksia keskenään?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Selvitä ensin laskurilla kullan reilu vähimmäistaso — se on tavoitteesi. Pyydä sitten jokaiselta ostajalta hinta samasta erästä eli samoista esineistä, kivet joko mukana tai pois kaikilta samalla tavalla. Jos tarjous on annettu grammahintana, kerro se painolla, jotta saat vertailukelpoisen kokonaissumman. Kultalaskuri.fi:n laskurissa on tarjousvertailu, johon voit syöttää saamasi tarjoukset ja nähdä heti, yltävätkö ne tavoitehintaan."
+          }
         }
       ]
     }
@@ -192,7 +200,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kullan myynti –
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1">
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
           näin saat parhaan hinnan kullastasi
         </span>
       </h1>
@@ -233,6 +241,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <li><a href="#paljonko-saa" class="text-gold-600 font-bold hover:underline">Paljonko kullasta saa rahaa?</a></li>
           <li><a href="#nain-toimii" class="text-gold-600 font-bold hover:underline">Näin myynti toimii käytännössä</a></li>
           <li><a href="#missa-myyda" class="text-gold-600 font-bold hover:underline">Missä kulta kannattaa myydä?</a></li>
+          <li><a href="#vertaa-tarjouksia" class="text-gold-600 font-bold hover:underline">Näin vertaat saamiasi tarjouksia</a></li>
           <li><a href="#myyntitilanne" class="text-gold-600 font-bold hover:underline">Mitä myyntitilanteessa tapahtuu?</a></li>
           <li><a href="#virheet" class="text-gold-600 font-bold hover:underline">Yleisimmät virheet</a></li>
           <li><a href="#ukk" class="text-gold-600 font-bold hover:underline">Usein kysyttyä</a></li>
@@ -241,7 +250,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 id="paljonko-saa" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Paljonko kullasta saa rahaa?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Kullan myyntihinta — eli kullan ostohinta, jonka kullanostaja sinulle maksaa — perustuu maailmanmarkkinoiden spot-hintaan eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen arvio riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
+        Kullan myyntihinta — eli kullan ostohinta, jonka kullanostaja sinulle maksaa — perustuu maailmanmarkkinoiden <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hintaan</a> eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen arvio riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
       </p>
       <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
         <ul class="space-y-4 text-gray-700 font-medium">
@@ -297,7 +306,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <div class="w-12 h-12 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 shadow-sm text-xl">1</div>
           <div>
             <h3 class="text-xl font-bold text-gray-900 mb-2">Punnitse ja tarkista leima</h3>
-            <p class="text-gray-600">Punnitse korut esimerkiksi tarkalla keittiövaa’alla ja etsi <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">kullan leimat</a>, kuten 585 tai 750.</p>
+            <p class="text-gray-600">Punnitse korut esimerkiksi tarkalla keittiövaa’alla ja etsi <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">kullan leimat</a>, kuten 585 tai 750. Jos esineessä on kiviä, kellon osia tai muuta ei-kultaista, katso <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">paljonko kultaa eri esineissä on</a>.</p>
           </div>
         </div>
         <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
@@ -318,35 +327,67 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 id="missa-myyda" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Missä kulta kannattaa myydä?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Kultaa myydään tavallisesti joko paikalliselle kullanostajalle tai verkkopalvelulle, joka ottaa lähetyksiä vastaan postitse. Molemmissa vaihtoehdoissa on omat etunsa.
+        Tapoja on viisi: paikallinen kullanostaja, posti- tai verkkopalvelu, panttilainaamo, huutokauppa
+        ja yksityismyynti. Valinta riippuu siitä, arvostatko nopeutta, korkeinta hintaa vai
+        mahdollisuutta saada esine takaisin. Umpikultakorut ja romukulta kannattaa myydä kullanostajalle
+        tai verkkopalvelulle; merkki- ja keräilyesineet voivat olla arvokkaampia huutokaupassa tai
+        oikealle yksityisostajalle.
       </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-        <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Paikallinen liike</h3>
-          <ul class="space-y-2 text-gray-600 text-sm leading-relaxed">
-            <li>+ Saat usein arvion ja rahat nopeasti</li>
-            <li>+ Voit asioida kasvotusten</li>
-            <li>– Hinta ei aina ole markkinan korkein</li>
-          </ul>
+      <div class="mb-16">
+        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
+          Lue vertailu: kullan myyntikanavat, kulut ja riskit <span>&rarr;</span>
+        </a>
+      </div>
+
+      <h2 id="vertaa-tarjouksia" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Näin vertaat kullanostajien tarjouksia oikein</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kun olet saanut tarjouksen yhdeltä tai useammalta kullanostajalta, tarvitset yhden kiintopisteen,
+        johon jokaista tarjousta verrataan. Se kiintopiste on laskurin antama tavoitehinta: taso, joka
+        kullasta kannattaa vähintään saada. Tarjousten vertailu menee usein pieleen siksi, että eri
+        ostajien hinnat eivät ole keskenään vertailukelpoisia — yksi hinnoittelee koko esineen, toinen
+        vain kultaosuuden, kolmas antaa hinnan grammaa kohti.
+      </p>
+
+      <div class="space-y-4 mb-8">
+        <div class="flex gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <div class="w-9 h-9 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 text-sm">1</div>
+          <div>
+            <h3 class="font-bold text-gray-900 mb-1">Pyydä jokaiselta hinta samasta erästä</h3>
+            <p class="text-sm text-gray-600">Samat esineet jokaiselle ostajalle, ja kivet joko mukana tai pois kaikilta samalla tavalla. Muuten vertaat eri asioita keskenään.</p>
+          </div>
         </div>
-        <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200">
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Verkkopalvelu ja postitus</h3>
-          <ul class="space-y-2 text-gray-600 text-sm leading-relaxed">
-            <li>+ Kilpailukykyinen hinta on usein mahdollinen</li>
-            <li>+ Helppo kilpailuttaa useampia toimijoita</li>
-            <li>– Prosessi kestää yleensä pidempään</li>
-          </ul>
+        <div class="flex gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <div class="w-9 h-9 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 text-sm">2</div>
+          <div>
+            <h3 class="font-bold text-gray-900 mb-1">Muunna grammahinta kokonaissummaksi</h3>
+            <p class="text-sm text-gray-600">Jos tarjous on annettu muodossa €/g, kerro se painolla ennen vertailua. Esimerkiksi 45 €/g × 4 g = 180 €. Vasta kokonaissummat ovat vertailukelpoisia.</p>
+          </div>
+        </div>
+        <div class="flex gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <div class="w-9 h-9 rounded-full bg-gold-100 text-gold-700 font-black flex items-center justify-center shrink-0 text-sm">3</div>
+          <div>
+            <h3 class="font-bold text-gray-900 mb-1">Varmista, mitä tarjous koskee</h3>
+            <p class="text-sm text-gray-600">Kattaako tarjous kaikki esineet vai vain osan niistä? Tarkista tämä ennen kuin vertaat lukuja tavoitehintaan.</p>
+          </div>
         </div>
       </div>
 
       <p class="text-gray-600 leading-relaxed mb-6">
-        Paras ratkaisu riippuu siitä, arvostatko enemmän nopeutta vai mahdollisimman korkeaa tarjousta. Ennen myyntiä tärkeintä on tietää oma tavoitehintasi, jotta pystyt vertaamaan tarjouksia järkevästi.
+        Kun tarjoukset ovat samalla viivalla, vertaa niitä tavoitehintaan. Jos paras tarjous yltää
+        tavoitteeseen, myynti on sillä tasolla kannattavaa. Jos paras tarjous jää selvästi tavoitteen
+        alle, kannattaa pyytää tarjous vielä yhdeltä ostajalta ennen päätöstä — tavoitehinta on taso,
+        joka kannattaa vähintään saada.
+      </p>
+
+      <p class="text-sm text-gray-500 mb-8 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+        <strong>Vinkki:</strong> Sivun yläosan laskurissa on tarjousvertailu. Syötä siihen ostajilta
+        saamasi tarjoukset, niin näet suoraan euroina, miten kukin niistä suhtautuu tavoitehintaan.
       </p>
 
       <div class="mb-16">
         <a href="#myyntilaskuri" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
-          Tarkista kullan arvo ennen myyntiä <span>&rarr;</span>
+          Avaa laskuri ja vertaa tarjouksesi <span>&rarr;</span>
         </a>
       </div>
 
@@ -428,10 +469,22 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kullan myynnistä</h2>
-      <div id="ukk" class="grid grid-cols-1 gap-4 mb-16">
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-12">
         {faqItems.map((item: any) => (
           <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
         ))}
+      </div>
+
+      <div class="pt-8 border-t border-gray-100">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Lue myös</p>
+        <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+          <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Paljonko kultaa eri esineissä on →</a>
+          <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">Kullan hinta ja hintakehitys →</a>
+          <a href="/sanasto/" class="text-gold-600 font-bold hover:underline">Kultasanasto →</a>
+          <a href="/tietoa/" class="text-gold-600 font-bold hover:underline">Näin laskuri toimii →</a>
+          <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
+        </div>
       </div>
 
     </div>

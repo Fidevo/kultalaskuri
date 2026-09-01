@@ -107,7 +107,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kullan myynti ja
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600">verotus</span>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">verotus</span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 leading-relaxed max-w-2xl mx-auto">
         Hyvä uutinen useimmille: omien korujen myynti on tavallisesti verovapaata.
@@ -214,6 +214,16 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         {faqItems.map((item: any) => (
           <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
         ))}
+      </div>
+
+      <div class="pt-8 border-t border-gray-100 mb-12">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Lue myös</p>
+        <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti →</a>
+          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+          <a href="/sanasto/#hankintameno-olettama" class="text-gold-600 font-bold hover:underline">Sanasto: hankintameno-olettama →</a>
+          <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
+        </div>
       </div>
 
       <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-12">

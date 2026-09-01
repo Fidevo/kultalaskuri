@@ -37,18 +37,22 @@ METALPRICE_API_KEY=...       # pakollinen tuotantobuildissa
 
 | URL | Tiedosto | Sisältö |
 |---|---|---|
-| `/` | `src/pages/index.astro` | Päälaskuri, tavoitehinnat, painoarvio, hintagraafi, leimaopas-tiiviste, FAQ |
+| `/` | `src/pages/index.astro` | Päälaskuri, tavoitehinnat, painoarvio + tyypilliset painot -taulukko, hintagraafi, leimaopas-tiiviste, FAQ |
 | `/kullan-hinta/` | `kullan-hinta.astro` | Hintakehityssivu: graafi + kuukausitaulukko + FAQ |
-| `/kullan-myynti/` | `kullan-myynti.astro` | Myyntiopas + laskuri + FAQ |
+| `/kullan-myynti/` | `kullan-myynti.astro` | Myyntiopas + laskuri (sis. tarjousvertailu) + "Näin vertaat tarjouksia" -osio + FAQ |
+| `/kullan-myyntipaikat/` | `kullan-myyntipaikat.astro` | Myyntikanavien vertailu: kullanostaja, verkkopalvelu, panttilainaamo, huutokauppa, yksityismyynti |
+| `/kulta-esineet/` | `kulta-esineet.astro` | Kultaosuus esinetyypeittäin: sormukset, ketjut, kellot, hammaskulta, kolikot (mm. markka-ajan kultarahat), harkot |
 | `/kullan-myynti-verotus/` | `kullan-myynti-verotus.astro` | Verotusopas (faktat Vero.fi-lähteistä) |
 | `/kullan-leimat/` | `kullan-leimat.astro` | Leimaopas: 585/750, nimileimat, vuosileimataulukot 1906–, ulkomaiset leimat |
+| `/oppaat/` | `oppaat.astro` | Tietopankki-hub: kaikki opassivut kolmessa ryhmässä (CollectionPage + ItemList -schema) |
 | `/sanasto/` | `sanasto.astro` | 15 termin sanasto (DefinedTermSet-schema) |
 | `/tietoa/` | `tietoa.astro` | Tietoa palvelusta (E-E-A-T) |
 | `/widget/` | `widget.astro` | Upotettavan hintawidgetin ohjesivu |
 | `/hinta.json` | `hinta.json.ts` | Avoin JSON-hintadata (widgetin datalähde, CORS `*`) |
-| `/tietosuoja/`, `/kayttoehdot/` | | Legal |
+| `/llms.txt` | `public/llms.txt` | Koneluettava kuvaus sivustosta ja keskeisistä sivuista tekoälyhakuroboteille |
+| `/tietosuoja/`, `/kayttoehdot/` | | Legal (noindex) |
 
-Alaviivalla alkavat sivut eivät buildaudu.
+Alaviivalla alkavat sivut eivät buildaudu (esim. `_kullan-myynti-tampere.astro` = keskeneräinen kumppaniluonnos, ei versionhallinnassa).
 
 ## Arkkitehtuuri ja datavirrat
 
@@ -70,6 +74,10 @@ MetalPrice API (api-eu.metalpriceapi.com)
 Laskentalogiikka: `src/lib/calculations/goldCalculator.ts` — `GOLD_PURITIES` sisältää
 pitoisuudet ja tavoitehintakertoimet. **Kaikki hintalaskenta kulkee `calculateGoldValue()`-funktion
 kautta** — älä kovakoodaa kertoimia muualle.
+
+Tarjousvertailu (laskurissa): `src/lib/calculations/offerComparison.ts` — vertaa käyttäjän
+saamia tarjouksia laskurin tavoitehintaan (kaksi tilaa: yltää / ei yllä). Ei koskaan näytä
+prosenttia pörssiarvosta.
 
 ## Automaatio (GitHub Actions)
 

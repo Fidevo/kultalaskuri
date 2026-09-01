@@ -1,0 +1,313 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+
+const dateModified = new Date().toISOString();
+
+// Kanavavertailun tiivistelmä (skannattava taulukko). Aikataulut ja soveltuvuus
+// perustuvat kunkin kanavan vakiintuneeseen toimintatapaan, ei yksittäisen
+// toimijan lupauksiin.
+const channels = [
+  { name: 'Paikallinen kullanostaja', speed: 'Maksu heti', fit: 'Nopea raha, pieni erä' },
+  { name: 'Posti- tai verkkopalvelu', speed: 'Tyypillisesti 1–3 arkipäivää', fit: 'Kilpailutus, isompi erä' },
+  { name: 'Panttilainaamo', speed: 'Raha heti (kyseessä laina)', fit: 'Tilapäinen rahantarve, haluat esineen takaisin' },
+  { name: 'Huutokauppa', speed: 'Viikkoja–kuukausia', fit: 'Merkki- tai keräilyarvo selvästi yli sulatusarvon' },
+  { name: 'Yksityismyynti', speed: 'Vaihtelee', fit: 'Tunnistettu design- tai keräilyesine sen haluavalle ostajalle' },
+];
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Missä kultaa kannattaa myydä?", "item": "https://kultalaskuri.fi/kullan-myyntipaikat/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://kultalaskuri.fi/kullan-myyntipaikat/",
+      "url": "https://kultalaskuri.fi/kullan-myyntipaikat/",
+      "name": "Missä kultaa kannattaa myydä?",
+      "description": "Paikallinen kullanostaja, postipalvelu, panttilainaamo, huutokauppa vai yksityismyynti? Vertailu kanavista: aikataulu, kulut, riskit ja kenelle kukin sopii.",
+      "inLanguage": "fi-FI",
+      "dateModified": dateModified,
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Kannattaako kulta viedä panttilainaamoon?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Panttilainaamon perustoiminta on lainan antaminen panttia vastaan, ei kullan ostaminen. Lainan määrä perustuu panttilainaamon arvioon esineestä ja jää selvästi sen myyntiarvoa pienemmäksi; laki ei aseta kiinteää enimmäisprosenttia. Lainasta peritään korkoa ja kuluja, ja laina-aika on enintään vuosi kerrallaan. Jos et lunasta panttia, esine myydään ja velkasi ylittävä osa tilitetään sinulle — alijäämää laitos ei saa periä sinulta. Panttilainaamo sopii tilanteeseen, jossa tarvitset rahaa tilapäisesti mutta haluat esineen takaisin. Osa panttilainaamoista ostaa koruja myös suoraan, jolloin kyseessä on tavallinen myynti."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Paljonko huutokauppa ottaa provisiota korujen myynnistä?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Myyjän provisio on suomalaisissa huutokauppataloissa tyypillisesti noin 15–25 prosenttia vasarahinnasta, ja lisäksi voi tulla esimerkiksi vakuutusmaksu. Ostaja maksaa vielä erikseen ostoprovision vasarahinnan päälle. Prosessi kestää yleensä viikkoja tai kuukausia, eikä kohde välttämättä mene kaupaksi, jos se ei saavuta lähtöhintaa. Huutokauppa kannattaa lähinnä silloin, kun esineen keräily- tai merkkiarvo ylittää selvästi sen sulatusarvon."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten varmistan, että kullanostaja on luotettava?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ammattimaisen jalometallien ostajan tulee kuulua aluehallintoviraston rahanpesun valvontarekisteriin, jonka voi tarkistaa julkisesti osoitteessa raksi.avi.fi. Pyydä aina kirjallinen erittely painosta, pitoisuudesta ja päivän kurssista, ja varmista että esineet punnitaan silmiesi edessä. Henkilöllisyystodistus vaaditaan lain mukaan jokaisessa kaupassa. Vertaa saatua tarjousta laskurin antamaan tavoitehintaan ennen päätöstä."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Voiko kultaa myydä yksityisesti esimerkiksi torilla tai Facebookissa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Voi, mutta yksityishenkilöiden välisessä kaupassa ei ole kuluttajansuojaa, ja maksupetokset ovat riski: väärennetty kuitti, peruutettu tilisiirto tai tekaistu käteinen. Käytä vain vahvistettua, tilillä näkyvää maksua ennen esineen luovutusta ja tapaa turvallisessa paikassa. Yksityismyynti kannattaa käytännössä vain tunnistetuille design- tai keräilyesineille, joista ostaja maksaa esineenä enemmän kuin kullanostaja sulatusarvona."
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
+---
+
+<BaseLayout
+  title="Missä kultaa kannattaa myydä? Kanavat vertailussa | Kultalaskuri.fi"
+  description="Paikallinen kullanostaja, postipalvelu, panttilainaamo, huutokauppa vai yksityismyynti? Vertailu kanavista: aikataulu, kulut, riskit ja kenelle kukin sopii."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative bg-[#0B0F19] pt-28 pb-20 px-4 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
+      <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto relative z-10 text-center">
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-400">Missä myydä kultaa</li>
+        </ol>
+      </nav>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-400/10 text-gold-400 text-[10px] font-bold uppercase tracking-widest mb-4 border border-gold-400/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
+        Myyntikanavat
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+        Missä kultaa
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
+          kannattaa myydä?
+        </span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
+        Kanavan valinta riippuu siitä, mitä arvostat: nopeutta, korkeinta hintaa vai mahdollisuutta
+        saada esine takaisin. Alla viisi tapaa myydä kultaa Suomessa — miten kukin toimii, mitä se
+        maksaa ja kenelle se sopii.
+      </p>
+    </div>
+  </div>
+
+  <section class="bg-white py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+
+      <nav aria-label="Sisällysluettelo" class="mb-12 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Tällä sivulla</h2>
+        <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <li><a href="#vertailu" class="text-gold-600 font-bold hover:underline">Kanavat lyhyesti</a></li>
+          <li><a href="#kullanostaja" class="text-gold-600 font-bold hover:underline">Paikallinen kullanostaja</a></li>
+          <li><a href="#verkkopalvelu" class="text-gold-600 font-bold hover:underline">Posti- ja verkkopalvelu</a></li>
+          <li><a href="#panttilainaamo" class="text-gold-600 font-bold hover:underline">Panttilainaamo</a></li>
+          <li><a href="#huutokauppa" class="text-gold-600 font-bold hover:underline">Huutokauppa</a></li>
+          <li><a href="#yksityismyynti" class="text-gold-600 font-bold hover:underline">Yksityismyynti</a></li>
+          <li><a href="#luotettavuus" class="text-gold-600 font-bold hover:underline">Näin varmistat ostajan</a></li>
+          <li><a href="#ukk" class="text-gold-600 font-bold hover:underline">Usein kysyttyä</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="vertailu" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kanavat lyhyesti</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Selvitä ensin, mikä on kultasi reilu tavoitehinta — se on vertailukohta jokaiselle tarjoukselle.
+        <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">Laske se laskurilla</a>, ja
+        valitse sitten kanava sen mukaan, mitä tilanteesi vaatii.
+      </p>
+
+      <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900 mb-3">Nopea valinta</h3>
+        <ul class="space-y-2 text-gray-700 text-sm leading-relaxed">
+          <li><strong>Tarvitset rahat heti:</strong> paikallinen kullanostaja</li>
+          <li><strong>Haluat parhaan hinnan romukullasta:</strong> kilpailuta kullanostajia ja verkkopalveluita</li>
+          <li><strong>Esineellä on merkki- tai keräilyarvo:</strong> huutokauppa tai tunnistetulle ostajalle yksityismyynti</li>
+          <li><strong>Et halua myydä lopullisesti:</strong> panttilainaamo (laina, esine takaisin lunastamalla)</li>
+        </ul>
+      </div>
+
+      <div class="overflow-x-auto mb-6 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[560px]">
+          <caption class="sr-only">Kullan myyntikanavien aikataulu ja soveltuvuus</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-4 px-5 font-bold">Kanava</th>
+              <th class="py-4 px-5 font-bold">Aikataulu</th>
+              <th class="py-4 px-5 font-bold">Kenelle sopii</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {channels.map(ch => (
+              <tr class="hover:bg-gray-50 transition-colors align-top">
+                <td class="py-3.5 px-5 font-bold text-gray-900">{ch.name}</td>
+                <td class="py-3.5 px-5">{ch.speed}</td>
+                <td class="py-3.5 px-5">{ch.fit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mb-16">
+        Nyrkkisääntö: umpikultakorut ja romukulta kannattaa myydä kullanostajalle tai verkkopalvelulle,
+        koska niiden arvo on käytännössä metalliarvo. Merkki- ja keräilyesineet — nimekkäät design-korut,
+        vanhat kellot ja kolikot — kannattaa arvioida ensin esineenä, koska huutokauppa tai oikea
+        yksityisostaja voi maksaa niistä sulatusarvoa enemmän.
+      </p>
+
+      <h2 id="kullanostaja" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Paikallinen kullanostaja</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Jalometalliliike tai kultaan erikoistunut ostaja punnitsee ja testaa esineet paikan päällä,
+        antaa tarjouksen ja maksaa yleensä heti. Nopein tapa saada rahat, ja voit asioida kasvotusten.
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
+        <li><strong>Maksu ja aikataulu:</strong> yleensä tilisiirtona saman käynnin aikana; pienemmät summat voidaan maksaa myös käteisenä.</li>
+        <li><strong>Mitä varmista:</strong> että esineet punnitaan silmiesi edessä, ja pyydä kirjallinen erittely painosta, pitoisuudesta ja päivän kurssista. Sinulla on oikeus kieltäytyä tarjouksesta.</li>
+        <li><strong>Henkilöllisyystodistus</strong> on lain mukaan pakollinen jokaisessa kullan ostossa rahanpesun estämiseksi.</li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Hinnat vaihtelevat ostajittain, joten pyydä tarjous useammasta paikasta ja vertaa niitä
+        <a href="/kullan-myynti/#vertaa-tarjouksia" class="text-gold-600 font-bold hover:underline">tavoitehintaan</a>.
+      </p>
+
+      <h2 id="verkkopalvelu" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Posti- ja verkkopalvelu</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Lähetät kullan vakuutettuna postitse, palvelu arvioi sen ja tekee tarjouksen, jonka voit
+        hyväksyä tai hylätä. Maksu tulee yleensä tilisiirtona muutamassa arkipäivässä. Helppo tapa
+        kilpailuttaa useampi toimija, mutta prosessi kestää kauemmin kuin liikkeessä käynti.
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-16 list-disc pl-5">
+        <li><strong>Ennen lähetystä varmista:</strong> palauttaako palvelu esineet veloituksetta, jos hylkäät tarjouksen, ja kuka vastaa lähetyksen katoamisesta.</li>
+        <li><strong>Dokumentoi:</strong> valokuvaa esineet ja punnitse ne itse ennen lähetystä.</li>
+        <li><strong>Tarjouksen sitovuus:</strong> tarkista, onko ennakkoon annettu arvio sitova vai vasta suuntaa-antava.</li>
+      </ul>
+
+      <h2 id="panttilainaamo" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Panttilainaamo</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Panttilainaamon perustoiminta on <strong>lainan antaminen irtainta panttia vastaan</strong>, ei
+        kullan ostaminen. Toimintaa säätelee laki panttilainauslaitoksista (1353/1992), ja laitos
+        tarvitsee toimiluvan.
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
+        <li><strong>Lainan määrä</strong> perustuu panttilainaamon tekemään arvioon esineestä ja jää selvästi sen arvioitua myyntiarvoa pienemmäksi. Laki ei aseta kiinteää enimmäisprosenttia.</li>
+        <li><strong>Laina-aika</strong> on enintään vuosi kerrallaan, ja lainasta peritään korkoa ja kuluja — usein enemmän kuin pankkilainasta.</li>
+        <li><strong>Jos et lunasta panttia</strong> laina-ajan loppuun mennessä, esine myydään. Velkasi ylittävä osuus myyntihinnasta tilitetään sinulle, eikä laitos saa periä sinulta mahdollista alijäämää.</li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Panttilainaamo sopii tilapäiseen rahantarpeeseen, kun haluat pitää mahdollisuuden saada esine
+        takaisin. Osa panttilainaamoista ostaa koruja myös suoraan — silloin kyseessä on tavallinen
+        myynti, jota kannattaa verrata muihin ostajiin.
+      </p>
+
+      <h2 id="huutokauppa" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Huutokauppa</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Huutokauppatalo ottaa esineen myyntiin, luetteloi sen ja myy eniten tarjoavalle. Tämä on tapa
+        tavoittaa keräilijät, jotka maksavat esineestä enemmän kuin sen metalliarvo — mutta vain jos
+        esineellä on sellaista arvoa.
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
+        <li><strong>Myyjän provisio:</strong> tyypillisesti noin 15–25 % vasarahinnasta, ja lisäksi voi tulla esimerkiksi vakuutusmaksu. Ostaja maksaa erikseen ostoprovision.</li>
+        <li><strong>Aikataulu:</strong> viikoista kuukausiin luettelointiaikataulun mukaan; maksu tilitetään vasta huutokaupan jälkeen.</li>
+        <li><strong>Ei takuuta kaupasta:</strong> jos kohde ei saavuta lähtöhintaa, se jää myymättä.</li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Kannattaa siis lähinnä silloin, kun nimekkään suunnittelijan koru, vanha merkkikello tai
+        harvinainen kolikko on selvästi sulatusarvoaan arvokkaampi. Tavallinen romukulta menettää
+        huutokaupassa provisioiden verran.
+      </p>
+
+      <h2 id="yksityismyynti" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Yksityismyynti</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kun tiedät mitä myyt — nimekäs design-koru, tunnettu merkkikello tai keräilykolikko — suora
+        myynti toiselle yksityishenkilölle esimerkiksi Tori.fi:ssä tai keräilijäryhmissä voi tuottaa
+        selvästi paremman hinnan kuin kullanostaja, joka maksaa vain sulatusarvon. Ilman välikättä
+        vastuu ja riskit ovat kuitenkin sinulla.
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
+        <li><strong>Ei kuluttajansuojaa:</strong> yksityishenkilöiden välisessä kaupassa kuluttajansuojalaki ei suojaa kumpaakaan osapuolta.</li>
+        <li><strong>Maksupetoksen riski:</strong> väärennetty kuitti, myöhemmin peruttu tilisiirto tai tekaistu käteinen. Luovuta esine vasta, kun maksu näkyy omalla tililläsi.</li>
+        <li><strong>Tapaaminen:</strong> sovi julkinen paikka; arvokkaammissa kaupoissa pankin tiski on turvallinen.</li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Realistinen vaihtoehto lähinnä tunnistetuille design- ja keräilyesineille.
+      </p>
+
+      <h2 id="luotettavuus" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Näin varmistat ostajan</h2>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
+        <li><strong>Rahanpesun valvontarekisteri:</strong> ammattimaisen jalometallien ostajan tulee kuulua siihen. Rekisterin voi tarkistaa julkisesti osoitteessa <span class="font-semibold">raksi.avi.fi</span>.</li>
+        <li><strong>Kirjallinen erittely:</strong> paino, pitoisuus, päivän kurssi ja tarjottu summa eriteltyinä.</li>
+        <li><strong>Läpinäkyvä punnitus ja testaus</strong> asiakkaan nähden.</li>
+        <li><strong>Vertaa tavoitehintaan:</strong> tuo mukaan tuloste tai kuva <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">laskurin</a> antamasta tasosta.</li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Suuremmista eristä ja sijoituskullasta kannattaa muistaa myös verotus — katso
+        <a href="/kullan-myynti-verotus/" class="text-gold-600 font-bold hover:underline">kullan myynti ja verotus</a>.
+        Ennen myyntiä varmista vielä, onko esineessä metalliarvoa suurempaa arvoa:
+        <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">paljonko kultaa eri esineissä on</a>.
+      </p>
+
+      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Tiedä tavoitehintasi ennen kanavan valintaa</h2>
+        <p class="text-gray-400 mb-6 max-w-xl mx-auto">
+          Syötä paino ja pitoisuus, niin näet reilun tavoitehinnan päivän kurssilla. Sitä vasten vertaat
+          jokaisen kanavan tarjouksen.
+        </p>
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+          Laske kultasi tavoitehinta →
+        </a>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-12">
+        {faqItems.map((item: any) => (
+          <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
+        ))}
+      </div>
+
+      <div class="pt-8 border-t border-gray-100">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Lue myös</p>
+        <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti – koko prosessi →</a>
+          <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Paljonko kultaa eri esineissä on →</a>
+          <a href="/kullan-myynti-verotus/" class="text-gold-600 font-bold hover:underline">Myynnin verotus →</a>
+          <a href="/sanasto/" class="text-gold-600 font-bold hover:underline">Kultasanasto →</a>
+          <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>

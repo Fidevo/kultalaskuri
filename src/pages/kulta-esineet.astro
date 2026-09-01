@@ -1,0 +1,363 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+
+const dateModified = new Date().toISOString();
+
+// Yleisimmät Suomessa vastaan tulevat kultakolikot lyöntistandardin mukaan.
+// Suomen markka-ajan kultarahat (1878–1913) lyötiin samaan standardiin kuin
+// Ranskan 20 frangin Napoléon (6,45 g / 900). Lähteet: Suomen Numismaattinen
+// Yhdistys / Suomen Rahapaja sekä rahapajojen spesifikaatiot (Sovereign, Krugerrand).
+const coinSpecs = [
+  {
+    name: 'Suomi 20 markkaa (1878–1913)',
+    total: '6,45 g',
+    fineness: '900 (21,6K)',
+    fineGold: '5,81 g',
+  },
+  {
+    name: 'Suomi 10 markkaa (1878–1913)',
+    total: '3,23 g',
+    fineness: '900 (21,6K)',
+    fineGold: '2,90 g',
+  },
+  {
+    name: 'Sovereign (Iso-Britannia)',
+    total: '7,99 g',
+    fineness: '916,7 (22K)',
+    fineGold: '7,32 g',
+  },
+  {
+    name: 'Krugerrand, 1 oz (Etelä-Afrikka)',
+    total: '33,93 g',
+    fineness: '916,7 (22K)',
+    fineGold: '31,10 g',
+  },
+  {
+    name: 'Napoléon, 20 frangia (Ranska)',
+    total: '6,45 g',
+    fineness: '900 (21,6K)',
+    fineGold: '5,81 g',
+  },
+];
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Paljonko kultaa esineessä on?", "item": "https://kultalaskuri.fi/kulta-esineet/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://kultalaskuri.fi/kulta-esineet/",
+      "url": "https://kultalaskuri.fi/kulta-esineet/",
+      "name": "Paljonko kultaa eri esineissä on?",
+      "description": "Kultakellossa, hammaskullassa ja korussa kultaa on eri verran kuin vaaka näyttää. Näin arvioit kultaosuuden esinetyypeittäin — myös markka-ajan kultarahat ja sijoituskolikot.",
+      "inLanguage": "fi-FI",
+      "dateModified": dateModified,
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Lasketaanko korun kivet mukaan kullan painoon?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ei. Timantit, värikivet ja helmet eivät ole kultaa, eikä niitä makseta kultana. Kullanostaja joko irrottaa kivet ennen punnitusta tai arvioi niiden painon ja vähentää sen. Kivissä voi silti olla omaa arvoa, joka kannattaa selvittää erikseen ennen romukauppaa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Paljonko kultaa kultakellossa on?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Aidossa umpikultaisessa kellossa kultaa on koko kuori: keskiosa, kehä, pohjakansi ja yleensä myös kruunu. Koneisto, kellonlasi ja sisäosat eivät ole kultaa, joten kultaosuus jää kokonaispainoa pienemmäksi. Kultakuorrutetuissa ja kullatuissa kelloissa pohjakansi ja sivut ovat terästä — pitoisuusleima pohjakannen sisäpuolella kertoo, onko kello umpikultaa. Toimiva merkkikello on usein arvokkaampi kellona kuin sulatettuna."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Onko hammaskulta aitoa kultaa?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Hammaskullassa on yleensä kultaa, mutta seos vaihtelee: mukana on usein platinaa, palladiumia tai hopeaa, ja osa nykyisistä kruunuista ei sisällä kultaa lainkaan. Pitoisuutta ei voi lukea leimasta, vaan kullanostaja määrittää sen testaamalla. Pyydä testaustulos eli paino ja mitattu pitoisuus nähtäväksi ennen tarjousta."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kannattaako markka-ajan kultaraha myydä romukultana?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ei kannata tarkistamatta keräilyarvoa. Suomen 10 ja 20 markan kultarahat (1878–1913) sisältävät 2,90 g ja 5,81 g puhdasta kultaa, mutta harvinaisemmista vuosikerroista ja hyväkuntoisista kappaleista maksetaan selvästi metalliarvoa enemmän. Vuoden 1926 100 ja 200 markan kultarahoista jäi valtaosa laskematta kiertoon, joten säilyneitä hyväkuntoisia kappaleita on vähän ja ne ovat arvokkaita keräilykohteita. Pyydä arvio kolikkoliikkeeltä ennen myyntiä."
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage") as any)?.mainEntity ?? [];
+---
+
+<BaseLayout
+  title="Paljonko kultaa esineessä on? Esinetyypit | Kultalaskuri.fi"
+  description="Kultakellossa, hammaskullassa ja korussa kultaa on eri verran kuin vaaka näyttää. Näin arvioit kultaosuuden esinetyypeittäin — myös markka-ajan kultarahat ja sijoituskolikot."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative bg-[#0B0F19] pt-28 pb-20 px-4 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
+      <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto relative z-10 text-center">
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center justify-center gap-2 text-xs text-gray-500">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-400">Kulta eri esineissä</li>
+        </ol>
+      </nav>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-400/10 text-gold-400 text-[10px] font-bold uppercase tracking-widest mb-4 border border-gold-400/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
+        Esinetyypit
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+        Paljonko kultaa
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
+          eri esineissä on?
+        </span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
+        Vaaka näyttää esineen kokonaispainon, mutta kullanostaja maksaa vain kultaosuudesta.
+        Useimmissa umpikultakoruissa nämä ovat lähellä toisiaan, mutta kultakellossa,
+        kivisormuksessa tai hammaskullassa kultaa voi olla vain osa punnitusta painosta.
+        Näin luet kunkin esinetyypin oikein.
+      </p>
+    </div>
+  </div>
+
+  <section class="bg-white py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+
+      <nav aria-label="Sisällysluettelo" class="mb-12 p-6 bg-gray-50 rounded-2xl border border-gray-200">
+        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Tällä sivulla</h2>
+        <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <li><a href="#perussaanto" class="text-gold-600 font-bold hover:underline">Perussääntö: paino vs. kultaosuus</a></li>
+          <li><a href="#sormukset" class="text-gold-600 font-bold hover:underline">Sormukset</a></li>
+          <li><a href="#ketjut" class="text-gold-600 font-bold hover:underline">Ketjut ja rannekorut</a></li>
+          <li><a href="#kellot" class="text-gold-600 font-bold hover:underline">Kultakellot ja kellonrannekkeet</a></li>
+          <li><a href="#hammaskulta" class="text-gold-600 font-bold hover:underline">Hammaskulta</a></li>
+          <li><a href="#kolikot" class="text-gold-600 font-bold hover:underline">Kultakolikot</a></li>
+          <li><a href="#harkot" class="text-gold-600 font-bold hover:underline">Kultaharkot</a></li>
+          <li><a href="#ukk" class="text-gold-600 font-bold hover:underline">Usein kysyttyä</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="perussaanto" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Perussääntö: paino vs. kultaosuus</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kullan arvo lasketaan kaavalla <strong>paino × pitoisuus × päivän kurssi</strong>. Pitoisuuden
+        kertoo leima (585 = 58,5 % kultaa, 750 = 75,0 % ja niin edelleen — katso
+        <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">kullan leimat</a>).
+        Umpikultaisessa sormuksessa tai ketjussa käytännössä koko punnittu paino on tätä seosta,
+        joten laskuriin riittää kokonaispaino ja leima.
+      </p>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Ongelmia tulee, kun esineessä on osia, jotka <strong>eivät ole kultaa</strong> mutta jotka
+        painavat vaa'alla. Silloin kokonaispaino antaa liian suuren arvon. Alla käydään esinetyypeittäin
+        läpi, mikä osa on kultaa ja mikä ei.
+      </p>
+
+      <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-16 shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900 mb-3">Näitä ei makseta kultana</h3>
+        <ul class="space-y-2 text-gray-600 text-sm leading-relaxed">
+          <li>Timantit, värikivet ja helmet</li>
+          <li>Kellojen koneistot ja lasit</li>
+          <li>Ei-kultaiset osat kaksimetallisissa koruissa (keraaminen, titaani, teräs)</li>
+        </ul>
+        <p class="text-sm text-gray-600 mt-3">
+          Isokivisessä korussa kivien osuus voi olla huomattava — joskus lähes puolet punnitusta painosta.
+        </p>
+        <p class="text-xs text-gray-500 mt-3">
+          Valkokulta on kultaa siinä missä keltakultakin — pinnan rodiumkerros on häviävän kevyt eikä
+          vaikuta arvoon. <strong>Kullattu</strong> esine (merkinnät GP, GF, HGE) on sen sijaan vain
+          pinnoitettua muuta metallia, eikä sillä ole romukullan arvoa.
+        </p>
+      </div>
+
+      <h2 id="sormukset" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Sormukset</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Sileässä sormuksessa koko runko on samaa kultaseosta, joten kokonaispaino kelpaa sellaisenaan.
+        Tyypillinen paino on siro naisten sormus noin 2 g, vihkisormus noin 4 g ja leveä miesten sormus
+        noin 8 g — mutta vaihtelu on suurta, joten punnitse.
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-16 list-disc pl-5">
+        <li><strong>Kivelliset sormukset:</strong> suuri kivi voi viedä merkittävän osan punnitusta painosta. Kullanostaja irrottaa kiven tai arvioi sen painon ja vähentää sen — kivelle voi silti olla oma erillinen arvonsa.</li>
+        <li><strong>Kaksimetalliset sormukset:</strong> osassa nykysormuksia on keraaminen, titaani- tai volframiosa. Vain kultaisen osan paino lasketaan.</li>
+      </ul>
+
+      <h2 id="ketjut" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Ketjut ja rannekorut</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Ketjun lenkit ja lukko ovat samaa kultaa. Ketjun paino riippuu täysin lenkkityypistä:
+        sama 50 cm kaulaketju painaa ohuena ankkuriketjuna vain muutaman gramman mutta tukevana
+        panssariketjuna yli 25 g. Kultamäärää ei siis voi päätellä ketjun pituudesta tai
+        ulkonäöstä — se on punnittava.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Riipuksessa voi olla kiviä tai muuta metallia kuin itse ketjussa, joten punnitse ja arvioi se erikseen.
+      </p>
+
+      <h2 id="kellot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultakellot ja kellonrannekkeet</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Aidossa umpikultaisessa kellossa kultaa on <strong>koko kuori: keskiosa, kehä, pohjakansi ja
+        yleensä myös kruunu</strong>. Kultaa <strong>eivät</strong> ole koneisto, kellonlasi, vetoakseli
+        eivätkä kuoren sisällä olevat jouset ja ruuvit. Kultaranneke on kultaa lenkeistään, mutta
+        niveltapit voivat olla terästä. Kultaosuus jää siksi kokonaispainoa pienemmäksi — kuinka paljon,
+        riippuu koneiston koosta.
+      </p>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Pitoisuusleima (585, 750, 0.750 tai 18K) ja mahdollinen tarkastusleima ovat pohjakannen
+        sisäpuolella. Jos leimaa ei ole, kello on todennäköisesti kultakuorrutettu tai kullattu:
+      </p>
+      <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
+        <li><strong>Kultakuorrutettu (gold cap, "plaqué or"):</strong> ohut umpikultakerros vain kuoren päällä; sivut ja pohjakansi ovat terästä, usein merkintä "STAINLESS STEEL BACK", "ACIER" tai "FOND ACIER". Romukulta-arvo on pieni.</li>
+        <li><strong>Kullattu (GP, "GOLD PLATED"):</strong> vain pinnoite muuta metallia, ei romukulta-arvoa. Kuluma näkyy ensin kruunussa ja kuoren reunoissa.</li>
+      </ul>
+      <p class="text-gray-700 leading-relaxed mb-16 p-4 bg-gold-50/60 rounded-xl border border-gold-200">
+        <strong>Ennen kuin myyt kultakellon romuksi:</strong> toimiva, tunnetun merkin kello on usein
+        selvästi arvokkaampi kellona kuin sulatettuna. Anna kello ensin kelloliikkeen tai
+        huutokaupan arvioitavaksi — vasta sen jälkeen romukullan arvo on vertailukohta.
+      </p>
+
+      <h2 id="hammaskulta" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Hammaskulta</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Hammaskullassa on tavallisesti kultaa, mutta seos vaihtelee eikä sitä ole leimattu.
+        Hammasseoksissa käytetään kullan lisäksi platinaa, palladiumia ja hopeaa, ja pitoisuus
+        vaihtelee laajasti valmistusajan ja -maan mukaan. Osa nykyisistä kruunuista on
+        perusmetallia tai kokonaan keraamisia, jolloin kultaa ei ole lainkaan.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Pitoisuutta ei voi arvioida silmällä eikä lukea leimasta — kullanostaja määrittää sen
+        testaamalla (happotesti tai XRF-mittaus), ja arvo selviää vasta silloin. Pyydä, että
+        testaustulos eli paino ja mitattu pitoisuus näytetään sinulle ennen tarjousta.
+      </p>
+
+      <h2 id="kolikot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultakolikot</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kolikossa kultamäärä on tiedossa tarkasti, koska se perustuu lyöntistandardiin. Suomen
+        markka-ajan kultarahat (10 ja 20 markkaa, lyöty 1878–1913) noudattivat samaa standardia
+        kuin Ranskan Napoléon. Taulukossa <strong>kokonaispaino</strong> on kolikon paino vaa'alla
+        ja <strong>puhdas kulta</strong> se määrä, jonka mukaan sulatusarvo lasketaan.
+      </p>
+
+      <div class="overflow-x-auto mb-6 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[520px]">
+          <caption class="sr-only">Yleisten kultakolikoiden kokonaispaino, pitoisuus ja puhtaan kullan määrä</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-4 px-5 font-bold">Kolikko</th>
+              <th class="py-4 px-5 font-bold text-right">Kokonaispaino</th>
+              <th class="py-4 px-5 font-bold text-right">Pitoisuus</th>
+              <th class="py-4 px-5 font-bold text-right">Puhdasta kultaa</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {coinSpecs.map(coin => (
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-gray-900">{coin.name}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums">{coin.total}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{coin.fineness}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums font-bold">{coin.fineGold}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-gray-700 leading-relaxed mb-16 p-4 bg-gold-50/60 rounded-xl border border-gold-200">
+        <strong>Älä myy tunnettua kolikkoa romukultana.</strong> Sijoituskultakolikoista maksetaan
+        sulatusarvon lisäksi preemio, ja harvinaisista vuosikerroista voi saada moninkertaisen hinnan
+        metalliarvoon nähden. Vuoden 1926 100 ja 200 markan kultarahat olivat Suomen viimeiset
+        viralliset käyttökultarahat, mutta yleiseen kiertoon ne eivät juuri päätyneet. Harvinaisuutensa
+        vuoksi niistä maksetaan keräilyrahoina huomattavasti pelkkää sulatusarvoa enemmän. Suomen
+        Rahapajan myöhemmät juhla- ja keräilykultarahat hinnoitellaan niin ikään keräilyarvon mukaan.
+        Tarkista kolikon arvo kolikkoliikkeeltä ennen myyntiä; keräilijät tavoittaa parhaiten
+        <a href="/kullan-myyntipaikat/#huutokauppa" class="text-gold-600 font-bold hover:underline">huutokaupassa</a>.
+        Sijoituskullan verotus poikkeaa tavallisten korujen myynnistä — katso
+        <a href="/kullan-myynti-verotus/" class="text-gold-600 font-bold hover:underline">verotusopas</a>.
+      </p>
+
+      <h2 id="harkot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultaharkot</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kultaharkko on 24 karaatin kultaa (leima 999 tai 999,9). Harkkoon on lyöty paino, pitoisuus ja
+        valmistajan tunnus, joten kultamäärä on suoraan luettavissa — koko punnittu paino on puhdasta
+        kultaa. Tunnetun rahapajan tai jalostamon harkot ovat helpoiten myytäviä.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Harkot ovat <a href="/sanasto/#sijoituskulta" class="text-gold-600 font-bold hover:underline">sijoituskultaa</a>:
+        myyntihinta on lähellä pörssikurssia, tyypillisesti hieman sen alle ostajan katteen verran.
+        Mahdollinen luovutusvoitto on veronalaista ensimmäisestä eurosta alkaen. Säilytä ostokuitti
+        ja aitoustodistus, jos sellainen on.
+      </p>
+
+      <div class="flex items-start gap-3 p-5 bg-gray-50 border border-gray-200 rounded-2xl mb-16">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-600 shrink-0 mt-0.5" aria-hidden="true">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+          <path d="M12 9v4"></path>
+          <path d="M12 17h.01"></path>
+        </svg>
+        <p class="text-sm text-gray-600 leading-relaxed">
+          <strong class="text-gray-900">Yleisin virhe:</strong> syöttää laskuriin esineen
+          kokonaispaino, kun mukana on kiviä tai muita ei-kultaisia osia — arvio menee silloin
+          liian suureksi. Arvioi ensin kultaosuus. Myyntitilanteen muut sudenkuopat on koottu
+          <a href="/kullan-myynti/#virheet" class="text-gold-600 font-bold hover:underline">kullan myynti -oppaaseen</a>,
+          ja päivän kurssin näet <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">kullan hinta -sivulta</a>.
+        </p>
+      </div>
+
+      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Laske esineesi kultaosuuden arvo</h2>
+        <p class="text-gray-400 mb-6 max-w-xl mx-auto">
+          Kun tiedät kultaosuuden painon ja pitoisuuden, laskuri näyttää reilun tavoitehinnan päivän kurssilla.
+        </p>
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+          Laske esineesi arvo →
+        </a>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-12">
+        {faqItems.map((item: any) => (
+          <FaqItem question={item.name} answer={item.acceptedAnswer.text} />
+        ))}
+      </div>
+
+      <div class="pt-8 border-t border-gray-100">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Lue myös</p>
+        <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Kullan leimat →</a>
+          <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti →</a>
+          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+          <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>

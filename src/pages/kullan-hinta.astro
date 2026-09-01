@@ -180,7 +180,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </div>
         <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
           Kullan hinta ja
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600">hintakehitys</span>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">hintakehitys</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
           Puhtaan kullan (24K) spot-hinta on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
@@ -245,7 +245,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Mistä kullan hinta muodostuu?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Kullan <strong>spot-hinta</strong> on puhtaan kullan tukkuhinta kansainvälisillä markkinoilla.
+        Kullan <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hinta</a>
+        on puhtaan kullan tukkuhinta kansainvälisillä markkinoilla.
         Se noteerataan Yhdysvaltain dollareissa troy-unssia (31,103 g) kohden ja muunnetaan
         euroiksi valuuttakurssilla. Tällä sivulla hinta näytetään suoraan euroina grammalta
         eli grammahintana, jotta vertailu omiin koruihin on helppoa.
@@ -259,8 +260,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <strong>Huomaa:</strong> korukullasta maksettava hinta on aina spot-hintaa matalampi, koska
         ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa.
         <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">Laskurimme</a> näyttää
-        suoraan reilun vähimmäistason, jota kannattaa tavoitella. Tänään 14K-kullan reilu taso on
-        noin <strong>{fmt(p14k)} €/g</strong> ja 18K-kullan noin <strong>{fmt(p18k)} €/g</strong>.
+        suoraan reilun vähimmäistason, jota kannattaa tavoitella (<a href="/tietoa/" class="text-gold-600 font-bold hover:underline">näin laskenta toimii</a>).
+        Tänään 14K-kullan reilu taso on noin <strong>{fmt(p14k)} €/g</strong> ja 18K-kullan noin <strong>{fmt(p18k)} €/g</strong>.
       </p>
 
       <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
@@ -278,9 +279,12 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         ))}
       </div>
 
-      <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+      <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
         <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti – näin saat parhaan hinnan →</a>
+        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+        <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Paljonko kultaa eri esineissä on →</a>
         <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Tunnista kullan leimat →</a>
+        <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
       </div>
 
     </div>

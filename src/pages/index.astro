@@ -77,17 +77,17 @@ const benefitCards = [
   {
     icon: `<svg ${iconSvgAttrs}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
     title: 'Tiedä oikea markkinahinta',
-    text: 'Kullan hinta muuttuu joka päivä. Kun tiedät ajantasaisen <span class="font-semibold text-gold-600">pörssikurssin</span>, olet vahvemmassa asemassa neuvotteluissa kullanostajien kanssa. Älä myy sokkona.'
+    text: 'Kullan hinta muuttuu joka päivä. Kun tiedät päivän <span class="font-semibold text-gold-600">pörssikurssin</span>, olet vahvemmassa asemassa neuvotteluissa kullanostajien kanssa. Älä myy sokkona.'
   },
   {
     icon: `<svg ${iconSvgAttrs}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>`,
     title: 'Tunnista arvoesineet',
-    text: 'Kaikki kulta ei ole samanarvoista. 18 karaatin vihkisormus on arvokkaampi kuin 14 karaatin ketju. Laskurimme auttaa sinua hahmottamaan eri pitoisuuksien hintaerot.'
+    text: 'Kaikki kulta ei ole samanarvoista. 18 karaatin vihkisormus on arvokkaampi kuin 14 karaatin ketju, eikä esineen koko paino aina ole kultaa. <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Katso paljonko kultaa eri esineissä on →</a>'
   },
   {
     icon: `<svg ${iconSvgAttrs}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`,
     title: 'Kilpailuttaminen kannattaa',
-    text: 'Ostajien hinnoissa on eroja. Kun olet laskenut esineesi suuntaa-antavan arvon laskurillamme, tiedät onko saamasi tarjous reilu vai kannattaako kysyä hintaa muualta. <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Lue oppaamme kullan myymisestä →</a>'
+    text: 'Ostajien hinnoissa on eroja. Kun tiedät esineesi suuntaa-antavan arvon, tiedät onko tarjous reilu vai kannattaako kysyä muualta. <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Lue myyntiopas</a> tai <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">vertaa myyntikanavia →</a>'
   },
 ];
 
@@ -130,9 +130,13 @@ const faqItems = [
     question: 'Kannattaako kulta myydä juuri nyt?', 
     answer: 'Kullan hinta on historiallisesti erittäin korkealla tasolla. Jos sinulla on tarpeettomia koruja, rikkinäistä kultaa tai parittomia korvakoruja, nykyinen markkinatilanne on myyjän kannalta erinomainen. <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Lue vinkkimme kullan myymiseen →</a>'
   },
-  { 
-    question: 'Miten kullan maailmanmarkkinahinta määräytyy?', 
+  {
+    question: 'Miten kullan maailmanmarkkinahinta määräytyy?',
     answer: 'Kullan hinta (spot-hinta) määräytyy kansainvälisissä pörsseissä kysynnän ja tarjonnan mukaan. Siihen vaikuttavat maailmantalouden tilanne, dollarin kurssi, inflaatio ja geopoliittinen epävarmuus. Kultalaskuri.fi seuraa tätä hintaa päivittäin — katso <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a>.'
+  },
+  {
+    question: 'Pitääkö kullan myynnistä maksaa veroa?',
+    answer: 'Useimmiten ei. Omien, kotona käytettyjen korujen myynti on tavanomaisen koti-irtaimiston luovutusta, jonka voitot ovat verovapaita 5 000 euroon asti vuodessa henkilöä kohti. Sijoituskulta ja suuremmat erät ovat eri asia — <a href="/kullan-myynti-verotus/" class="text-gold-600 font-bold hover:underline">lue kullan myynnin verotuksesta</a>.'
   },
 ];
 
@@ -222,7 +226,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight drop-shadow-lg">
         Kullan hinta tänään —
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-600">
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-600 pb-1.5">
           laske kultasi arvo
         </span>
       </h1>
@@ -298,6 +302,64 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
   <section id="vaaka" class="py-20 bg-white border-t border-gray-100 scroll-mt-24">
     <div class="max-w-4xl mx-auto px-4">
       <JewelryWeightEstimator client:visible spotPrice={spot} />
+    </div>
+
+    {/* Staattinen painotaulukko — sama data kuin yllä olevassa laskurissa, mutta
+        luettavissa myös ilman JavaScriptiä (hakukoneet ja tekoäly­hakurobotit).
+        Pidä luvut synkassa JewelryWeightEstimator.tsx:n JEWELRY_DATA:n kanssa. */}
+    <div class="max-w-4xl mx-auto px-4 mt-16">
+      <h2 class="text-2xl md:text-3xl font-black text-gray-900 mb-3 tracking-tight">
+        Kultakorujen tyypilliset painot
+      </h2>
+      <p class="text-gray-600 leading-relaxed mb-6">
+        Jos et pääse punnitsemaan korua, näistä keskimääräisistä painoista saat suuntaa.
+        Todellinen paino vaihtelee mallin ja koon mukaan, joten tarkka arvo selviää vain
+        punnitsemalla. Painot ovat grammoja.
+      </p>
+      <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[420px]">
+          <caption class="sr-only">Kultakorujen keskimääräiset painot grammoina korutyypeittäin</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-4 px-5 font-bold">Korutyyppi</th>
+              <th class="py-4 px-5 font-bold text-right">Kevyt</th>
+              <th class="py-4 px-5 font-bold text-right">Keskikoko</th>
+              <th class="py-4 px-5 font-bold text-right">Raskas</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-3.5 px-5 font-bold text-gray-900">Sormus</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~2 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~4 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~8 g</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-3.5 px-5 font-bold text-gray-900">Kaulakoru</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~3 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~8 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~20 g</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-3.5 px-5 font-bold text-gray-900">Rannekoru</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~3 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~7 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~15 g</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="py-3.5 px-5 font-bold text-gray-900">Korvakorut (pari)</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~1 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~3 g</td>
+              <td class="py-3.5 px-5 text-right tabular-nums">~6 g</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mt-4">
+        Kivet, lukot ja muut ei-kultaiset osat eivät ole kultaa — vähennä niiden osuus
+        arviosta. Kelloissa ja kivikoruissa kultaosuus voi olla selvästi kokonaispainoa pienempi:
+        <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">katso kultaosuus esinetyypeittäin</a>.
+      </p>
     </div>
   </section>
 
@@ -456,6 +518,11 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
           <FaqItem question={item.question} answer={item.answer} />
         ))}
       </div>
+      <p class="text-center mt-10">
+        <a href="/oppaat/" data-track="opas-hub-linkki" class="inline-flex items-center gap-1.5 text-gold-600 font-bold hover:underline">
+          Selaa kaikki kullan myynnin oppaat →
+        </a>
+      </p>
     </div>
   </section>
 

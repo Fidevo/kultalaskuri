@@ -1,9 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Scale, Calculator, Info, AlertTriangle, Printer, BookOpen, Stamp, Camera, ArrowRight } from 'lucide-react';
+import { Scale, Calculator, Info, AlertTriangle, Printer, BookOpen, Stamp, Camera, ArrowRight, Phone, ShieldCheck } from 'lucide-react';
 import { calculateGoldValue, formatEur, GOLD_PURITIES, type PurityCode, type CalculationResult } from '../../lib/calculations/goldCalculator';
+import { assessOffers, parseOfferAmount } from '../../lib/calculations/offerComparison';
+
+// Valinnainen kumppanitieto — käytössä toistaiseksi vain kaupunkikohtaisilla
+// kumppanisivuilla (esim. kullan-myynti-tampere.astro). Kun prop puuttuu,
+// komponentti käyttäytyy täysin ennallaan kaikkialla muualla.
+interface PartnerInfo {
+  name: string;
+  city?: string;
+  phone?: string;
+  phoneHref?: string;
+}
 
 interface Props {
   spotPriceEurPerGram: number;
+  partner?: PartnerInfo;
 }
 
 // Umami-tracking helper — ei kaadu jos Umami ei ole ladattu
@@ -26,12 +38,14 @@ interface ListItem {
 
 const STORAGE_KEY = 'kl-viimeisin';
 
-export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
+export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) {
   const [weight, setWeight] = useState<string>('');
   const [purity, setPurity] = useState<PurityCode>('14K');
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [items, setItems] = useState<ListItem[]>([]);
+  const [showOffers, setShowOffers] = useState(false);
+  const [offers, setOffers] = useState<{ id: string; label: string; amount: string }[]>([]);
   const [lastVisit, setLastVisit] = useState<SavedCalculation | null>(null);
   // Päivämäärä lasketaan vasta clientissä (useState-initializer) — ei hydration mismatchia
   const [today] = useState(() => new Date().toLocaleDateString('fi-FI'));
@@ -116,6 +130,31 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
   const itemsTotal = items.reduce((sum, item) => sum + item.value, 0);
   const grandTotal = itemsTotal + (result?.targetValue ?? 0);
 
+  // Tarjousvertailu: verrataan aina tavoitehintaan (yksi esine tai lista yhteensä)
+  const comparison = assessOffers(grandTotal, offers.map((o) => o.amount));
+
+  const addOffer = () => {
+    setOffers((prev) => {
+      if (prev.length >= 4) return prev;
+      const n = prev.length + 1;
+      track('tarjousvertailu-lisatty', { count: n });
+      return [...prev, { id: `o${Date.now()}-${n}`, label: `Tarjous ${n}`, amount: '' }];
+    });
+  };
+  const updateOffer = (id: string, patch: Partial<{ label: string; amount: string }>) => {
+    setOffers((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  };
+  const removeOffer = (id: string) => setOffers((prev) => prev.filter((o) => o.id !== id));
+  const openOffers = () => {
+    setShowOffers(true);
+    track('tarjousvertailu-avattu');
+    if (offers.length === 0) addOffer();
+  };
+
+  useEffect(() => {
+    if (comparison.bestBand) track('tarjousvertailu-tulos', { band: comparison.bestBand });
+  }, [comparison.bestBand]);
+
   const addItemToList = () => {
     if (!result) return;
     setItems(prev => [...prev, { weight: result.weightGrams, purity, value: result.targetValue }]);
@@ -140,7 +179,10 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
     const totalLine = items.length > 0
       ? `\nKaikki esineet yhteensä (${items.length + 1} kpl): vähintään ${formatEur(grandTotal)}\n`
       : '';
-    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n${totalLine}\nLuotettavat kullanostajat maksavat vähintään tämän verran.\nKatso sama laskelma: ${shareUrl}`;
+    const partnerLine = partner
+      ? `\n${partner.name}${partner.city ? ` (${partner.city})` : ''} on sitoutunut maksamaan vähintään tämän summan.\n`
+      : `\nLuotettavat kullanostajat maksavat vähintään tämän verran.\n`;
+    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n${totalLine}${partnerLine}Katso sama laskelma: ${shareUrl}`;
 
     track('laskuri-whatsapp', { purity, value: result.targetValue });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -342,6 +384,27 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                    Vinkki: Älä myy kultaasi alle tämän tason.
                 </span>
               </div>
+
+              {/* KUMPPANIN HINTALUPAUS — näkyy heti tuloksen yhteydessä, ei vasta
+                  kauempana sivulla. Renderöityy vain jos partner-prop annettu. */}
+              {partner && (
+                <div className="mt-3 flex items-start gap-3 bg-gold-50 border border-gold-200 text-gray-800 px-4 py-3 rounded-xl max-w-md w-full md:w-auto">
+                  <ShieldCheck size={18} className="shrink-0 mt-0.5 text-gold-600" />
+                  <p className="text-xs md:text-sm leading-relaxed">
+                    <span className="inline-block text-[9px] font-bold uppercase tracking-wide text-gold-700 bg-white border border-gold-200 rounded px-1.5 py-0.5 mr-1.5 align-middle">Kumppani</span>
+                    <strong className="font-bold text-gray-900">{partner.name}</strong>
+                    {partner.city ? ` (${partner.city})` : ''} sitoutuu maksamaan tästä esineestä vähintään yllä olevan summan.
+                    {partner.phoneHref && (
+                      <>
+                        {' '}
+                        <a href={`tel:${partner.phoneHref}`} className="inline-flex items-center gap-1 font-bold underline decoration-gold-400 hover:text-gold-700">
+                          <Phone size={12} /> Soita {partner.phone}
+                        </a>
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* LISÄTIEDOT & NAPIT YHDESSÄ GRIDISSÄ */}
@@ -407,6 +470,169 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                 </button>
               </div>
 
+              {/* VERTAA SAAMIASI TARJOUKSIA */}
+              <div className="mt-6 p-5 bg-white border border-gray-200 rounded-2xl no-print">
+                {!showOffers ? (
+                  <button
+                    type="button"
+                    onClick={openOffers}
+                    className="w-full flex items-center justify-between gap-3 text-left group/offers"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
+                      <span className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em]">
+                        Vertaa saamiasi tarjouksia
+                      </span>
+                    </span>
+                    <span className="text-sm font-bold text-gold-700 flex items-center gap-1 shrink-0">
+                      Avaa <ArrowRight size={14} className="group-hover/offers:translate-x-1 transition-transform" />
+                    </span>
+                  </button>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
+                      <h4 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em]">
+                        Vertaa saamiasi tarjouksia
+                      </h4>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                      Syötä ostajilta saamasi tarjoukset, niin näet miten ne suhtautuvat tavoitehintaan{' '}
+                      <strong className="font-bold text-gray-900">{formatEur(grandTotal)}</strong>{' '}
+                      {items.length > 0 ? 'kaikille esineillesi yhteensä' : 'esineellesi'}.
+                    </p>
+
+                    <div className="space-y-3 mb-3">
+                      {offers.map((offer, i) => {
+                        const a = comparison.assessments[i];
+                        const isBest =
+                          comparison.bestAmount !== null &&
+                          a?.amount === comparison.bestAmount &&
+                          offers.length > 1;
+                        return (
+                          <div
+                            key={offer.id}
+                            className="flex flex-col gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50"
+                          >
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                aria-label={`Tarjouksen ${i + 1} nimi`}
+                                value={offer.label}
+                                onChange={(e) => updateOffer(offer.id, { label: e.target.value })}
+                                className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold text-gray-900 outline-none transition-colors focus:border-gold-400 focus:ring-2 focus:ring-gold-400/10"
+                              />
+                              <div className="relative w-28 shrink-0">
+                                <input
+                                  type="text"
+                                  inputMode="decimal"
+                                  autoComplete="off"
+                                  aria-label={`Tarjouksen ${i + 1} summa euroina`}
+                                  value={offer.amount}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (/^[0-9]*[.,]?[0-9]*$/.test(v)) updateOffer(offer.id, { amount: v });
+                                  }}
+                                  placeholder="0"
+                                  className="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 text-sm font-bold text-gray-900 text-right tabular-nums outline-none transition-colors focus:border-gold-400 focus:ring-2 focus:ring-gold-400/10"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm pointer-events-none select-none">
+                                  €
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeOffer(offer.id)}
+                                aria-label={`Poista tarjous ${i + 1}`}
+                                className="w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            {a?.band && a.diff !== null && (
+                              <p className="text-xs font-bold flex items-center gap-1.5 pl-1">
+                                {a.band === 'meets' ? (
+                                  <span className="text-green-700">
+                                    Tavoitteessa{a.diff > 0 ? ` — ${formatEur(a.diff)} yli` : ''}
+                                  </span>
+                                ) : (
+                                  <span className="text-amber-700">
+                                    {formatEur(Math.abs(a.diff))} tavoitteen alle
+                                  </span>
+                                )}
+                                {isBest && (
+                                  <span className="text-[10px] uppercase tracking-wide text-gray-500 font-bold">
+                                    · paras
+                                  </span>
+                                )}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {offers.length < 4 && (
+                      <button
+                        type="button"
+                        onClick={addOffer}
+                        className="w-full mb-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-gold-400 hover:bg-gold-50/50 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+                      >
+                        <span className="text-gold-600 font-black" aria-hidden="true">＋</span>
+                        Lisää tarjous
+                      </button>
+                    )}
+
+                    {comparison.bestBand && (
+                      <div
+                        className={`p-4 rounded-xl border text-sm leading-relaxed ${
+                          comparison.bestBand === 'meets'
+                            ? 'bg-green-50 border-green-100 text-green-800'
+                            : 'bg-amber-50 border-amber-100 text-amber-900'
+                        }`}
+                      >
+                        {comparison.bestBand === 'meets' ? (
+                          <p>
+                            <strong className="font-bold">Paras tarjouksesi on tavoitteessa.</strong> Tällä
+                            tasolla myynti kannattaa.
+                          </p>
+                        ) : (
+                          <p>
+                            <strong className="font-bold">
+                              Paras tarjouksesi jää tavoitteesta {formatEur(Math.abs(comparison.bestDiff as number))}.
+                            </strong>{' '}
+                            Tavoitehinta on taso, joka kannattaa vähintään saada — pyydä tarjous vielä
+                            toiselta ostajalta ennen päätöstä.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-500 leading-relaxed mt-3">
+                      Tavoitehinta lasketaan päivän kurssilla. Se on taso, jota kannattaa vähintään
+                      tavoitella — ei tae toteutuvasta hinnasta.
+                    </p>
+
+                    <details className="mt-3 group/how">
+                      <summary className="text-xs font-bold text-gold-700 cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center gap-1">
+                        <ArrowRight size={12} className="group-open/how:rotate-90 transition-transform" />
+                        Näin vertaat tarjouksia oikein
+                      </summary>
+                      <ul className="mt-2 space-y-1.5 text-xs text-gray-600 leading-relaxed pl-4 list-disc">
+                        <li>
+                          Pyydä jokaiselta ostajalta hinta samasta erästä — samat esineet, kivet joko mukana
+                          tai pois, mutta sama linja kaikille.
+                        </li>
+                        <li>
+                          Jos tarjous on annettu grammahintana, kerro se painolla: esim. 45 €/g × 4 g = 180 €.
+                        </li>
+                        <li>Varmista, koskeeko tarjous kaikkia esineitä vai vain osaa niistä.</li>
+                      </ul>
+                    </details>
+                  </>
+                )}
+              </div>
+
               {/* MITÄ SEURAAVAKSI? -OHJEKORTTI */}
               <div className="mt-6 p-5 bg-gradient-to-br from-gold-50/50 to-amber-50/20 border border-gold-100 rounded-2xl no-print">
                 <h4 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
@@ -414,9 +640,28 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   Mitä seuraavaksi?
                 </h4>
                 <ol className="space-y-2.5">
+                  {/* KOHTA 0 (vain jos partner-prop annettu) — suorin konversiopolku */}
+                  {partner?.phoneHref && (
+                    <li>
+                      <a
+                        href={`tel:${partner.phoneHref}`}
+                        onClick={() => track('seuraavaksi-kumppani', { partner: partner.name })}
+                        className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
+                      >
+                        <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-500 border border-gold-500 text-[#0B0F19] text-xs font-black flex items-center justify-center shadow-sm tabular-nums">1</span>
+                        <div className="flex-1 flex items-center gap-2 pt-0.5">
+                          <Phone size={15} className="text-gold-600 shrink-0" />
+                          <span className="text-sm text-gray-700 leading-snug">
+                            <strong className="font-bold text-gray-900">Soita {partner.name}</strong> ja sovi käynti
+                          </span>
+                          <ArrowRight size={14} className="ml-auto text-gold-500 shrink-0 group-hover/step:translate-x-1 transition-transform" />
+                        </div>
+                      </a>
+                    </li>
+                  )}
                   {/* KOHTA 1 — DESKTOP: Tulosta-nappi, MOBIILI: Kuva-ohje */}
                   <li className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg">
-                    <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">1</span>
+                    <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">{partner?.phoneHref ? 2 : 1}</span>
                     <div className="flex-1 min-w-0 flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         {/* Desktop: tulostin-ikoni */}
@@ -447,7 +692,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                       onClick={() => track('seuraavaksi-myyntivinkit')}
                       className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
                     >
-                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">2</span>
+                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">{partner?.phoneHref ? 3 : 2}</span>
                       <div className="flex-1 flex items-center gap-2 pt-0.5">
                         <BookOpen size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-500 transition-colors" />
                         <span className="text-sm text-gray-700 leading-snug">
@@ -465,7 +710,7 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                       onClick={() => track('seuraavaksi-leimat')}
                       className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
                     >
-                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">3</span>
+                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">{partner?.phoneHref ? 4 : 3}</span>
                       <div className="flex-1 flex items-center gap-2 pt-0.5">
                         <Stamp size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-500 transition-colors" />
                         <span className="text-sm text-gray-700 leading-snug">
@@ -493,8 +738,23 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
                   <span><strong>Pörssikurssi:</strong> {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g (24K)</span>
                   <span><strong>Lähde:</strong> kultalaskuri.fi</span>
                 </div>
+                {offers.some((o) => parseOfferAmount(o.amount) !== null) && (
+                  <p className="mt-2">
+                    <strong>Saadut tarjoukset:</strong>{' '}
+                    {offers
+                      .filter((o) => parseOfferAmount(o.amount) !== null)
+                      .map((o) => `${o.label?.trim() || 'Tarjous'} ${formatEur(parseOfferAmount(o.amount) as number)}`)
+                      .join(' · ')}
+                    {' — '}tavoitehinta {formatEur(grandTotal)}
+                  </p>
+                )}
+                {partner && (
+                  <p className="mt-2">
+                    <strong>Kumppani:</strong> {partner.name}{partner.phone ? ` · ${partner.phone}` : ''} — sitoutunut maksamaan vähintään yllä olevan summan.
+                  </p>
+                )}
                 <p className="mt-2 text-gray-500">
-                  Suuntaa-antava arvio. Lopullinen ostohinta riippuu kullanostajan käytännöistä, esineen kunnosta ja päivän pörssikurssista.
+                  Suuntaa-antava arvio. Lopullinen ostohinta riippuu kullanostajan käytännöistä ja päivän pörssikurssista.
                 </p>
               </div>
             </div>
@@ -575,9 +835,11 @@ export default function GoldCalculator({ spotPriceEurPerGram }: Props) {
               </ol>
             </div>
 
-            {/* SEKÄ MOBILE ETTÄ DESKTOP: Ei vaakaa? -kortti */}
+            {/* SEKÄ MOBILE ETTÄ DESKTOP: Ei vaakaa? -kortti.
+                Absoluuttinen /#vaaka: painoarvio-osio on vain etusivulla, joten
+                linkin on toimittava myös laskurin muilta upotussivuilta (esim. /kullan-myynti/). */}
             <a
-              href="#vaaka"
+              href="/#vaaka"
               onClick={() => track('empty-vaaka-click')}
               className="group/vaaka flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-gold-50/50 to-amber-50/20 border border-gold-100 hover:border-gold-300 hover:shadow-sm transition-all"
             >
