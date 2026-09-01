@@ -181,8 +181,8 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
       : '';
     const partnerLine = partner
       ? `\n${partner.name}${partner.city ? ` (${partner.city})` : ''} on sitoutunut maksamaan vähintään tämän summan.\n`
-      : `\nLuotettavat kullanostajat maksavat vähintään tämän verran.\n`;
-    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nReilu myyntihinta: vähintään ${formatEur(result.targetValue)}\n${totalLine}${partnerLine}Katso sama laskelma: ${shareUrl}`;
+      : `\nTämä on taso, jota myynnissä kannattaa vähintään tavoitella.\n`;
+    const text = `Kulta-arvio (Kultalaskuri.fi):\nPaino: ${result.weightGrams}g\nPitoisuus: ${purity}\nArvioitu tavoitehinta: vähintään ${formatEur(result.targetValue)}\n${totalLine}${partnerLine}Katso sama laskelma: ${shareUrl}`;
 
     track('laskuri-whatsapp', { purity, value: result.targetValue });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -374,7 +374,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               </span>
               
               <p className="text-gray-500 mt-4 md:text-lg leading-relaxed max-w-md">
-                Tämä on hinta, jota sinun kannattaa tavoitella. Luotettavat kullanostajat maksavat yleensä vähintään tämän verran.
+                Tämä on arvioitu taso, jota sinun kannattaa myynnissä vähintään tavoitella. Vertaa saamiasi tarjouksia siihen.
               </p>
 
               {/* VAROITUSLAATIKKO */}

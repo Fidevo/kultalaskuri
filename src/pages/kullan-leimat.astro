@@ -75,8 +75,8 @@ const schemaData = {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/kullan-leimat/",
       "url": "https://kultalaskuri.fi/kullan-leimat/",
-      "name": "Kullan leimat 585 ja 750 – mitä ne tarkoittavat?",
-      "description": "Opi tunnistamaan kullan leimat (585, 750 ja ulkomaiset leimat), erottamaan kullatut esineet aidosta kullasta ja tarkistamaan korujesi arvo laskurilla.",
+      "name": "Kullan leimat 585, 750, 916, 999 – mitä ne tarkoittavat?",
+      "description": "585 = 14 karaattia (58,5 % kultaa), 750 = 18 karaattia (75 %). Kaikki kullan pitoisuusleimat, nimi- ja vuosileimat sekä miten erotat aidon kullan kullatusta.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": {
@@ -128,8 +128,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 ---
 
 <BaseLayout
-  title="Kullan leimat 585 ja 750 selitettynä | Kultalaskuri.fi"
-  description="Mitä tarkoittaa kullan leima 585 tai 750? Opi tunnistamaan aidot kultaleimat, karaatit ja kullatut esineet. Laske kullan arvo ilmaiseksi."
+  title="Kullan leimat 585, 750, 916, 999 – mitä ne tarkoittavat?"
+  description="585 = 14 karaattia (58,5 % kultaa), 750 = 18 karaattia (75 %). Katso kaikki kultaleimat ja pitoisuudet, nimi- ja vuosileimat sekä miten erotat aidon kullan kullatusta."
   schema={JSON.stringify(schemaData)}
   ogImage={kuva750.src}
 >
@@ -159,13 +159,14 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
-        Kullan leimat <br class="md:hidden" />585&nbsp;ja&nbsp;750
+        Kullan leimat <br class="md:hidden" />585, 750, 916, 999
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
           mitä ne tarkoittavat?
         </span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
-        Ovatko korusi aitoa kultaa vai kullattua metallia? Opi tunnistamaan yleisimmät kultaleimat ja tarkista korujesi arvo laskurilla.
+        Leima kertoo, kuinka paljon esineessä on puhdasta kultaa: <strong class="text-gray-200">585 = 14 karaattia (58,5 %)</strong>,
+        <strong class="text-gray-200">750 = 18 karaattia (75 %)</strong>. Alta löydät kaikki pitoisuudet, nimi- ja vuosileimat sekä sen, miten erotat aidon kullan kullatusta.
       </p>
     </div>
   </div>
@@ -188,6 +189,39 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
   <section class="bg-white py-20 px-4 relative z-20">
     <div class="max-w-3xl mx-auto">
+
+      {/* Pikavastaus — hakija näkee heti mitä leima tarkoittaa (CTR + featured snippet) */}
+      <h2 id="pikavastaus" class="text-2xl md:text-3xl font-black text-gray-900 mb-4 tracking-tight scroll-mt-24">Kullan leimat lyhyesti</h2>
+      <p class="text-gray-600 leading-relaxed mb-5">
+        Leima kertoo tuhannesosina, kuinka paljon esine sisältää puhdasta kultaa:
+        <strong>585</strong> tarkoittaa 585/1000 eli 58,5 % kultaa. Yleisimmät leimat:
+      </p>
+      <div class="overflow-x-auto mb-4 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[460px]">
+          <caption class="sr-only">Yleisimmät kullan pitoisuusleimat, karaattivastine ja kultapitoisuus</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-3.5 px-5 font-bold">Leima</th>
+              <th class="py-3.5 px-5 font-bold">Karaatti</th>
+              <th class="py-3.5 px-5 font-bold text-right">Kultaa</th>
+              <th class="py-3.5 px-5 font-bold">Missä käytetään</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            <tr class="hover:bg-gray-50 transition-colors"><td class="py-3 px-5 font-black text-gray-900">375</td><td class="py-3 px-5 text-gray-500">9K</td><td class="py-3 px-5 text-right tabular-nums">37,5 %</td><td class="py-3 px-5">edulliset käyttökorut</td></tr>
+            <tr class="bg-gold-50/40 hover:bg-gold-50/70 transition-colors"><td class="py-3 px-5 font-black text-gray-900">585</td><td class="py-3 px-5 text-gray-500">14K</td><td class="py-3 px-5 text-right tabular-nums font-bold">58,5 %</td><td class="py-3 px-5">Suomen yleisin korukulta</td></tr>
+            <tr class="bg-gold-50/40 hover:bg-gold-50/70 transition-colors"><td class="py-3 px-5 font-black text-gray-900">750</td><td class="py-3 px-5 text-gray-500">18K</td><td class="py-3 px-5 text-right tabular-nums font-bold">75,0 %</td><td class="py-3 px-5">arvokorut ja vihkisormukset</td></tr>
+            <tr class="hover:bg-gray-50 transition-colors"><td class="py-3 px-5 font-black text-gray-900">916</td><td class="py-3 px-5 text-gray-500">22K</td><td class="py-3 px-5 text-right tabular-nums">91,6 %</td><td class="py-3 px-5">hääkorut (Aasia, Lähi-itä)</td></tr>
+            <tr class="hover:bg-gray-50 transition-colors"><td class="py-3 px-5 font-black text-gray-900">999</td><td class="py-3 px-5 text-gray-500">24K</td><td class="py-3 px-5 text-right tabular-nums">99,9 %</td><td class="py-3 px-5">sijoituskulta ja kultaharkot</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mb-12">
+        Muut merkinnät (333, 417, 875, 965) ja karaattivastineet: <a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">ulkomaiset leimat</a>.
+        Kirjain + numero (esim. <strong>A9 = 2002</strong>, <strong>A10 = 2026</strong>) on vuosileima, joka kertoo valmistusvuoden:
+        <a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">vuosileimataulukot</a>.
+        Kirjaimet GP, GF, GE ja HGE tarkoittavat <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">kullattua esinettä</a>, ei aitoa kultaa.
+      </p>
 
       {/* Sisällysluettelo — nopea navigointi pitkällä opassivulla */}
       <nav aria-label="Sisällysluettelo" class="mb-12 p-6 bg-gray-50 rounded-2xl border border-gray-200">
