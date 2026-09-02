@@ -265,8 +265,32 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         ja <strong>puhdas kulta</strong> se määrä, jonka mukaan sulatusarvo lasketaan.
       </p>
 
-      <div class="overflow-x-auto mb-6 rounded-2xl border border-gray-200 shadow-sm">
-        <table class="w-full text-left border-collapse min-w-[520px]">
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-3 mb-6">
+        {coinSpecs.map(coin => (
+          <div class="p-4 rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <p class="font-bold text-gray-900 mb-2">{coin.name}</p>
+            <div class="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <span class="block text-xs text-gray-500">Kokonaispaino</span>
+                <span class="font-bold tabular-nums text-gray-900">{coin.total}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-gray-500">Pitoisuus</span>
+                <span class="tabular-nums text-gray-700">{coin.fineness}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-gray-500">Puhdasta kultaa</span>
+                <span class="font-bold tabular-nums text-gray-900">{coin.fineGold}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block overflow-x-auto mb-6 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse">
           <caption class="sr-only">Yleisten kultakolikoiden kokonaispaino, pitoisuus ja puhtaan kullan määrä</caption>
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">

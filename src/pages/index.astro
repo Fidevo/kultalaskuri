@@ -71,6 +71,14 @@ const priceCards = [
   { karat: '24K', purity: 999, label: 'Puhdas kulta', price: p24k },
 ];
 
+// Keskimääräiset korupainot. Pidä synkassa JewelryWeightEstimator.tsx:n JEWELRY_DATA:n kanssa.
+const jewelryWeights = [
+  { type: 'Sormus', light: '~2 g', mid: '~4 g', heavy: '~8 g' },
+  { type: 'Kaulakoru', light: '~3 g', mid: '~8 g', heavy: '~20 g' },
+  { type: 'Rannekoru', light: '~3 g', mid: '~7 g', heavy: '~15 g' },
+  { type: 'Korvakorut (pari)', light: '~1 g', mid: '~3 g', heavy: '~6 g' },
+];
+
 const iconSvgAttrs = 'xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 
 const benefitCards = [
@@ -316,8 +324,23 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
         Todellinen paino vaihtelee mallin ja koon mukaan, joten tarkka arvo selviää vain
         punnitsemalla. Painot ovat grammoja.
       </p>
-      <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
-        <table class="w-full text-left border-collapse min-w-[420px]">
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-3">
+        {jewelryWeights.map(row => (
+          <div class="p-4 rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <p class="font-bold text-gray-900 mb-2">{row.type}</p>
+            <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-600">
+              <span>Kevyt <strong class="text-gray-900 tabular-nums">{row.light}</strong></span>
+              <span>Keskikoko <strong class="text-gray-900 tabular-nums">{row.mid}</strong></span>
+              <span>Raskas <strong class="text-gray-900 tabular-nums">{row.heavy}</strong></span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse">
           <caption class="sr-only">Kultakorujen keskimääräiset painot grammoina korutyypeittäin</caption>
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
@@ -328,30 +351,14 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
             </tr>
           </thead>
           <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-3.5 px-5 font-bold text-gray-900">Sormus</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~2 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~4 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~8 g</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-3.5 px-5 font-bold text-gray-900">Kaulakoru</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~3 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~8 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~20 g</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-3.5 px-5 font-bold text-gray-900">Rannekoru</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~3 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~7 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~15 g</td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-3.5 px-5 font-bold text-gray-900">Korvakorut (pari)</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~1 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~3 g</td>
-              <td class="py-3.5 px-5 text-right tabular-nums">~6 g</td>
-            </tr>
+            {jewelryWeights.map(row => (
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-gray-900">{row.type}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums">{row.light}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums">{row.mid}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums">{row.heavy}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

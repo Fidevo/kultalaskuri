@@ -210,7 +210,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
     <div className="grid lg:grid-cols-12 gap-0 bg-white overflow-hidden">
       
       {/* --- VASEN PUOLI: SYÖTTÖ --- */}
-      <div className="lg:col-span-5 bg-gray-50/80 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col gap-6 md:gap-8">
+      <div className="lg:col-span-5 min-w-0 bg-gray-50/80 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col gap-6 md:gap-8">
         
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm text-gold-400">
@@ -319,7 +319,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
       </div>
 
       {/* --- OIKEA PUOLI: TULOS --- */}
-      <div ref={resultPanelRef} className="lg:col-span-7 p-6 md:p-10 bg-white relative min-h-[300px] lg:min-h-auto flex flex-col">
+      <div ref={resultPanelRef} className="lg:col-span-7 min-w-0 p-6 md:p-10 bg-white relative min-h-[300px] lg:min-h-auto flex flex-col">
 
         {/* ESINELISTA — usean esineen summa */}
         {items.length > 0 && (
@@ -522,7 +522,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                                 onChange={(e) => updateOffer(offer.id, { label: e.target.value })}
                                 className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold text-gray-900 outline-none transition-colors focus:border-gold-400 focus:ring-2 focus:ring-gold-400/10"
                               />
-                              <div className="relative w-28 shrink-0">
+                              <div className="relative w-24 shrink-0">
                                 <input
                                   type="text"
                                   inputMode="decimal"

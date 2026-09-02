@@ -159,8 +159,20 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </ul>
       </div>
 
-      <div class="overflow-x-auto mb-6 rounded-2xl border border-gray-200 shadow-sm">
-        <table class="w-full text-left border-collapse min-w-[560px]">
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-3 mb-6">
+        {channels.map(ch => (
+          <div class="p-4 rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <p class="font-bold text-gray-900 mb-2">{ch.name}</p>
+            <p class="text-sm text-gray-600"><span class="text-gray-500">Aikataulu:</span> {ch.speed}</p>
+            <p class="text-sm text-gray-600 mt-0.5"><span class="text-gray-500">Kenelle:</span> {ch.fit}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block overflow-x-auto mb-6 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse">
           <caption class="sr-only">Kullan myyntikanavien aikataulu ja soveltuvuus</caption>
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">

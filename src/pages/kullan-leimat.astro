@@ -37,6 +37,15 @@ const foreignMarks = [
   { mark: '333', karat: '8K',  pct: '33,3', use: 'Edulliset korut, yleinen Saksassa ja Keski-Euroopassa' },
 ];
 
+// Pikavastaus sivun alkuun — yleisimmät leimat (osajoukko, oma lyhyt kuvaus)
+const quickMarks = [
+  { mark: '375', karat: '9K',  pct: '37,5', use: 'edulliset käyttökorut' },
+  { mark: '585', karat: '14K', pct: '58,5', use: 'Suomen yleisin korukulta', highlight: true },
+  { mark: '750', karat: '18K', pct: '75,0', use: 'arvokorut ja vihkisormukset', highlight: true },
+  { mark: '916', karat: '22K', pct: '91,6', use: 'hääkorut (Aasia, Lähi-itä)' },
+  { mark: '999', karat: '24K', pct: '99,9', use: 'sijoituskulta ja kultaharkot' },
+];
+
 // Vanhemmat kierrokset perintökoruja varten
 const olderCycles = [
   { title: 'Vuosileimat 1954–1977', rows: cycle7 },
@@ -196,8 +205,25 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Leima kertoo tuhannesosina, kuinka paljon esine sisältää puhdasta kultaa:
         <strong>585</strong> tarkoittaa 585/1000 eli 58,5 % kultaa. Yleisimmät leimat:
       </p>
-      <div class="overflow-x-auto mb-4 rounded-2xl border border-gray-200 shadow-sm">
-        <table class="w-full text-left border-collapse min-w-[460px]">
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-2.5 mb-4">
+        {quickMarks.map(row => (
+          <div class={`flex items-center gap-4 p-3.5 rounded-2xl border ${row.highlight ? 'border-gold-200 bg-gold-50/40' : 'border-gray-200 bg-white'} shadow-sm`}>
+            <div class={`w-14 h-14 rounded-full flex flex-col items-center justify-center shrink-0 border ${row.highlight ? 'bg-white border-gold-200 text-gold-700' : 'bg-gray-50 border-gray-200 text-gray-900'}`}>
+              <span class="font-black text-sm leading-none">{row.mark}</span>
+              <span class="text-[10px] text-gray-500 leading-none mt-0.5">{row.karat}</span>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-gray-900">{row.pct} % kultaa</p>
+              <p class="text-xs text-gray-500 leading-snug mt-0.5">{row.use}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block overflow-x-auto mb-4 rounded-2xl border border-gray-200 shadow-sm">
+        <table class="w-full text-left border-collapse">
           <caption class="sr-only">Yleisimmät kullan pitoisuusleimat, karaattivastine ja kultapitoisuus</caption>
           <thead>
             <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
@@ -208,11 +234,14 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
             </tr>
           </thead>
           <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
-            <tr class="hover:bg-gray-50 transition-colors"><td class="py-3 px-5 font-black text-gray-900">375</td><td class="py-3 px-5 text-gray-500">9K</td><td class="py-3 px-5 text-right tabular-nums">37,5 %</td><td class="py-3 px-5">edulliset käyttökorut</td></tr>
-            <tr class="bg-gold-50/40 hover:bg-gold-50/70 transition-colors"><td class="py-3 px-5 font-black text-gray-900">585</td><td class="py-3 px-5 text-gray-500">14K</td><td class="py-3 px-5 text-right tabular-nums font-bold">58,5 %</td><td class="py-3 px-5">Suomen yleisin korukulta</td></tr>
-            <tr class="bg-gold-50/40 hover:bg-gold-50/70 transition-colors"><td class="py-3 px-5 font-black text-gray-900">750</td><td class="py-3 px-5 text-gray-500">18K</td><td class="py-3 px-5 text-right tabular-nums font-bold">75,0 %</td><td class="py-3 px-5">arvokorut ja vihkisormukset</td></tr>
-            <tr class="hover:bg-gray-50 transition-colors"><td class="py-3 px-5 font-black text-gray-900">916</td><td class="py-3 px-5 text-gray-500">22K</td><td class="py-3 px-5 text-right tabular-nums">91,6 %</td><td class="py-3 px-5">hääkorut (Aasia, Lähi-itä)</td></tr>
-            <tr class="hover:bg-gray-50 transition-colors"><td class="py-3 px-5 font-black text-gray-900">999</td><td class="py-3 px-5 text-gray-500">24K</td><td class="py-3 px-5 text-right tabular-nums">99,9 %</td><td class="py-3 px-5">sijoituskulta ja kultaharkot</td></tr>
+            {quickMarks.map(row => (
+              <tr class={`transition-colors ${row.highlight ? 'bg-gold-50/40 hover:bg-gold-50/70' : 'hover:bg-gray-50'}`}>
+                <td class="py-3 px-5 font-black text-gray-900">{row.mark}</td>
+                <td class="py-3 px-5 text-gray-500">{row.karat}</td>
+                <td class={`py-3 px-5 text-right tabular-nums ${row.highlight ? 'font-bold' : ''}`}>{row.pct} %</td>
+                <td class="py-3 px-5">{row.use}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
