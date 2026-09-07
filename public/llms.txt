@@ -21,7 +21,7 @@
 
 ## Keskeiset sivut
 
-- [Kullan hinta tänään ja laskuri](https://kultalaskuri.fi/): laskuri, päivittyvät
+- [Kultalaskuri – laske kullan arvo](https://kultalaskuri.fi/): laskuri, päivittyvät
   24K/18K/14K-tavoitehinnat ja korupainon arviointi ilman vaakaa.
 - [Kullan myynnin oppaat](https://kultalaskuri.fi/oppaat/): kaikkien opassivujen
   hakemisto kolmessa ryhmässä (tunnista ja arvioi · myyntipäätös · verotus ja termit).
@@ -32,11 +32,14 @@
   myyntikanavien vertailu — paikallinen kullanostaja, posti-/verkkopalvelu,
   panttilainaamo, huutokauppa ja yksityismyynti; aikataulu, kulut, riskit ja
   kenelle kukin sopii, sekä ostajan luotettavuuden tarkistus.
-- [Kullan hinta ja hintakehitys](https://kultalaskuri.fi/kullan-hinta/): spot-hinnan
-  päiväkohtainen historia, kuukausitilastot ja selitys siitä mistä kullan hinta
-  muodostuu (korkotaso, dollarin kurssi, keskuspankkien ostot, geopolitiikka).
-- [Kullan leimat](https://kultalaskuri.fi/kullan-leimat/): pitoisuusleimat
-  (585, 750, 375, 999), nimileimat, vuosileimat ja ulkomaiset karaattimerkinnät.
+- [Kullan hinta tänään ja hintakehitys](https://kultalaskuri.fi/kullan-hinta/):
+  päivän kurssi euroina grammalta, pörssiarvo karaateittain (8K–24K, mm. 14K/585
+  ja 18K/750), hinta unssilta ja kilolta, spot-hinnan päiväkohtainen historia,
+  kuukausitilastot ja selitys siitä mistä kullan hinta muodostuu (korkotaso,
+  dollarin kurssi, keskuspankkien ostot, geopolitiikka).
+- [Kullan leimat ja merkinnät](https://kultalaskuri.fi/kullan-leimat/): pitoisuusleimat
+  (585, 750, 375, 999), kullan kemiallinen merkki Au, nimileimat, vuosileimat
+  (esim. A9 = 2002, A10 = 2026), karaattitaulukko ja ulkomaiset merkinnät.
 - [Paljonko kultaa eri esineissä on](https://kultalaskuri.fi/kulta-esineet/):
   kultaosuus esinetyypeittäin — sormukset, ketjut, kultakellot, hammaskulta,
   harkot sekä kolikot (mm. Suomen markka-ajan 10 ja 20 markan kultarahat ja

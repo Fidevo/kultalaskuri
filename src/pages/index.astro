@@ -108,7 +108,7 @@ const stampCards = [
 const faqItems = [
   {
     question: 'Paljonko on kullan hinta grammalta?',
-    answer: 'Kullan hinta grammalta — eli grammahinta — vaihtelee pörssikurssin mukaan päivittäin. Tämän sivun yläreunassa näkyvä hinta on aina päivän kurssin mukainen puhtaan kullan (24K) markkinahinta.'
+    answer: 'Kullan hinta grammalta — eli grammahinta — vaihtelee pörssikurssin mukaan päivittäin. Tämän sivun yläreunassa näkyvä hinta on aina päivän kurssin mukainen puhtaan kullan (24K) markkinahinta. Karaattikohtaiset hinnat (14K, 18K), unssi- ja kilohinnan sekä hintakehityksen löydät <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">kullan hinta -sivulta</a>.'
   },
   {
     question: 'Mitä tarkoittaa kullan ostohinta?',
@@ -154,8 +154,8 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
 ---
 
 <BaseLayout 
-  title="Kullan hinta tänään – Laske kultasi arvo | Kultalaskuri.fi" 
-  description="Kullan hinta tänään päivittyvällä pörssikurssilla. Ilmainen ja puolueeton kultalaskuri näyttää kultakorujen ja romukullan reilun myyntihinnan sekunneissa."
+  title="Kultalaskuri – laske kullan arvo päivän kurssilla | Kultalaskuri.fi"
+  description="Ilmainen ja puolueeton kultalaskuri: laske kultakorujen ja romukullan arvo grammoittain päivän kurssilla. Näet heti reilun tavoitehinnan, jota kullanostajilta kannattaa tavoitella."
   schema={schemaData}
 >
 
@@ -212,13 +212,13 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
           <p class={`mt-3 text-sm font-bold tabular-nums ${dayChangeUp ? 'text-emerald-400' : 'text-red-400'}`}>
             {dayChangeUp ? '▲' : '▼'} {Math.abs(dayChangePct!).toFixed(1).replace('.', ',')} % edellisestä pörssipäivästä
             <a href="/kullan-hinta/" class="ml-2 text-gray-400 font-medium hover:text-gray-300 transition-colors underline underline-offset-2">
-              Katso hintakehitys
+              Kullan hinta tänään ja hintakehitys
             </a>
           </p>
         ) : (
           <p class="mt-3 text-sm">
             <a href="/kullan-hinta/" class="text-gray-400 font-medium hover:text-gray-300 transition-colors underline underline-offset-2">
-              Katso hintakehitys
+              Kullan hinta tänään ja hintakehitys
             </a>
           </p>
         )}
@@ -233,9 +233,9 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight drop-shadow-lg">
-        Kullan hinta tänään —
+        Kultalaskuri —
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-600 pb-1.5">
-          laske kultasi arvo
+          laske kultasi arvo päivän kurssilla
         </span>
       </h1>
     </div>

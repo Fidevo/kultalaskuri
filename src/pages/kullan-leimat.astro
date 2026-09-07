@@ -84,8 +84,8 @@ const schemaData = {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/kullan-leimat/",
       "url": "https://kultalaskuri.fi/kullan-leimat/",
-      "name": "Kullan leimat 585, 750, 916, 999 – mitä ne tarkoittavat?",
-      "description": "585 = 14 karaattia (58,5 % kultaa), 750 = 18 karaattia (75 %). Kaikki kullan pitoisuusleimat, nimi- ja vuosileimat sekä miten erotat aidon kullan kullatusta.",
+      "name": "Kullan leimat ja merkinnät: 585, 750, 375, 916, 999 selitettynä",
+      "description": "585 = 14 karaattia (58,5 % kultaa), 750 = 18 karaattia (75 %), 375 = 9 karaattia. Kaikki kullan pitoisuusleimat, kemiallinen merkki Au, nimi- ja vuosileimat (A9 = 2002) sekä miten erotat aidon kullan kullatusta.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": {
@@ -121,6 +121,30 @@ const schemaData = {
         },
         {
           "@type": "Question",
+          "name": "Mitä tarkoittaa kullan leima 375?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Leima 375 tarkoittaa 9 karaatin kultaa, jossa puhdasta kultaa on 37,5 %. Se on aitoa kultaa, mutta pitoisuudeltaan matala: 375-korun kulta-arvo grammalta on alle kaksi kolmasosaa 585-korun arvosta. Leima on yleinen erityisesti Iso-Britanniasta tuoduissa koruissa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mitä tarkoittaa sormuksen merkintä A9, K9 tai A10?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kirjaimen ja numeron yhdistelmä on suomalainen vuosileima, joka kertoo valmistusvuoden. A9 tarkoittaa vuotta 2002, K9 vuotta 2011 ja A10 vuotta 2026. Kirjain kiertää 24 vuoden jaksoissa ja numero kertoo, monesko kierros on menossa. Vuosileima ei vaikuta kullan arvoon, mutta auttaa ajoittamaan perintökorut."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mikä on kullan kemiallinen merkki?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kullan kemiallinen merkki on Au, joka tulee latinan sanasta aurum. Kullan järjestysluku jaksollisessa järjestelmässä on 79. Joissakin ulkomaisissa koruissa pitoisuus on merkitty muodossa Au750 tai Au585, mikä tarkoittaa samaa kuin suomalainen 750- tai 585-leima."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "Voiko aito kulta olla ilman leimaa?",
           "acceptedAnswer": {
             "@type": "Answer",
@@ -137,8 +161,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 ---
 
 <BaseLayout
-  title="Kullan leimat 585, 750, 916, 999 – mitä ne tarkoittavat?"
-  description="585 = 14 karaattia (58,5 % kultaa), 750 = 18 karaattia (75 %). Katso kaikki kultaleimat ja pitoisuudet, nimi- ja vuosileimat sekä miten erotat aidon kullan kullatusta."
+  title="Kullan leimat ja merkinnät: 585, 750, 375, 916, 999 selitettynä"
+  description="585 = 14 karaattia (58,5 % kultaa), 750 = 18K, 375 = 9K. Kaikki kullan leimat ja karaatit, merkki Au, nimi- ja vuosileimat (A9 = 2002) sekä miten erotat aidon kullan kullatusta."
   schema={JSON.stringify(schemaData)}
   ogImage={kuva750.src}
 >
@@ -168,14 +192,15 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
-        Kullan leimat <br class="md:hidden" />585, 750, 916, 999
+        Kullan leimat ja merkinnät
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
-          mitä ne tarkoittavat?
+          585, 750, 375, 916, 999 – mitä ne tarkoittavat?
         </span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
         Leima kertoo, kuinka paljon esineessä on puhdasta kultaa: <strong class="text-gray-200">585 = 14 karaattia (58,5 %)</strong>,
-        <strong class="text-gray-200">750 = 18 karaattia (75 %)</strong>. Alta löydät kaikki pitoisuudet, nimi- ja vuosileimat sekä sen, miten erotat aidon kullan kullatusta.
+        <strong class="text-gray-200">750 = 18 karaattia (75 %)</strong>. Alta löydät kaikki pitoisuudet ja karaatit, kullan merkit
+        (Au, nimi- ja vuosileimat kuten A9) sekä sen, miten erotat aidon kullan kullatusta.
       </p>
     </div>
   </div>
@@ -256,21 +281,58 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <nav aria-label="Sisällysluettelo" class="mb-12 p-6 bg-gray-50 rounded-2xl border border-gray-200">
         <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Tällä sivulla</h2>
         <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          <li><a href="#merkinnat" class="text-gold-600 font-bold hover:underline">Kullan merkinnät ja merkki Au</a></li>
           <li><a href="#leima-585" class="text-gold-600 font-bold hover:underline">Leima 585 (14K)</a></li>
           <li><a href="#leima-750" class="text-gold-600 font-bold hover:underline">Leima 750 (18K)</a></li>
           <li><a href="#leima-puuttuu" class="text-gold-600 font-bold hover:underline">Voiko leima puuttua?</a></li>
-          <li><a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">Nimileimat ja vuosileimat</a></li>
-          <li><a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">Ulkomaiset leimat ja karaatit</a></li>
+          <li><a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">Nimileimat ja vuosileimat (A9, A10)</a></li>
+          <li><a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">Karaatit ja ulkomaiset leimat (375, 916)</a></li>
           <li><a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Tunnista aito leima kotona</a></li>
         </ol>
       </nav>
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Miksi kulta ylipäätään leimataan?</h2>
+      <h2 id="merkinnat" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kullan merkinnät: mitä kaikkea korussa voi lukea?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Puhdas 24 karaatin kulta on liian pehmeää kestääkseen hyvin jokapäiväistä käyttöä koruissa ja käyttöesineissä. Siksi siihen sekoitetaan muita metalleja, kuten hopeaa tai kuparia. <strong>Kullan leimat</strong> — joita kutsutaan myös kullan merkeiksi — kertovat, kuinka paljon esine sisältää puhdasta kultaa ja auttavat tunnistamaan sen pitoisuuden.
+        Puhdas 24 karaatin kulta on liian pehmeää kestääkseen jokapäiväistä käyttöä, joten koruihin
+        sekoitetaan hopeaa tai kuparia. <strong>Kullan leimat</strong> — joita kutsutaan myös kullan
+        merkeiksi tai merkinnöiksi — kertovat, kuinka paljon esine sisältää puhdasta kultaa, kuka sen
+        on valmistanut ja milloin. Suomalaisessa korussa voi olla useita merkintöjä vierekkäin:
       </p>
-      <p class="text-lg text-gray-600 leading-relaxed mb-16">
-        Suomessa jalometallituotteiden merkintöjä säädellään tarkasti, ja kultaesineissä käytetään asianmukaisia leimoja, kuten pitoisuusleimaa ja nimileimaa.
+      <ul class="space-y-3 mb-8 text-gray-600">
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Pitoisuusleima</strong> (585, 750, 375, 916, 999): kultapitoisuus tuhannesosina. Ainoa merkintä, joka vaikuttaa kullan arvoon. <a href="#pikavastaus" class="text-gold-600 font-bold hover:underline">Taulukko yllä</a>.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Karaattimerkintä</strong> (14K, 18K, 585/14K): ulkomainen tapa ilmaista sama pitoisuus. <a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">Karaattitaulukko</a>.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Nimileima</strong>: valmistajan tai maahantuojan rekisteröity tunnus, esimerkiksi kirjainyhdistelmä.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Vuosileima</strong> (esim. A9, K9, A10): kirjain + numero kertoo valmistusvuoden. <a href="#vuosileima" class="text-gold-600 font-bold hover:underline">Vuosileimataulukko</a>.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Tarkastus- ja paikkakuntaleima</strong>: kruunuleima ja valmistuskaupungin tunnus, tyypillisiä vanhemmissa kotimaisissa esineissä.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Kullatun esineen merkinnät</strong> (GP, GF, GE, HGE, "Doublé"): esine on vain pinnoitettu kullalla. <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Näin tunnistat kullatun</a>.</span>
+        </li>
+      </ul>
+
+      <h3 id="kemiallinen-merkki" class="text-2xl font-black text-gray-900 mb-3 tracking-tight scroll-mt-24">Kullan kemiallinen merkki Au</h3>
+      <p class="text-gray-600 leading-relaxed mb-16">
+        Kullan kemiallinen merkki on <strong>Au</strong> (latinan <em>aurum</em>), ja sen järjestysluku
+        jaksollisessa järjestelmässä on 79. Suomalaisissa leimoissa Au-merkintää ei yleensä käytetä,
+        mutta ulkomaisissa — erityisesti aasialaisissa ja itäeurooppalaisissa — koruissa näkee usein
+        merkinnän <strong>Au750</strong> tai <strong>Au585</strong>. Se tarkoittaa täsmälleen samaa
+        kuin kotimainen 750- tai 585-leima. Pelkkä "Au" ilman pitoisuuslukua ei kerro kultapitoisuutta,
+        eikä se ole tae aitoudesta.
       </p>
 
       <h2 id="leima-585" class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight scroll-mt-24">Mitä kullan leima 585 tarkoittaa?</h2>
@@ -375,12 +437,19 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </div>
       </div>
 
-      <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Vuosileimataulukko — selvitä korun valmistusvuosi</h3>
-      <p class="text-gray-600 leading-relaxed mb-6">
-        Suomalainen vuosileima koostuu kirjaimesta ja numerosta (esim. <strong>K9</strong>).
+      <h3 id="vuosileima" class="text-2xl font-black text-gray-900 mb-4 tracking-tight scroll-mt-24">Mitä tarkoittaa A9-, K9- tai A10-merkintä sormuksessa?</h3>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        Kirjaimen ja numeron yhdistelmä sormuksen sisäpinnalla on suomalainen <strong>vuosileima</strong>,
+        joka kertoo valmistusvuoden: <strong>A9 = 2002</strong>, <strong>K9 = 2011</strong>,
+        <strong>Z9 = 2025</strong> ja <strong>{currentMark.mark} = {currentMark.year}</strong>.
         Kirjainsarja alkoi vuonna 1810 kirjaimesta A, ja kirjaimet kiertävät 24 vuoden jaksoissa
-        (sarjassa ei käytetä kirjaimia J, W, Å, Ä ja Ö). Numero kertoo, monesko kierros on menossa.
-        Kuluva vuosi {currentMark.year} on merkitty leimalla <strong>{currentMark.mark}</strong>.
+        (sarjassa ei käytetä kirjaimia J, W, Å, Ä ja Ö). Numero kertoo, monesko kierros on menossa:
+        9-kierros kattaa vuodet 2002–2025 ja 10-kierros alkoi vuonna 2026.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-6">
+        Vuosileima ei vaikuta kullan arvoon — sen määrää pitoisuusleima ja paino — mutta se auttaa
+        ajoittamaan perintökorut ja tunnistamaan vanhat design-korut. Etsi leima alla olevista
+        taulukoista.
       </p>
 
       <div class="grid md:grid-cols-2 gap-6 mb-8">
@@ -472,9 +541,15 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <hr class="border-gray-100 mb-16" />
 
-      <h2 id="ulkomaiset-leimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Ulkomaiset kullan leimat ja karaatit</h2>
-<p class="text-lg text-gray-600 leading-relaxed mb-10">
-  Suomessa kullan pitoisuus ilmoitetaan tavallisesti promillelukuna, kuten 585 tai 750. Monissa muissa maissa käytetään sen sijaan karaattimerkintöjä, kuten 14K, 18K ja 24K. Ulkomaisen leiman puuttuminen tai erilainen merkintätapa ei siis automaattisesti tarkoita, että esine olisi väärennös.
+      <h2 id="ulkomaiset-leimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kullan karaatit ja ulkomaiset leimat: 333, 375, 417, 875, 916, 999</h2>
+<p class="text-lg text-gray-600 leading-relaxed mb-6">
+  Suomessa kullan pitoisuus ilmoitetaan promillelukuna, kuten 585 tai 750. Monissa muissa maissa käytetään karaattimerkintöjä (14K, 18K, 24K): 24 karaattia on puhdasta kultaa, ja karaattiluku kertoo, kuinka monta 24:stä osasta on kultaa. Erilainen merkintätapa ei siis tarkoita, että esine olisi väärennös.
+</p>
+<p class="text-gray-600 leading-relaxed mb-10">
+  Ulkomaisista leimoista Suomessa näkee usein leiman <strong>375</strong> eli 9 karaatin kullan
+  (37,5 % kultaa), joka on yleinen erityisesti Iso-Britanniasta tuoduissa koruissa. Se on aitoa kultaa, mutta sen arvo
+  grammalta on alle kaksi kolmasosaa 585-kullan arvosta — tarkista leima huolellisesti ennen kuin
+  vertaat tarjouksia.
 </p>
 
 {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}

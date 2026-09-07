@@ -105,13 +105,17 @@ ajastetuilla deployilla on uusi Pages-versio.
 
 ## Upotettava widget
 
-Muille sivustoille tarjottava hintawidget: `public/widget.js` hakee datan `/hinta.json`-endpointista.
+Muille sivustoille tarjottava kurssiwidget: `public/widget.js` hakee datan `/hinta.json`-endpointista.
+Widget ja JSON sisältävät vain markkinadataa (spot, päivän muutos, pitoisuus × spot, unssi) —
+ei tavoitehintaa (CLAUDE.md sääntö 4; vanhat `target*`-kentät ovat `null` yhteensopivuuden vuoksi).
 Käyttö isäntäsivulla:
 
 ```html
 <div id="kultalaskuri-widget"></div>
 <script async src="https://kultalaskuri.fi/widget.js"></script>
 ```
+
+Valinnaiset attribuutit div-elementissä: `data-theme="dark"`, `data-layout="inline"`, `data-cta="true"`.
 
 ## Hintahistorian täydennys
 

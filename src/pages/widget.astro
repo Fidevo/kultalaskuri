@@ -3,16 +3,45 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import { calculateGoldValue } from '../lib/calculations/goldCalculator';
 
+// Widget ja hinta.json näyttävät VAIN markkinadataa (spot ja pitoisuus × spot).
+// Tavoitehintaa ei julkaista upotettavassa muodossa — se on sivuston oma arvio,
+// jota ulkopuolinen media ei voi esittää omana sisältönään, ja spot + tavoitehinta
+// rinnakkain paljastaisi kertoimen (CLAUDE.md sääntö 4).
 const goldPrice = await getGoldPrice();
 const spot = goldPrice?.priceEurGram || 0;
-const p14k = spot > 0 ? (calculateGoldValue(1, '14K', spot)?.targetValue ?? 0) : 0;
-const p18k = spot > 0 ? (calculateGoldValue(1, '18K', spot)?.targetValue ?? 0) : 0;
+const s14k = spot > 0 ? (calculateGoldValue(1, '14K', spot)?.spotValue ?? 0) : 0;
+const s18k = spot > 0 ? (calculateGoldValue(1, '18K', spot)?.spotValue ?? 0) : 0;
+const TROY_OUNCE_G = 31.1035;
+const perOunce = spot * TROY_OUNCE_G;
 const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+const fmtBig = (n: number) => new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }).format(n);
 // Suomen aikavyöhyke eksplisiittisesti — build ajetaan UTC-palvelimella
 const updatedDate = (goldPrice?.updatedAt ?? new Date()).toLocaleDateString('fi-FI', { timeZone: 'Europe/Helsinki' });
 
+// Oletusupotuskoodi (vaalea kortti ilman CTA:ta). Konfiguraattori päivittää tämän clientillä.
 const embedCode = `<div id="kultalaskuri-widget"></div>
 <script async src="https://kultalaskuri.fi/widget.js"><\/script>`;
+
+const themeOptions = [
+  { value: 'light', label: 'Vaalea', desc: 'sopii artikkelisivuille' },
+  { value: 'dark', label: 'Tumma', desc: 'sopii tummille sivustoille' },
+];
+const layoutOptions = [
+  { value: 'card', label: 'Kortti', desc: 'kurssi, 14K/18K ja unssi' },
+  { value: 'inline', label: 'Yksirivinen', desc: 'pelkkä kurssi tekstin sekaan' },
+];
+
+const jsonExample = `{
+  "spotEurPerGram": 122.37,
+  "spotEurPerOunce": 3806.14,
+  "spotEurPerKilo": 122370.00,
+  "changePct": -1.36,
+  "perKarat": { "24K": 122.25, "18K": 91.78, "14K": 71.59, "9K": 45.89, ... },
+  "updatedAt": "2026-09-04T15:05:00.000Z",
+  "currency": "EUR",
+  "unit": "gram",
+  "source": "Kultalaskuri.fi"
+}`;
 
 const schemaData = {
   "@context": "https://schema.org",
@@ -28,15 +57,15 @@ const schemaData = {
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
-        { "@type": "ListItem", "position": 2, "name": "Hintawidget", "item": "https://kultalaskuri.fi/widget/" }
+        { "@type": "ListItem", "position": 2, "name": "Kullan kurssi -widget", "item": "https://kultalaskuri.fi/widget/" }
       ]
     },
     {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/widget/",
       "url": "https://kultalaskuri.fi/widget/",
-      "name": "Ilmainen kullan hinta -widget sivullesi",
-      "description": "Upota päivittyvä kullan hinta omalle sivustollesi ilmaiseksi. Kevyt widget näyttää spot-hinnan ja tavoitehintatasot — asennus yhdellä koodirivillä.",
+      "name": "Kullan kurssi -widget ja avoin hintadata sivullesi",
+      "description": "Upota päivittyvä kullan kurssi omalle sivustollesi ilmaiseksi: 24K-spot euroina grammalta, päivän muutos, 14K/18K-pörssiarvo ja unssihinta. Vaalea tai tumma, kortti tai yksirivinen. Avoin JSON-data kehittäjille.",
       "inLanguage": "fi-FI",
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
     }
@@ -45,8 +74,8 @@ const schemaData = {
 ---
 
 <BaseLayout
-  title="Ilmainen kullan hinta -widget sivullesi | Kultalaskuri.fi"
-  description="Upota päivittyvä kullan hinta omalle sivustollesi ilmaiseksi. Kevyt widget näyttää spot-hinnan ja tavoitehintatasot — asennus yhdellä koodirivillä."
+  title="Kullan kurssi -widget ja avoin hintadata sivullesi | Kultalaskuri.fi"
+  description="Upota päivittyvä kullan kurssi sivustollesi ilmaiseksi: 24K-spot €/g, päivän muutos, 14K/18K-pörssiarvo ja unssihinta. Neutraali markkinadata, ei mainoksia. Myös avoin JSON."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -60,17 +89,18 @@ const schemaData = {
         <ol class="flex items-center justify-center gap-2 text-xs text-gray-400">
           <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
           <li aria-hidden="true">›</li>
-          <li aria-current="page" class="text-gray-300">Hintawidget</li>
+          <li aria-current="page" class="text-gray-300">Kullan kurssi -widget</li>
         </ol>
       </nav>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
-        Kullan hinta
+        Kullan kurssi
         <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">omalle sivullesi</span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 leading-relaxed max-w-2xl mx-auto">
-        Ilmainen, kevyt widget, joka näyttää päivittyvän kullan hinnan sivustollasi.
-        Asennus vie alle minuutin — yksi div ja yksi script-rivi.
+        Ilmainen, kevyt widget, joka näyttää päivittyvän kullan kurssin sivustollasi — pelkkää
+        markkinadataa ilman mainoksia. Sopii uutissivustoille, blogeihin ja yritysten sivuille.
+        Valitse ulkoasu alta, kopioi koodi, valmis.
       </p>
     </div>
   </div>
@@ -78,47 +108,85 @@ const schemaData = {
   <section class="bg-white py-16 px-4">
     <div class="max-w-3xl mx-auto">
 
+      <h2 class="text-2xl font-black text-gray-900 mb-2 tracking-tight">Muokkaa ja kopioi</h2>
+      <p class="text-gray-600 text-sm leading-relaxed mb-8">
+        Widget hakee kurssin automaattisesti arkisin päivittyvästä datastamme ja näyttää vain
+        julkisesta kurssista lasketut luvut, ei hinta-arvioita. Ei evästeitä, ei seurantaa.
+      </p>
+
       <div class="grid md:grid-cols-2 gap-10 items-start mb-16">
 
-        <div class="min-w-0">
-          <h2 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Miltä widget näyttää</h2>
-          <p class="text-gray-600 text-sm leading-relaxed mb-6">
-            Widget hakee hinnan automaattisesti kerran päivässä päivittyvästä datastamme.
-            Se ei käytä evästeitä eikä seuraa kävijöitäsi.
-          </p>
+        {/* ── Asetukset ── */}
+        <form id="widget-config" class="min-w-0 space-y-6" aria-label="Widgetin asetukset">
+          <fieldset>
+            <legend class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Teema</legend>
+            <div class="grid grid-cols-2 gap-2">
+              {themeOptions.map((o, i) => (
+                <label class="cursor-pointer rounded-xl border border-gray-200 p-3 has-[:checked]:border-gold-400 has-[:checked]:bg-gold-50/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-400 hover:border-gray-300 transition-colors">
+                  <input type="radio" name="theme" value={o.value} checked={i === 0} class="sr-only peer" />
+                  <span class="block text-sm font-bold text-gray-900">{o.label}</span>
+                  <span class="block text-xs text-gray-500 mt-0.5">{o.desc}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
-          {/* Staattinen esikatselu — sama ulkoasu kuin widget.js tuottaa */}
-          <div class="max-w-[320px] bg-[#0B0F19] border border-gold-400/30 rounded-[14px] px-[18px] py-4" aria-label="Widgetin esikatselu">
-            <div class="flex justify-between items-center mb-2.5">
-              <span class="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-400">Kullan hinta</span>
-              <span class="text-[10px] text-gray-400">{updatedDate}</span>
+          <fieldset>
+            <legend class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Muoto</legend>
+            <div class="grid grid-cols-2 gap-2">
+              {layoutOptions.map((o, i) => (
+                <label class="cursor-pointer rounded-xl border border-gray-200 p-3 has-[:checked]:border-gold-400 has-[:checked]:bg-gold-50/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-400 hover:border-gray-300 transition-colors">
+                  <input type="radio" name="layout" value={o.value} checked={i === 0} class="sr-only peer" />
+                  <span class="block text-sm font-bold text-gray-900">{o.label}</span>
+                  <span class="block text-xs text-gray-500 mt-0.5">{o.desc}</span>
+                </label>
+              ))}
             </div>
-            <div class="text-[28px] font-extrabold text-white leading-none mb-0.5 tabular-nums">
-              {spot > 0 ? fmt(spot) : '–'} <span class="text-sm text-gold-400">€/g</span>
-            </div>
-            <div class="text-[10px] text-gray-400 mb-3">24K spot-hinta</div>
-            <div class="mb-3">
-              <div class="flex justify-between items-baseline py-1.5 border-b border-white/10">
-                <span class="text-xs text-gray-400">585 (14K) tavoitehinta</span>
-                <span class="text-sm font-bold text-gold-400 tabular-nums">{fmt(p14k)} €/g</span>
+          </fieldset>
+
+          <fieldset>
+            <legend class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Linkki laskuriin</legend>
+            <label class="flex items-start gap-3 cursor-pointer rounded-xl border border-gray-200 p-3 has-[:checked]:border-gold-400 has-[:checked]:bg-gold-50/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-gold-400 hover:border-gray-300 transition-colors">
+              <input type="checkbox" name="cta" value="true" class="mt-0.5 h-4 w-4 accent-[#B8860B]" />
+              <span>
+                <span class="block text-sm font-bold text-gray-900">Näytä "Laske kultasi arvo" -linkki</span>
+                <span class="block text-xs text-gray-500 mt-0.5">Oletuksena pois, jotta widget on pelkkä tietolaatikko</span>
+              </span>
+            </label>
+          </fieldset>
+        </form>
+
+        {/* ── Esikatselu + koodi ── */}
+        <div class="min-w-0">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Esikatselu</p>
+          <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 mb-6 min-h-[120px]">
+            {/* Oikea widget.js renderöi tähän. Sisältö alla on JS-vapaa fallback (vaalea kortti). */}
+            <div id="kultalaskuri-widget" data-src="/hinta.json" data-theme="light" data-layout="card">
+              <div class="max-w-[320px] bg-white border border-gray-200 rounded-[14px] px-4 py-3.5" aria-label="Widgetin esikatselu">
+                <div class="text-[11px] font-bold tracking-[0.08em] uppercase text-gray-500 mb-2">Kullan kurssi</div>
+                <div class="text-[28px] font-extrabold text-gray-900 leading-none tabular-nums">
+                  {spot > 0 ? fmt(spot) : '–'} <span class="text-sm text-[#B8860B]">€/g</span>
+                </div>
+                <div class="text-[10px] text-gray-500 mt-1 mb-2.5">24K puhdas kulta · {updatedDate}</div>
+                <div class="flex justify-between items-baseline py-1.5 border-t border-gray-100">
+                  <span class="text-xs text-gray-500">14K (585) pörssiarvo</span>
+                  <span class="text-[13px] font-bold text-gray-900 tabular-nums">{fmt(s14k)} €/g</span>
+                </div>
+                <div class="flex justify-between items-baseline py-1.5 border-t border-gray-100">
+                  <span class="text-xs text-gray-500">18K (750) pörssiarvo</span>
+                  <span class="text-[13px] font-bold text-gray-900 tabular-nums">{fmt(s18k)} €/g</span>
+                </div>
+                <div class="flex justify-between items-baseline py-1.5 border-t border-gray-100">
+                  <span class="text-xs text-gray-500">Troy-unssi</span>
+                  <span class="text-[13px] font-bold text-gray-900 tabular-nums">{fmtBig(perOunce)} €</span>
+                </div>
+                <div class="mt-2 text-[10px] text-gray-500">Lähde: Kultalaskuri.fi</div>
               </div>
-              <div class="flex justify-between items-baseline py-1.5 border-b border-white/10">
-                <span class="text-xs text-gray-400">750 (18K) tavoitehinta</span>
-                <span class="text-sm font-bold text-white tabular-nums">{fmt(p18k)} €/g</span>
-              </div>
             </div>
-            <span class="block text-center text-xs font-bold text-[#0B0F19] bg-gold-400 rounded-lg px-2.5 py-2">Laske kultasi arvo →</span>
-            <div class="text-center mt-2"><span class="text-[10px] text-gray-400">Lähde: Kultalaskuri.fi</span></div>
           </div>
-        </div>
 
-        <div class="min-w-0">
-          <h2 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Asennus</h2>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">
-            Kopioi alla oleva koodi sivullesi siihen kohtaan, jossa haluat widgetin näkyvän:
-          </p>
-
-          <pre class="bg-[#0B0F19] text-gray-200 text-xs leading-relaxed rounded-2xl p-5 overflow-x-auto mb-4"><code>{embedCode}</code></pre>
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Upotuskoodi</p>
+          <pre class="bg-[#0B0F19] text-gray-200 text-xs leading-relaxed rounded-2xl p-5 overflow-x-auto mb-4"><code id="embed-code">{embedCode}</code></pre>
 
           <button
             id="copy-embed"
@@ -128,31 +196,36 @@ const schemaData = {
           >
             Kopioi koodi
           </button>
+          <p class="text-xs text-gray-500 mt-3">
+            Liitä koodi sivullesi siihen kohtaan, jossa haluat widgetin näkyvän.
+          </p>
+        </div>
+      </div>
 
-          <div class="mt-8 space-y-3 text-sm text-gray-600">
-            <div class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
-              <span><strong>Ilmainen</strong> — ainoa ehto on, että "Lähde: Kultalaskuri.fi" -linkki säilyy näkyvissä.</span>
-            </div>
-            <div class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
-              <span><strong>Kevyt</strong> — noin 2 kt JavaScriptiä, ei ulkoisia kirjastoja, ei evästeitä.</span>
-            </div>
-            <div class="flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
-              <span><strong>Turvallinen</strong> — jos hintadata ei ole saatavilla, widget ei riko sivuasi.</span>
-            </div>
-          </div>
+      <div class="grid sm:grid-cols-3 gap-4 mb-16 text-sm text-gray-600">
+        <div class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
+          <span><strong>Neutraali</strong> — vain kurssi ja siitä lasketut pörssiarvot, ei hinta-arvioita eikä mainoksia. Sopii myös median käyttöön.</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
+          <span><strong>Ilmainen</strong> — ainoa ehto on, että "Lähde: Kultalaskuri.fi" -linkki säilyy näkyvissä.</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
+          <span><strong>Kevyt ja turvallinen</strong> — noin 3 kt JavaScriptiä, ei ulkoisia kirjastoja, ei evästeitä. Jos data ei ole saatavilla, widget ei riko sivuasi.</span>
         </div>
       </div>
 
       <h2 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Avoin data kehittäjille</h2>
       <p class="text-gray-600 leading-relaxed mb-4">
-        Sama data on saatavilla suoraan JSON-muodossa osoitteesta
+        Sama data on saatavilla JSON-muodossa osoitteesta
         <a href="/hinta.json" class="text-gold-600 font-bold hover:underline font-mono text-sm">kultalaskuri.fi/hinta.json</a>.
-        Vastaus sisältää 24K-spot-hinnan sekä 14K/18K/24K-tavoitehintatasot euroina grammalta.
-        Data päivittyy kerran päivässä. Käyttö on vapaata, kunhan mainitset lähteeksi Kultalaskuri.fi:n.
+        Vastaus sisältää 24K-spot-kurssin euroina grammalta, unssilta ja kilolta, muutoksen
+        edellisestä pörssipäivästä sekä pörssiarvon grammalta kaikille pitoisuuksille 8K–24K.
+        Data päivittyy arkisin tunneittain. Käyttö on vapaata, kunhan mainitset lähteeksi Kultalaskuri.fi:n.
       </p>
+      <pre class="bg-[#0B0F19] text-gray-200 text-xs leading-relaxed rounded-2xl p-5 overflow-x-auto mb-6"><code>{jsonExample}</code></pre>
       <p class="text-sm text-gray-500 leading-relaxed">
         Kysyttävää tai toiveita widgetiin? <a href="mailto:info@kultalaskuri.fi" class="text-gold-600 font-bold hover:underline">info@kultalaskuri.fi</a>
       </p>
@@ -160,8 +233,42 @@ const schemaData = {
     </div>
   </section>
 
+  {/* Oikea widget-skripti esikatselua varten — sama tiedosto, jonka isäntäsivut lataavat */}
+  <script is:inline src="/widget.js"></script>
+
   <script>
+    const form = document.getElementById('widget-config') as HTMLFormElement | null;
+    const preview = document.getElementById('kultalaskuri-widget');
+    const codeEl = document.getElementById('embed-code');
     const copyBtn = document.getElementById('copy-embed');
+
+    function currentCode(theme: string, layout: string, cta: boolean) {
+      const attrs = ['id="kultalaskuri-widget"'];
+      if (theme !== 'light') attrs.push(`data-theme="${theme}"`);
+      if (layout !== 'card') attrs.push(`data-layout="${layout}"`);
+      if (cta) attrs.push('data-cta="true"');
+      return `<div ${attrs.join(' ')}></div>\n<script async src="https://kultalaskuri.fi/widget.js"><\/script>`;
+    }
+
+    function update() {
+      if (!form || !preview || !codeEl || !copyBtn) return;
+      const data = new FormData(form);
+      const theme = String(data.get('theme') ?? 'light');
+      const layout = String(data.get('layout') ?? 'card');
+      const cta = data.get('cta') === 'true';
+
+      preview.setAttribute('data-theme', theme);
+      preview.setAttribute('data-layout', layout);
+      if (cta) preview.setAttribute('data-cta', 'true'); else preview.removeAttribute('data-cta');
+      (window as any).KultalaskuriWidget?.refresh();
+
+      const code = currentCode(theme, layout, cta);
+      codeEl.textContent = code;
+      copyBtn.setAttribute('data-code', code);
+    }
+
+    form?.addEventListener('change', update);
+
     copyBtn?.addEventListener('click', async () => {
       const code = copyBtn.getAttribute('data-code') ?? '';
       try {

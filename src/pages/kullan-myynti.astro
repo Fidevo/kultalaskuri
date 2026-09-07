@@ -250,45 +250,51 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 id="paljonko-saa" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Paljonko kullasta saa rahaa?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Kullan myyntihinta — eli kullan ostohinta, jonka kullanostaja sinulle maksaa — perustuu maailmanmarkkinoiden <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hintaan</a> eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen arvio riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
+        Kullan myyntihinta — eli kullan ostohinta, jonka kullanostaja sinulle maksaa — perustuu maailmanmarkkinoiden <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hintaan</a> eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen summa riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        Alla on laskurimme <strong>tavoitehinta</strong> yleisimmille pitoisuuksille päivän kurssilla: taso,
+        jota kullanostajilta kannattaa <strong>vähintään</strong> tavoitella. Se ei ole kenenkään ostotarjous —
+        hyvällä kilpailutuksella voi saada enemmän, ja tätä halvemmalla ei kannata myydä.
       </p>
       <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
+        <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Tavoitehinta tänään · vähimmäistaso</p>
         <ul class="space-y-4 text-gray-700 font-medium">
           <li class="flex justify-between items-center gap-4 border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
             <span><strong>585 (14K)</strong> – Suomen yleisin korukulta</span>
-            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">~{fmt(p14k)} €/g</span>
+            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">väh. {fmt(p14k)} €/g</span>
           </li>
           <li class="flex justify-between items-center gap-4 border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
             <span><strong>750 (18K)</strong> – Arvokorut</span>
-            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">~{fmt(p18k)} €/g</span>
+            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">väh. {fmt(p18k)} €/g</span>
           </li>
           <li class="flex justify-between items-center gap-4 pb-1 hover:bg-gray-100 transition-colors p-2 rounded-lg">
             <span><strong>999 (24K)</strong> – Kultaharkot</span>
-            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">~{fmt(p24k)} €/g</span>
+            <span class="text-gold-600 font-bold whitespace-nowrap shrink-0">väh. {fmt(p24k)} €/g</span>
           </li>
         </ul>
       </div>
       <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-16 shadow-sm">
         <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Esimerkkejä: paljonko kullasta saa käytännössä?</h3>
         <p class="text-gray-600 leading-relaxed mb-6">
-          Tyypillisiä myyntieriä päivän kurssilla laskettuna — älä myy näitä halvemmalla:
+          Tavoitehinta tyypillisille myyntierille päivän kurssilla — vähimmäistaso, jota halvemmalla ei kannata myydä:
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
-            <div class="text-sm text-gray-500 mb-1">5 g 14K (585)</div>
+            <div class="text-sm text-gray-500 mb-1">5 g 14K (585) · tavoitehinta</div>
             <div class="text-xl font-black text-gray-900">{fmt(ex5g14k)} €</div>
           </div>
           <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
-            <div class="text-sm text-gray-500 mb-1">10 g 14K (585)</div>
+            <div class="text-sm text-gray-500 mb-1">10 g 14K (585) · tavoitehinta</div>
             <div class="text-xl font-black text-gray-900">{fmt(ex10g14k)} €</div>
           </div>
           <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
-            <div class="text-sm text-gray-500 mb-1">20 g 18K (750)</div>
+            <div class="text-sm text-gray-500 mb-1">20 g 18K (750) · tavoitehinta</div>
             <div class="text-xl font-black text-gray-900">{fmt(ex20g18k)} €</div>
           </div>
           <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
-            <div class="text-sm text-gray-500 mb-1">50 g 24K (999)</div>
+            <div class="text-sm text-gray-500 mb-1">50 g 24K (999) · tavoitehinta</div>
             <div class="text-xl font-black text-gray-900">{fmt(ex50g24k)} €</div>
           </div>
         </div>

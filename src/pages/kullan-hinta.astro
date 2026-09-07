@@ -5,13 +5,57 @@ import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
 import priceHistory from '../../social/data/price-history.json';
 import { fillMissingDays } from '../lib/utils/priceHistory';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
-import { calculateGoldValue } from '../lib/calculations/goldCalculator';
+import { calculateGoldValue, GOLD_PURITIES, type PurityCode } from '../lib/calculations/goldCalculator';
 
 const goldPrice = await getGoldPrice();
 const spot = goldPrice?.priceEurGram || 0;
 
-const p14k = spot > 0 ? (calculateGoldValue(1, '14K', spot)?.targetValue ?? 0) : 0;
-const p18k = spot > 0 ? (calculateGoldValue(1, '18K', spot)?.targetValue ?? 0) : 0;
+const HELSINKI_TZ = 'Europe/Helsinki';
+
+// Näkyvä päivitysaika — sama logiikka kuin etusivun hero-badgessa.
+// Fallback-datan (hintahistoria) aikaleima on keskiyöllä → vain päivämäärä.
+const updatedAtDate = goldPrice?.updatedAt ? new Date(goldPrice.updatedAt) : new Date();
+const updatedDate = updatedAtDate.toLocaleDateString('fi-FI', {
+  day: 'numeric', month: 'numeric', year: 'numeric', timeZone: HELSINKI_TZ,
+});
+const timeStr = updatedAtDate.toLocaleTimeString('fi-FI', {
+  hour: '2-digit', minute: '2-digit', timeZone: HELSINKI_TZ,
+});
+const updatedTime = timeStr === '00.00' ? null : timeStr;
+
+// Pörssiarvo per gramma karaateittain = pitoisuus × spot (calculateGoldValue on
+// ainoa sallittu laskentapolku). Tällä sivulla EI näytetä tavoitehintaa lainkaan:
+// spot ja tavoitehinta samalla ruudulla tekisivät kertoimen johdettavaksi (sääntö 4).
+// Tavoitehinnan näyttää laskuri.
+const spotPerGram = (code: PurityCode) => (spot > 0 ? (calculateGoldValue(1, code, spot)?.spotValue ?? 0) : 0);
+const s18k = spotPerGram('18K');
+const s14k = spotPerGram('14K');
+
+// Karaattitaulukko "kullan hinta nyt" -osioon — kaikki laskurin tukemat pitoisuudet.
+const KARAT_ROWS: { code: PurityCode; stamp: string; note: string; highlight?: boolean }[] = [
+  { code: '24K', stamp: '999', note: 'Puhdas kulta, kultaharkot' },
+  { code: '22K', stamp: '916', note: 'Aasian ja Lähi-idän korut' },
+  { code: '21K', stamp: '875', note: 'Lähi-idän korut' },
+  { code: '18K', stamp: '750', note: 'Arvokorut, vihkisormukset', highlight: true },
+  { code: '14K', stamp: '585', note: 'Suomen yleisin korukulta', highlight: true },
+  { code: '10K', stamp: '417', note: 'Pohjois-Amerikan korut' },
+  { code: '9K',  stamp: '375', note: 'Edulliset käyttökorut' },
+  { code: '8K',  stamp: '333', note: 'Alin pitoisuus EU:ssa' },
+];
+const karatRows = KARAT_ROWS.map(r => ({
+  ...r,
+  pct: (GOLD_PURITIES[r.code].decimal * 100).toFixed(1).replace('.', ','),
+  price: spotPerGram(r.code),
+}));
+
+// Yksikkömuunnokset — spot-kurssi unssina ja kilona (näkyvä UI, ei schema/meta).
+const TROY_OUNCE_G = 31.1035;
+const spotPerOunce = spot * TROY_OUNCE_G;
+const spotPerKilo = spot * 1000;
+
+// Esimerkkilaskut 14K/18K-osioihin (tyypillinen sormus / ketju).
+const ex14k = spot > 0 ? calculateGoldValue(4, '14K', spot) : null;
+const ex18k = spot > 0 ? calculateGoldValue(4, '18K', spot) : null;
 
 // Viikonloppujen puuttuvat päivät täytetään edellisen hinnan toistolla, jotta
 // graafi ja kuukausikooste eivät hyppää suoraan perjantaista maanantaihin
@@ -72,6 +116,8 @@ const monthRows: MonthRow[] = [...monthMap.entries()]
 const currentMonthKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' }).slice(0, 7); // YYYY-MM
 
 const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+// Isot summat (unssi, kilo) ilman desimaaleja ja tuhaterottimella
+const fmtBig = (n: number) => new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }).format(n);
 const fmtDateFi = (iso: string) => {
   const [y, m, d] = iso.split('-').map(Number);
   return `${d}.${m}.${y}`;
@@ -100,8 +146,8 @@ const schemaData = {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/kullan-hinta/",
       "url": "https://kultalaskuri.fi/kullan-hinta/",
-      "name": "Kullan hinta ja hintakehitys – päivittyvä kurssi euroissa",
-      "description": "Kullan hinta tänään ja hintakehitys päivä päivältä. Seuraa kullan spot-hintaa euroissa per gramma ja katso kuukausitilastot.",
+      "name": "Kullan hinta tänään – kurssi euroina grammalta ja hintakehitys",
+      "description": "Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi, 14K- ja 18K-kullan grammahinnat, hinta unssilta ja kilolta sekä hintakehitys ja kuukausitilastot.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
@@ -114,7 +160,39 @@ const schemaData = {
           "name": "Mikä on kullan hinta tänään euroissa?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Puhtaan kullan (24K) spot-hinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena. Korukullasta maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 14K tai 18K) ja ostajan katteesta."
+            "text": "Puhtaan kullan (24K) spot-hinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena euroina grammalta. Korukullasta maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 14K tai 18K) ja kullanostajan katteesta."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mikä on 14K-kullan hinta grammalta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "14 karaatin kulta (leima 585) sisältää 58,5 % puhdasta kultaa, joten sen pörssiarvo grammalta on 58,5 % puhtaan kullan spot-hinnasta. Päivän kurssin mukainen 14K-kullan pörssiarvo euroina grammalta näkyy tämän sivun karaattitaulukossa ja päivittyy arkisin. Kullanostajan maksama hinta on pörssiarvoa matalampi — reilun tavoitetason näyttää kultalaskuri."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mikä on 18K-kullan hinta grammalta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "18 karaatin kulta (leima 750) sisältää 75 % puhdasta kultaa, joten sen pörssiarvo grammalta on 75 % spot-hinnasta — reilun neljänneksen enemmän kuin 14K-kullalla. Päivän kurssin mukainen 18K-kullan pörssiarvo euroina grammalta näkyy tämän sivun karaattitaulukossa; kullanostajan maksama hinta on sitä matalampi."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Paljonko kulta maksaa unssilta ja kilolta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kansainvälisillä markkinoilla kullan kurssi noteerataan Yhdysvaltain dollareissa troy-unssia (31,1035 g) kohden. Euromääräinen unssihinta on grammahinta kerrottuna 31,1035:llä ja kilohinta grammahinta kerrottuna tuhannella. Päivän kurssin mukaiset unssi- ja kilohinnat euroina näkyvät tämän sivun yksikkötaulukossa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Miten kullan hintakehitys on ollut vuonna 2026?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tämän sivun kuvaaja ja kuukausitaulukko näyttävät kullan euromääräisen grammahinnan kehityksen päivä päivältä sekä jokaisen kuukauden keskihinnan, korkeimman ja matalimman noteerauksen. Taulukko päivittyy automaattisesti jokaisena pörssipäivänä, joten se kuvaa aina kuluvan vuoden tilannetta."
           }
         },
         {
@@ -150,8 +228,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 ---
 
 <BaseLayout
-  title="Kullan hinnan kehitys ja kuukausitilastot | Kultalaskuri.fi"
-  description="Kullan hinta tänään ja hintakehitys päivä päivältä euroissa per gramma. Päivittyvä spot-kurssi, kuukausitilastot ja 24K/18K/14K-hinnat yhdellä sivulla."
+  title="Kullan hinta tänään €/g – kurssi ja hintakehitys | Kultalaskuri.fi"
+  description="Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi, 14K- ja 18K-kullan hinnat, hinta unssilta ja kilolta sekä hintakehitys kuukausittain. Päivittyy arkisin."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -176,15 +254,23 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <div class="text-center mb-10">
         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-400/10 text-gold-400 text-[10px] font-bold uppercase tracking-widest mb-4 border border-gold-400/20">
           <span class="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse"></span>
-          Hintahistoria päivittyy päivittäin klo 18
+          Kurssi päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}
         </div>
         <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
-          Kullan hinta ja
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">hintakehitys</span>
+          Kullan hinta tänään
+          <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">kurssi, grammahinta ja hintakehitys</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-          Puhtaan kullan (24K) spot-hinta on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
-          Alla näet hinnan kehityksen päivä päivältä sekä kuukausitilastot euroissa per gramma.
+          Puhtaan kullan (24K) kurssi on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
+          Alla näet kullan hinnan karaateittain (14K, 18K, 24K), unssi- ja kilohinnan sekä
+          hintakehityksen päivä päivältä ja kuukausittain — kaikki euroina.
+        </p>
+        <p class="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-gray-400">
+          <a href="#hinta-nyt" class="hover:text-gold-400 transition-colors underline underline-offset-2">Hinta karaateittain</a>
+          <a href="#14k" class="hover:text-gold-400 transition-colors underline underline-offset-2">14K-kullan hinta</a>
+          <a href="#18k" class="hover:text-gold-400 transition-colors underline underline-offset-2">18K-kullan hinta</a>
+          <a href="#unssi-kilo" class="hover:text-gold-400 transition-colors underline underline-offset-2">Unssi ja kilo</a>
+          <a href="#hintakehitys" class="hover:text-gold-400 transition-colors underline underline-offset-2">Hintakehitys</a>
         </p>
       </div>
 
@@ -195,7 +281,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <p class="text-center text-gray-400 text-xs mt-6 leading-relaxed">
         Kullan spot-hinta euroina per gramma (24K, puhdas kulta). Lähde: MetalPrice API ·
-        {chartHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
+        {chartHistory.length} päivän historia · Hintahistoria tallennetaan pörssipäivinä klo 18 ·
+        Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
     </div>
   </div>
@@ -203,7 +290,147 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   <section class="bg-white py-16 px-4">
     <div class="max-w-3xl mx-auto">
 
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Kullan hinta kuukausittain</h2>
+      {/* ── Kullan hinta nyt karaateittain ── */}
+      <h2 id="hinta-nyt" class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight scroll-mt-24">Kullan hinta nyt karaateittain</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-3">
+        Korukullan hinta riippuu pitoisuudesta: 14K-kullassa (leima 585) puhdasta kultaa on 58,5 %
+        ja 18K-kullassa (leima 750) 75 %. Taulukossa on jokaisen pitoisuuden <strong>pörssiarvo
+        euroina grammalta</strong> päivän kurssilla: puhtaan kullan kurssi
+        ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna kultapitoisuudella.
+      </p>
+      <p class="text-sm text-gray-500 leading-relaxed mb-6">
+        Kullanostajan maksama hinta on pörssiarvoa matalampi, koska ostaja vähentää sulatus- ja
+        jalostuskulut sekä katteensa. Reilun tavoitetason omalle korullesi näyttää
+        <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">kultalaskuri</a>
+        (<a href="/tietoa/" class="text-gold-600 font-bold hover:underline">näin laskenta toimii</a>).
+      </p>
+
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-2.5 mb-4">
+        {karatRows.map(row => (
+          <a href={`/?paino=1&karaatti=${row.code}#laskuri`} class={`flex items-center gap-4 p-3.5 rounded-2xl border ${row.highlight ? 'border-gold-200 bg-gold-50/40' : 'border-gray-200 bg-white'} shadow-sm hover:border-gold-300 transition-colors`}>
+            <div class={`w-14 h-14 rounded-full flex flex-col items-center justify-center shrink-0 border ${row.highlight ? 'bg-white border-gold-200 text-gold-700' : 'bg-gray-50 border-gray-200 text-gray-900'}`}>
+              <span class="font-black text-sm leading-none">{row.code}</span>
+              <span class="text-[10px] text-gray-500 leading-none mt-0.5">{row.stamp}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-gray-500 leading-snug">{row.pct} % kultaa · {row.note}</p>
+            </div>
+            <p class="text-base font-black text-gray-900 tabular-nums shrink-0">{fmt(row.price)} <span class="text-xs font-medium text-gray-500">€/g</span></p>
+          </a>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block mb-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <caption class="sr-only">Kullan pörssiarvo euroina grammalta karaateittain päivän kurssilla</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
+              <th class="py-3.5 px-5 font-bold">Karaatti</th>
+              <th class="py-3.5 px-5 font-bold">Leima</th>
+              <th class="py-3.5 px-5 font-bold text-right">Kultaa</th>
+              <th class="py-3.5 px-5 font-bold">Tyypillinen käyttö</th>
+              <th class="py-3.5 px-5 font-bold text-right">Pörssiarvo €/g</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {karatRows.map(row => (
+              <tr class={`transition-colors ${row.highlight ? 'bg-gold-50/40 hover:bg-gold-50/70' : 'hover:bg-gray-50'}`}>
+                <td class="py-3 px-5 font-black text-gray-900">{row.code}</td>
+                <td class="py-3 px-5 text-gray-500">{row.stamp}</td>
+                <td class="py-3 px-5 text-right tabular-nums">{row.pct} %</td>
+                <td class="py-3 px-5 text-gray-600">{row.note}</td>
+                <td class={`py-3 px-5 text-right tabular-nums ${row.highlight ? 'font-black' : 'font-bold'} text-gray-900`}>{fmt(row.price)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mb-14">
+        Hinnat päivittyvät arkisin kurssin mukana. Et tiedä korusi pitoisuutta?
+        <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Tunnista leima 585, 750 tai 375</a>.
+        Oman korusi arvon painon mukaan näet <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">kultalaskurista</a>.
+      </p>
+
+      {/* ── 14K ── */}
+      <h2 id="14k" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">14K-kullan hinta grammalta (leima 585)</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        14 karaatin kulta on Suomen yleisin korukulta: lähes kaikki kotimaiset sormukset, ketjut ja
+        rannekorut ovat 585-leimattuja. Seoksesta 58,5 % on puhdasta kultaa, joten 14K-kullan
+        pörssiarvo grammalta on 58,5 % puhtaan kullan kurssista.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+        <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">14K pörssiarvo tänään</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(s14k)} <span class="text-base font-bold text-gray-500">€/g</span></p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Esimerkki: 4 g sormus (14K)</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{ex14k ? fmt(ex14k.spotValue) : '–'} <span class="text-base font-bold text-gray-500">€</span></p>
+          <p class="text-xs text-gray-500 mt-1">Pörssiarvo · puhdasta kultaa {ex14k ? fmt(ex14k.pureGoldContent) : '–'} g</p>
+        </div>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-14">
+        Vaikka kullanostaja puhuisi "romukullasta", 14K-korun hinta lasketaan aina samalla kaavalla:
+        paino × 0,585 × päivän kurssi = pörssiarvo, josta ostaja vähentää kulunsa. Reilun
+        tavoitehinnan, jota kullanostajilta kannattaa vähintään tavoitella, näet laskurista.
+        <a href="/?paino=4&karaatti=14K#laskuri" class="text-gold-600 font-bold hover:underline">Laske 14K-korusi tavoitehinta →</a>
+      </p>
+
+      {/* ── 18K ── */}
+      <h2 id="18k" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">18K-kullan hinta grammalta (leima 750)</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        18 karaatin kultaa käytetään arvokoruissa, vihkisormuksissa ja luksuskelloissa. Seoksesta
+        75 % on puhdasta kultaa, joten 18K-kullan pörssiarvo grammalta on 75 % kurssista — noin
+        neljänneksen enemmän kuin 14K-kullan.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+        <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">18K pörssiarvo tänään</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(s18k)} <span class="text-base font-bold text-gray-500">€/g</span></p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Esimerkki: 4 g sormus (18K)</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{ex18k ? fmt(ex18k.spotValue) : '–'} <span class="text-base font-bold text-gray-500">€</span></p>
+          <p class="text-xs text-gray-500 mt-1">Pörssiarvo · puhdasta kultaa {ex18k ? fmt(ex18k.pureGoldContent) : '–'} g</p>
+        </div>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-14">
+        Vanhoissa suomalaisissa vihkisormuksissa ja ulkomaisissa koruissa 750-leima on yleinen — tarkista
+        leima ennen myyntiä, sillä ero 14K-hintaan on merkittävä. Kullanostajan maksama hinta on
+        pörssiarvoa matalampi.
+        <a href="/?paino=4&karaatti=18K#laskuri" class="text-gold-600 font-bold hover:underline">Laske 18K-korusi tavoitehinta →</a>
+      </p>
+
+      {/* ── Unssi ja kilo ── */}
+      <h2 id="unssi-kilo" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Kullan hinta unssilta ja kilolta</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Kansainvälinen kullan kurssi noteerataan dollareissa troy-unssia kohden, ja sijoituskullan
+        harkot hinnoitellaan usein kilon mukaan. Alla sama päivän spot-kurssi eri yksiköissä euroina.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Gramma</p>
+          <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmt(spot) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
+        </div>
+        <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Troy-unssi (31,1 g)</p>
+          <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmtBig(spotPerOunce) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Kilo</p>
+          <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmtBig(spotPerKilo) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
+        </div>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mb-14">
+        Troy-unssi on 31,1035 grammaa, eli tavallista unssia (28,35 g) painavampi. Luvut ovat puhtaan
+        kullan (24K) spot-kurssi — kultaharkoista ja -kolikoista maksetaan lisäksi valmistus- tai
+        keräilypreemio, joten niitä ei hinnoitella romukultana.
+      </p>
+
+      {/* ── Hintakehitys ── */}
+      <h2 id="hintakehitys" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kullan hintakehitys kuukausittain</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-4">
         Taulukossa on kullan spot-hinnan keskiarvo sekä korkein ja matalin noteeraus kuukausittain
         seurantajaksolla {fmtDateFi(first.date)} – {fmtDateFi(last.date)}. Koko jakson
@@ -261,7 +488,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa.
         <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">Laskurimme</a> näyttää
         suoraan reilun vähimmäistason, jota kannattaa tavoitella (<a href="/tietoa/" class="text-gold-600 font-bold hover:underline">näin laskenta toimii</a>).
-        Tänään 14K-kullan reilu taso on noin <strong>{fmt(p14k)} €/g</strong> ja 18K-kullan noin <strong>{fmt(p18k)} €/g</strong>.
+        Päivän pörssiarvot pitoisuuksittain löydät <a href="#hinta-nyt" class="text-gold-600 font-bold hover:underline">karaattitaulukosta</a>.
       </p>
 
       <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
