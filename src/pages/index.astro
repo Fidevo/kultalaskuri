@@ -211,7 +211,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
         {showDayChange ? (
           <p class={`mt-3 text-sm font-bold tabular-nums ${dayChangeUp ? 'text-emerald-400' : 'text-red-400'}`}>
             {dayChangeUp ? '▲' : '▼'} {Math.abs(dayChangePct!).toFixed(1).replace('.', ',')} % edellisestä pörssipäivästä
-            <a href="/kullan-hinta/" class="ml-2 text-gray-400 font-medium hover:text-gray-300 transition-colors underline underline-offset-2">
+            <a href="/kullan-hinta/" class="block mt-1 text-gray-400 font-medium hover:text-gray-300 transition-colors underline underline-offset-2">
               Kullan hinta tänään ja hintakehitys
             </a>
           </p>
