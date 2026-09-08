@@ -47,9 +47,8 @@ METALPRICE_API_KEY=...       # pakollinen tuotantobuildissa
 | `/oppaat/` | `oppaat.astro` | Tietopankki-hub: kaikki opassivut kolmessa ryhmässä (CollectionPage + ItemList -schema) |
 | `/sanasto/` | `sanasto.astro` | 15 termin sanasto (DefinedTermSet-schema) |
 | `/tietoa/` | `tietoa.astro` | Tietoa palvelusta (E-E-A-T) |
-| `/widget/` | `widget.astro` | Upotettavan hintawidgetin ohjesivu |
-| `/hinta.json` | `hinta.json.ts` | Avoin JSON-hintadata (widgetin datalähde, CORS `*`) |
 | `/llms.txt` | `public/llms.txt` | Koneluettava kuvaus sivustosta ja keskeisistä sivuista tekoälyhakuroboteille |
+| `/404` | `404.astro` | Brändätty virhesivu (noindex), GitHub Pages tarjoilee tuntemattomille poluille |
 | `/tietosuoja/`, `/kayttoehdot/` | | Legal (noindex) |
 
 Alaviivalla alkavat sivut eivät buildaudu (esim. `_kullan-myynti-tampere.astro` = keskeneräinen kumppaniluonnos, ei versionhallinnassa).
@@ -102,20 +101,6 @@ vanhaa staattista sisältöä.
 
 Älä poista `deploy-version.json`-päivitystä workflowsta ilman korvaavaa tapaa varmistaa, että
 ajastetuilla deployilla on uusi Pages-versio.
-
-## Upotettava widget
-
-Muille sivustoille tarjottava kurssiwidget: `public/widget.js` hakee datan `/hinta.json`-endpointista.
-Widget ja JSON sisältävät vain markkinadataa (spot, päivän muutos, pitoisuus × spot, unssi) —
-ei tavoitehintaa (CLAUDE.md sääntö 4; vanhat `target*`-kentät ovat `null` yhteensopivuuden vuoksi).
-Käyttö isäntäsivulla:
-
-```html
-<div id="kultalaskuri-widget"></div>
-<script async src="https://kultalaskuri.fi/widget.js"></script>
-```
-
-Valinnaiset attribuutit div-elementissä: `data-theme="dark"`, `data-layout="inline"`, `data-cta="true"`.
 
 ## Hintahistorian täydennys
 
