@@ -33,8 +33,11 @@ const refHist = lastHist?.date === buildDay ? prevHist : lastHist;
 const dayChangePct = spot > 0 && refHist && refHist.price > 0
   ? ((spot - refHist.price) / refHist.price) * 100
   : null;
-// Viikonloppuna pörssi on kiinni eikä hinta liiku — piilotetaan nollamuutos
-const showDayChange = dayChangePct !== null && Math.abs(dayChangePct) >= 0.05;
+// Muutos on tiedossa aina kun spot ja vertailupiste löytyvät.
+// Alle 0,05 %:n heilahdusta ei näytetä suuntanuolella (kohina) — sen sijalle
+// tulee neutraali "hinta ennallaan", jotta tieto ei katoa kokonaan.
+const dayChangeKnown = dayChangePct !== null;
+const showDayChange = dayChangeKnown && Math.abs(dayChangePct) >= 0.05;
 const dayChangeUp = (dayChangePct ?? 0) >= 0;
 
 // Näkyvä päivitysaika — täsmällinen aikaleima on vahva trust-signaali.
@@ -207,21 +210,24 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
         </div>
 
         {/* Muutos edellisestä pörssipäivästä — syy tarkistaa hinta joka päivä.
-            Piilossa viikonloppuisin, kun pörssi on kiinni eikä hinta liiku. */}
-        {showDayChange ? (
-          <p class={`mt-3 text-sm font-bold tabular-nums ${dayChangeUp ? 'text-emerald-400' : 'text-red-400'}`}>
-            {dayChangeUp ? '▲' : '▼'} {Math.abs(dayChangePct!).toFixed(1).replace('.', ',')} % edellisestä pörssipäivästä
-            <a href="/kullan-hinta/" class="block mt-1 text-gray-400 font-medium hover:text-gray-300 transition-colors underline underline-offset-2">
-              Kullan hinta tänään ja hintakehitys
-            </a>
-          </p>
-        ) : (
-          <p class="mt-3 text-sm">
+            Kaksi riviä: 1) muutos (suunta+% tai neutraali "ennallaan"),
+            2) linkki hintasivulle. Näin mobiilissa ei tule ahdasta rivitystä. */}
+        <div class="mt-3 text-sm space-y-1">
+          {showDayChange ? (
+            <p class={`font-bold tabular-nums ${dayChangeUp ? 'text-emerald-400' : 'text-red-400'}`}>
+              {dayChangeUp ? '▲' : '▼'} {Math.abs(dayChangePct!).toFixed(1).replace('.', ',')} % edellisestä pörssipäivästä
+            </p>
+          ) : dayChangeKnown ? (
+            <p class="font-medium text-gray-400">
+              Hinta ennallaan edellisestä pörssipäivästä
+            </p>
+          ) : null}
+          <p>
             <a href="/kullan-hinta/" class="text-gray-400 font-medium hover:text-gray-300 transition-colors underline underline-offset-2">
               Kullan hinta tänään ja hintakehitys
             </a>
           </p>
-        )}
+        </div>
       </div>
 
       {/* Luottamusrivi */}
