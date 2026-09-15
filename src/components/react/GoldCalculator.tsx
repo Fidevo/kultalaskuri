@@ -316,6 +316,25 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
           </div>
         </div>
 
+        {/* Mobiilissa tulos ei vieritä näkymään automaattisesti käsin
+            kirjoitettaessa (ks. scheduleInstantScroll) — käyttäjä pyytää sen
+            itse, kun on valmis. Heti painon alla, ei pitoisuusvalinnan jälkeen,
+            jotta nappi näkyy välittömästi eikä vaadi selaamista pitoisuusgridin
+            ohi ennen kuin sen huomaa. Tavoitehinta päivittyy yhtä lailla, jos
+            käyttäjä painaa ennen pitoisuuden vaihtamista oletuksesta (14K) —
+            hän voi palata muuttamaan sitä milloin tahansa. Piilossa työpöydällä,
+            koska molemmat paneelit näkyvät siellä jo vierekkäin. */}
+        {result && !hasScrolledToResult && (
+          <button
+            type="button"
+            onClick={scrollToResult}
+            className="lg:hidden w-full flex items-center justify-center gap-2 min-h-11 px-4 py-3 rounded-xl bg-[#0B0F19] text-white font-bold text-sm no-print"
+          >
+            Näytä tulos
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        )}
+
         {/* Pitoisuus */}
         <fieldset>
           <legend className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
@@ -385,21 +404,6 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
             <p className="text-xs leading-relaxed">{GOLD_PURITIES[purity].description}</p>
           </div>
         </fieldset>
-
-        {/* Mobiilissa tulos ei vieritä näkymään automaattisesti käsin
-            kirjoitettaessa (ks. scheduleInstantScroll) — käyttäjä pyytää sen
-            itse, kun on valmis. Piilossa työpöydällä, koska molemmat paneelit
-            näkyvät siellä jo vierekkäin. */}
-        {result && !hasScrolledToResult && (
-          <button
-            type="button"
-            onClick={scrollToResult}
-            className="lg:hidden w-full flex items-center justify-center gap-2 min-h-11 px-4 py-3 rounded-xl bg-[#0B0F19] text-white font-bold text-sm no-print"
-          >
-            Näytä tulos
-            <ArrowRight size={16} aria-hidden="true" />
-          </button>
-        )}
       </div>
 
       {/* --- OIKEA PUOLI: TULOS --- */}
