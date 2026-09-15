@@ -50,10 +50,12 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
   // Päivämäärä lasketaan vasta clientissä (useState-initializer) — ei hydration mismatchia
   const [today] = useState(() => new Date().toLocaleDateString('fi-FI'));
   const resultPanelRef = useRef<HTMLDivElement>(null);
-  const inputPanelRef = useRef<HTMLDivElement>(null);
   const prevResultWasNull = useRef(true);
   const hasTracked = useRef(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ohjaa "Näytä tulos" -napin näkymistä mobiilissa — reaktiivinen kaksoiskappale
+  // prevResultWasNull-refistä (refi ei laukaise renderöintiä).
+  const [hasScrolledToResult, setHasScrolledToResult] = useState(false);
   // Peilaa purity-tilan aina ajantasaisena — kl:use-weight-kuuntelija rekisteröidään
   // vain kerran (tyhjä deps-lista), joten sen oma closure jäisi muuten "jumiin"
   // mount-hetken pitoisuuteen jos käyttäjä ehtii vaihtaa sitä ennen tapahtumaa.
@@ -65,23 +67,20 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
     if (!resultPanelRef.current) return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     prevResultWasNull.current = false;
+    setHasScrolledToResult(true);
     resultPanelRef.current.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   };
 
-  // Päättää vierittääkö mobiilissa tulokseen, ja millä viiveellä, suoraan
-  // asetettavan painon/pitoisuuden perusteella — EI jää odottamaan että
-  // weight/purity-efekti ajetaan uudelleen. Tämä on tärkeää: React ei aja
-  // efektiä uudelleen jos uusi arvo on identtinen nykyiseen (esim. painoarvio
-  // antaa saman painon/pitoisuuden joka jo on laskurissa) — aiempi
-  // lippupohjainen ("instantScrollNext") toteutus jäi silloin jumiin päälle
-  // ja vaikutti seuraavaan, tähän tapahtumaan liittymättömään näppäilyyn.
-  // Kutsutaan JOKAISESTA painoa muuttavasta kohdasta (näppäily + kertatäytöt),
-  // joten päätös tehdään aina tuoreimmalla tiedolla eikä efektin armoilla.
-  const scheduleAutoScroll = (weightStr: string, purityCode: PurityCode, instant: boolean) => {
-    // Peruutetaan aina ensin edellinen odottava ajastin — myös silloin kun
-    // tämä kutsu itse päättää olla asettamatta uutta (esim. syöte on vielä
-    // kesken, ks. looksUnfinished alla). Muuten esim. "2" ehtii ajastaa
-    // vierityksen ennen kuin "2," saapuu, eikä sitä koskaan peruuteta.
+  // Vierittää mobiilissa tulokseen kertatäytöille (esimerkki, jaettu linkki,
+  // painoarvio, paluukäynti) — arvo on niissä jo lopullinen, ei käyttäjän kesken
+  // kirjoittama, niin vierto voi tapahtua saman tien pienellä viiveellä.
+  // KÄSIN KIRJOITETTAESSA ei enää vieritetä automaattisesti ollenkaan (poistettu
+  // 15.9.2026): kiinteä viive ei voi luotettavasti erottaa "käyttäjä lopetti
+  // kirjoittamisen" ja "käyttäjä pysähtyi hetkeksi ajattelemaan", ja iPhonella
+  // vieritys ehti keskeyttää kirjoittamisen jo yhden numeron jälkeen. Tulos
+  // näkyy silti heti syötteen alla, ja "Näytä tulos" -nappi vierittää sen
+  // tarkastelunäkymään käyttäjän omalla aikataululla.
+  const scheduleInstantScroll = (weightStr: string, purityCode: PurityCode) => {
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = null;
@@ -90,19 +89,11 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
     const cleanWeight = weightStr.replace(',', '.').replace(/[^0-9.]/g, '');
     const numWeight = parseFloat(cleanWeight);
     if (isNaN(numWeight) || numWeight <= 0) return;
-    // Syöte, joka päättyy paljaaseen desimaalierottimeen (esim. "2," ennen
-    // seuraavaa numeroa), on rakenteellisesti kesken vaikka parseFloat
-    // tulkitsee sen jo luvuksi — ei koske kertatäyttöjä, joiden arvo on aina
-    // valmis merkkijono.
-    if (!instant && /[.,]$/.test(weightStr)) return;
     if (!calculateGoldValue(numWeight, purityCode, spotPriceEurPerGram)) return;
-    // Näppäilyssä odotetaan 500 ms liikkumattomuutta (300-500 ms on yleisesti
-    // dokumentoitu debounce-haarukka) — kertatäytöissä arvo on jo lopullinen,
-    // joten ne vierittävät lähes saman tien (entinen 80 ms viive).
     scrollTimeoutRef.current = setTimeout(() => {
       scrollTimeoutRef.current = null;
       scrollToResult();
-    }, instant ? 80 : 500);
+    }, 80);
   };
 
   useEffect(() => {
@@ -124,6 +115,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
       setResult(null);
       hasTracked.current = false;
       prevResultWasNull.current = true;
+      setHasScrolledToResult(false);
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
         scrollTimeoutRef.current = null;
@@ -149,11 +141,11 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
           } satisfies SavedCalculation));
         } catch {}
       }
-      // Vierityksen ajastus HOIDETAAN kutsupaikoilla (onChange, kertatäytöt) —
-      // ei täällä, ks. scheduleAutoScroll-funktion selitys yllä.
+      // Vierityksen ajastus (kertatäytöille) HOIDETAAN kutsupaikoilla — ei täällä.
     } else {
       setResult(null);
       prevResultWasNull.current = true;
+      setHasScrolledToResult(false);
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
         scrollTimeoutRef.current = null;
@@ -173,7 +165,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
     if (w && /^[0-9]+([.,][0-9]+)?$/.test(w)) {
       const w2 = w.replace('.', ',');
       setWeight(w2);
-      scheduleAutoScroll(w2, urlPurity ?? purityRef.current, true);
+      scheduleInstantScroll(w2, urlPurity ?? purityRef.current);
     } else {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -192,7 +184,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
       if (typeof detail.weight === 'number' && detail.weight > 0) {
         const w2 = String(detail.weight).replace('.', ',');
         setWeight(w2);
-        scheduleAutoScroll(w2, newPurity ?? purityRef.current, true);
+        scheduleInstantScroll(w2, newPurity ?? purityRef.current);
       }
     };
     window.addEventListener('kl:use-weight', onUseWeight);
@@ -283,7 +275,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
     <div className="grid lg:grid-cols-12 gap-0 bg-white overflow-hidden">
       
       {/* --- VASEN PUOLI: SYÖTTÖ --- */}
-      <div ref={inputPanelRef} className="lg:col-span-5 min-w-0 bg-gray-50/80 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col gap-6 md:gap-8">
+      <div className="lg:col-span-5 min-w-0 bg-gray-50/80 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col gap-6 md:gap-8">
         
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm text-gold-400">
@@ -311,31 +303,9 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 const v = e.target.value;
                 if (!/^[0-9]*[.,]?[0-9]*$/.test(v)) return;
                 setWeight(v);
-                if (!v) {
-                  if (scrollTimeoutRef.current) {
-                    clearTimeout(scrollTimeoutRef.current);
-                    scrollTimeoutRef.current = null;
-                  }
-                } else {
-                  scheduleAutoScroll(v, purity, false);
-                }
-              }}
-              onBlur={(e) => {
-                // Painokentästä poistuminen ei yksin tarkoita että käyttäjä on
-                // valmis — hän siirtyy tyypillisesti seuraavaksi valitsemaan
-                // pitoisuuden. Vieritetään heti VAIN jos fokus siirtyy kokonaan
-                // pois koko syöttöpaneelista (paino + pitoisuus); jos kohde on
-                // tuntematon (esim. mobiilinäppäimistö sulkeutuu ilman että
-                // mikään uusi elementti saa fokusta), jätetään ajastimen varaan.
-                const movingTo = e.relatedTarget as Node | null;
-                const stillInsidePanel = movingTo && inputPanelRef.current?.contains(movingTo);
-                if (result && prevResultWasNull.current && movingTo && !stillInsidePanel && window.innerWidth < 1024) {
-                  if (scrollTimeoutRef.current) {
-                    clearTimeout(scrollTimeoutRef.current);
-                    scrollTimeoutRef.current = null;
-                  }
-                  scrollToResult();
-                }
+                // Ei automaattivieritystä käsin kirjoitettaessa (ks. scheduleInstantScroll-
+                // funktion selitys yllä) — tulos päivittyy näkyviin syötteen alle, ja
+                // käyttäjä vierittää sen tarkasteluun itse "Näytä tulos" -napilla.
               }}
               placeholder="Esim. 4,5"
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-gray-900 font-bold text-2xl placeholder-gray-300 outline-none transition-all duration-300 focus:border-gold-400 focus:ring-4 focus:ring-gold-400/10"
@@ -415,6 +385,21 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
             <p className="text-xs leading-relaxed">{GOLD_PURITIES[purity].description}</p>
           </div>
         </fieldset>
+
+        {/* Mobiilissa tulos ei vieritä näkymään automaattisesti käsin
+            kirjoitettaessa (ks. scheduleInstantScroll) — käyttäjä pyytää sen
+            itse, kun on valmis. Piilossa työpöydällä, koska molemmat paneelit
+            näkyvät siellä jo vierekkäin. */}
+        {result && !hasScrolledToResult && (
+          <button
+            type="button"
+            onClick={scrollToResult}
+            className="lg:hidden w-full flex items-center justify-center gap-2 min-h-11 px-4 py-3 rounded-xl bg-[#0B0F19] text-white font-bold text-sm no-print"
+          >
+            Näytä tulos
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        )}
       </div>
 
       {/* --- OIKEA PUOLI: TULOS --- */}
@@ -878,7 +863,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                   onClick={() => {
                     setWeight(lastVisit.weight);
                     setPurity(lastVisit.purity);
-                    scheduleAutoScroll(lastVisit.weight, lastVisit.purity, true);
+                    scheduleInstantScroll(lastVisit.weight, lastVisit.purity);
                     track('laskuri-palaava', { purity: lastVisit.purity });
                   }}
                   className="text-left p-4 rounded-2xl bg-[#0B0F19] text-white hover:ring-2 hover:ring-gold-400/50 transition-all"
@@ -960,7 +945,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 onClick={() => {
                   setWeight('4');
                   setPurity('14K');
-                  scheduleAutoScroll('4', '14K', true);
+                  scheduleInstantScroll('4', '14K');
                   track('laskuri-esimerkki');
                 }}
                 className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 hover:border-gray-200 transition-all text-left w-full"
