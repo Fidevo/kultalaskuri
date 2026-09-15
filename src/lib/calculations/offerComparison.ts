@@ -29,19 +29,26 @@ export interface ComparisonResult {
   bestDiff: number | null;
 }
 
+// Hyväksytään vain aidosti numeromuotoinen syöte (kokonaisluku tai yksi
+// desimaalierotin, pilkku tai piste). Esim. "100kroon" tai "12€34" hylätään
+// kokonaan sen sijaan, että kirjaimet siivotaan huomaamatta pois ja jäljelle
+// jäävä numero hyväksytään virheellisenä tarjouksena.
+const OFFER_AMOUNT_PATTERN = /^\s*(?:\d+(?:[.,]\d*)?|[.,]\d+)\s*$/;
+
 /** Suomalainen pilkkudesimaali -> number. Palauttaa null jos ei kelvollinen positiivinen luku. */
 export function parseOfferAmount(raw: string): number | null {
-  if (!raw) return null;
-  const cleaned = raw.replace(',', '.').replace(/[^0-9.]/g, '');
-  const n = parseFloat(cleaned);
-  if (isNaN(n) || n <= 0) return null;
+  if (!raw || !OFFER_AMOUNT_PATTERN.test(raw)) return null;
+  const n = Number(raw.trim().replace(',', '.'));
+  if (!Number.isFinite(n) || n <= 0) return null;
   return n;
 }
 
 export function assessOffers(anchor: number, rawAmounts: string[]): ComparisonResult {
+  const validAnchor = Number.isFinite(anchor) && anchor > 0;
+
   const assessments: OfferAssessment[] = rawAmounts.map((raw) => {
     const amount = parseOfferAmount(raw);
-    if (amount === null || anchor <= 0) {
+    if (amount === null || !validAnchor) {
       return { amount, band: null, diff: null };
     }
     const diff = Number((amount - anchor).toFixed(2));
@@ -57,8 +64,8 @@ export function assessOffers(anchor: number, rawAmounts: string[]): ComparisonRe
   }
 
   const bestBand: OfferBand | null =
-    bestAmount === null || anchor <= 0 ? null : bestAmount >= anchor ? 'meets' : 'below';
-  const bestDiff = bestAmount === null ? null : Number((bestAmount - anchor).toFixed(2));
+    bestAmount === null || !validAnchor ? null : bestAmount >= anchor ? 'meets' : 'below';
+  const bestDiff = bestAmount === null || !validAnchor ? null : Number((bestAmount - anchor).toFixed(2));
 
   return { assessments, bestAmount, bestBand, bestDiff };
 }

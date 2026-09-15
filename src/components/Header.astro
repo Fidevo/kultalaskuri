@@ -55,35 +55,46 @@ const secondaryLinks = [
       <div class="flex items-center gap-4 md:hidden">
         <button
           id="mobile-menu-btn"
-          class="relative z-50 p-2 text-gold-400 hover:text-gold-200 transition-colors"
-          aria-label="Avaa valikko"
+          type="button"
+          class="relative z-50 inline-flex items-center gap-2 min-h-11 px-3 text-sm font-bold text-white rounded-lg border border-white/20 hover:border-gold-400/50 hover:text-gold-200 transition-colors"
           aria-expanded="false"
           aria-controls="mobile-menu"
         >
-          <svg id="menu-icon" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          Valikko
+          <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          <svg id="close-icon" class="w-8 h-8 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
     </div>
   </div>
 
-  <div 
-    id="mobile-menu" 
-    class="fixed inset-0 z-40 bg-[#0B0F19] w-full h-screen transform translate-x-full transition-transform duration-300 md:hidden flex flex-col pt-28 px-8"
-  >
-    <div class="flex flex-col space-y-6">
+  {/* Natiivi <dialog>: selain hoitaa fokuksen siirron, taustan inertiksi teon
+      ja Escape-sulkemisen automaattisesti showModal()-kutsun myötä. Tab-kierto
+      varmistetaan alla erikseen, koska tuki tälle vaihtelee vielä selaimittain. */}
+  <dialog id="mobile-menu" aria-labelledby="mobile-menu-title" class="mobile-navigation md:hidden">
+    <div class="flex items-center justify-between gap-3 pb-5 border-b border-white/10">
+      <span id="mobile-menu-title" class="text-lg font-black tracking-tight">
+        <span class="text-gold-400">Kulta</span><span class="text-white">laskuri</span><span class="text-gold-400">.fi</span>
+      </span>
+      <button
+        id="mobile-menu-close"
+        type="button"
+        aria-label="Sulje valikko"
+        class="text-gray-200 inline-flex items-center justify-center w-11 h-11 border border-white/20 rounded-xl"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
+      </button>
+    </div>
+
+    <nav aria-label="Mobiilin päävalikko" class="py-4">
       {navLinks.map((link) => {
         const isActive = normalizedPath === link.pagePath;
-
         return (
           <a
             href={link.href}
             aria-current={isActive ? "page" : undefined}
-            class={`mobile-link text-2xl font-bold border-b border-white/5 pb-4
+            class={`block py-3 text-xl font-bold border-b border-white/5
               ${isActive ? 'text-gold-400' : 'text-white hover:text-gold-400'}
             `}
           >
@@ -91,76 +102,93 @@ const secondaryLinks = [
           </a>
         );
       })}
-    </div>
+    </nav>
 
     {/* Toissijaiset sivut mobiilivalikossa */}
-    <div class="mt-8">
-      <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mb-4">Lisää</p>
-      <div class="flex flex-col space-y-4">
-        {secondaryLinks.map((link) => {
-          const isActive = normalizedPath === link.pagePath;
-          return (
-            <a
-              href={link.href}
-              aria-current={isActive ? "page" : undefined}
-              class={`mobile-link text-base font-medium
-                ${isActive ? 'text-gold-400' : 'text-gray-400 hover:text-gold-400'}
-              `}
-            >
-              {link.label}
-            </a>
-          );
-        })}
-      </div>
-    </div>
-  </div>
+    <nav aria-label="Lisää" class="pb-6">
+      <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mb-2">Lisää</p>
+      {secondaryLinks.map((link) => {
+        const isActive = normalizedPath === link.pagePath;
+        return (
+          <a
+            href={link.href}
+            aria-current={isActive ? "page" : undefined}
+            class={`block py-3 text-base font-medium
+              ${isActive ? 'text-gold-400' : 'text-gray-300 hover:text-gold-400'}
+            `}
+          >
+            {link.label}
+          </a>
+        );
+      })}
+    </nav>
+  </dialog>
 </header>
 
 <script>
-  const btn = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  const menuIcon = document.getElementById('menu-icon');
-  const closeIcon = document.getElementById('close-icon');
-  const mobileLinks = document.querySelectorAll('.mobile-link');
-  
-  let isMenuOpen = false;
+  const trigger = document.querySelector<HTMLButtonElement>('#mobile-menu-btn');
+  const menu = document.querySelector<HTMLDialogElement>('#mobile-menu');
+  const closeBtn = document.querySelector<HTMLButtonElement>('#mobile-menu-close');
+  let priorOverflow = '';
+  let isOpen = false;
 
-  function toggleMenu() {
-    isMenuOpen = !isMenuOpen;
-    
-    if (btn) {
-      btn.setAttribute('aria-expanded', String(isMenuOpen));
-      btn.setAttribute('aria-label', isMenuOpen ? 'Sulje valikko' : 'Avaa valikko');
-    }
-    
-    if (isMenuOpen) {
-      // Avaa
-      menu?.classList.remove('translate-x-full');
-      document.body.style.overflow = 'hidden'; // Estä taustan skrollaus
-      menuIcon?.classList.add('hidden');
-      closeIcon?.classList.remove('hidden');
-    } else {
-      // Sulje
-      menu?.classList.add('translate-x-full');
-      document.body.style.overflow = ''; // Salli skrollaus
-      menuIcon?.classList.remove('hidden');
-      closeIcon?.classList.add('hidden');
-    }
+  function openMenu() {
+    if (!menu || isOpen) return;
+    isOpen = true;
+    priorOverflow = document.body.style.overflow;
+    menu.showModal();
+    document.body.style.overflow = 'hidden'; // Estä taustan skrollaus
+    trigger?.setAttribute('aria-expanded', 'true');
+    closeBtn?.focus();
   }
-  
-  btn?.addEventListener('click', toggleMenu);
 
-  // Escape sulkee valikon ja palauttaa fokuksen nappiin
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isMenuOpen) {
-      toggleMenu();
-      btn?.focus();
+  // Ei nojata yksin dialogin natiiviin Escape-/close-käsittelyyn: tila
+  // nollataan aina eksplisiittisesti, jotta aria-expanded ja skrollilukko
+  // eivät voi jäädä jumiin selaimesta riippumatta.
+  function closeMenu() {
+    if (!menu || !isOpen) return;
+    isOpen = false;
+    if (menu.open) menu.close();
+    document.body.style.overflow = priorOverflow;
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.focus({ preventScroll: true });
+  }
+
+  trigger?.addEventListener('click', openMenu);
+  closeBtn?.addEventListener('click', closeMenu);
+
+  // Varmuudeksi myös natiivit sulkemistavat (Escape, selaimen oma cancel/close)
+  menu?.addEventListener('cancel', closeMenu);
+  menu?.addEventListener('close', closeMenu);
+
+  // Oma Escape-kuuntelija varmistaa sulkemisen myös jos dialogin natiivi
+  // Escape-käsittely ei laukea kaikissa selaimissa/ympäristöissä.
+  menu?.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeMenu();
+      return;
+    }
+    // Tab-kierto pysyy valikon sisällä (varmistus fokuslukituksen lisäksi)
+    if (e.key !== 'Tab') return;
+    const items = Array.from(menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last?.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first?.focus();
     }
   });
 
-  mobileLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      if (isMenuOpen) toggleMenu();
-    });
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Jos näyttö kasvaa työpöytäkokoon kesken auki olevan valikon, suljetaan se
+  window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
+    if (e.matches && isOpen) closeMenu();
   });
 </script>

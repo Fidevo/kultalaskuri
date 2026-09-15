@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect, useId } from 'react';
 
 interface PricePoint {
   date: string;
@@ -53,6 +53,8 @@ function fmtDateFull(s: string): string {
 }
 
 export default function GoldPriceChart({ data }: Props) {
+  const sliderId = useId();
+  const [keyboardIndex, setKeyboardIndex] = useState<number | null>(null);
   const [range, setRange] = useState<Range>('90D');
   const [hovIdx, setHovIdx] = useState<number | null>(null);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -182,6 +184,8 @@ export default function GoldPriceChart({ data }: Props) {
 
   if (!stats) return null;
 
+  const selectedIndex = Math.min(keyboardIndex ?? filtered.length - 1, filtered.length - 1);
+  const selectedPoint = filtered[selectedIndex];
   const isUp = stats.chg >= 0;
   const SVG_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -201,7 +205,7 @@ export default function GoldPriceChart({ data }: Props) {
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">30 pv muutos</p>
           <p className={`text-[22px] font-black leading-none ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
-            {isUp ? '▲' : '▼'} {Math.abs(stats.chg).toFixed(1)} %
+            {isUp ? '▲' : '▼'} {Math.abs(stats.chg).toFixed(1).replace('.', ',')} %
           </p>
           <p className="text-[10px] text-gray-400 mt-1">{isUp ? 'Nouseva trendi' : 'Laskeva trendi'}</p>
         </div>
@@ -231,16 +235,22 @@ export default function GoldPriceChart({ data }: Props) {
           <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
             Kullan spot-hinta €/g · 24K
           </span>
-          <div className="flex gap-0.5 bg-white/5 rounded-lg p-0.5">
+          <fieldset className="flex gap-0.5 bg-white/5 rounded-lg p-0.5">
+            <legend className="sr-only">Kuvaajan aikaväli</legend>
             {RANGES.map(r => (
               <button
                 key={r.key}
                 aria-pressed={range === r.key}
                 onClick={() => {
                   setRange(r.key);
+                  setKeyboardIndex(null);
+                  // hovIdx osoittaa indeksiin filtered-taulukossa — se on eri
+                  // taulukko uudella aikavälillä, joten vanha indeksi on nollattava
+                  // ettei osoitin/tooltip jää osoittamaan väärää päivää (ks. selitys alla)
+                  setHovIdx(null);
                   track('hintahistoria-range', { range: r.key });
                 }}
-                className={`px-3 py-1 rounded-md text-[11px] font-bold transition-all duration-150 ${
+                className={`min-h-11 px-3 py-1 rounded-md text-[11px] font-bold transition-all duration-150 ${
                   range === r.key
                     ? 'bg-[#D4AF37] text-[#0B0F19] shadow-sm'
                     : 'text-gray-400 hover:text-gray-200'
@@ -249,7 +259,7 @@ export default function GoldPriceChart({ data }: Props) {
                 {r.label}
               </button>
             ))}
-          </div>
+          </fieldset>
         </div>
 
         {/* Ruudunlukijayhteenveto — SVG:n sisältö ei ole saavutettavissa */}
@@ -383,6 +393,32 @@ export default function GoldPriceChart({ data }: Props) {
 
           </g>
         </svg>
+
+        <div className="border-t border-white/10 px-4 py-4">
+          <label htmlFor={sliderId} className="block text-sm text-gray-300 font-semibold">Tutki yksittäistä päivää</label>
+          <input
+            id={sliderId}
+            type="range"
+            min={0}
+            max={filtered.length - 1}
+            value={selectedIndex}
+            aria-valuetext={`${fmtDateFull(selectedPoint.date)}: ${selectedPoint.price.toFixed(2).replace('.', ',')} euroa grammalta`}
+            onChange={(e) => {
+              const i = Number(e.target.value);
+              setKeyboardIndex(i);
+              setHovIdx(i);
+              if (!hasTrackedInteraction.current) {
+                hasTrackedInteraction.current = true;
+                track('hintahistoria-interaktio', { range });
+              }
+            }}
+            className="w-full h-11 accent-[#D4AF37]"
+          />
+          <output htmlFor={sliderId} className="block text-sm text-gray-200">
+            {fmtDateFull(selectedPoint.date)} · <strong>{selectedPoint.price.toFixed(2).replace('.', ',')} €/g</strong>
+          </output>
+          <p className="text-xs text-gray-400 mt-2">Voit siirtää valintaa myös näppäimistön nuolinäppäimillä.</p>
+        </div>
       </div>
     </div>
   );

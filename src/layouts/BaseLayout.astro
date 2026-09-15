@@ -71,15 +71,15 @@ const isProd = import.meta.env.PROD;
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link 
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" 
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
-      <link 
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" 
+      <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
         rel="stylesheet"
       />
     </noscript>
@@ -106,9 +106,10 @@ const isProd = import.meta.env.PROD;
   </head>
   
   <body class="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans antialiased selection:bg-gold-400 selection:text-[#0B0F19]">
+    <a class="skip-link no-print" href="#paasisalto">Siirry pääsisältöön</a>
     <Header />
-    
-    <main class="flex-grow w-full relative z-10">
+
+    <main id="paasisalto" tabindex="-1" class="flex-grow w-full relative z-10">
       <slot />
     </main>
     

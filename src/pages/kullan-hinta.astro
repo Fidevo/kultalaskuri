@@ -13,7 +13,8 @@ const spot = goldPrice?.priceEurGram || 0;
 const HELSINKI_TZ = 'Europe/Helsinki';
 
 // Näkyvä päivitysaika — sama logiikka kuin etusivun hero-badgessa.
-// Fallback-datan (hintahistoria) aikaleima on keskiyöllä → vain päivämäärä.
+// Fallback-datalla (hintahistoria) ei ole oikeaa hakukellonaikaa, joten
+// kellonaikaa ei näytetä silloin — ks. metalPriceApi.ts:n `source`-kenttä.
 const updatedAtDate = goldPrice?.updatedAt ? new Date(goldPrice.updatedAt) : new Date();
 const updatedDate = updatedAtDate.toLocaleDateString('fi-FI', {
   day: 'numeric', month: 'numeric', year: 'numeric', timeZone: HELSINKI_TZ,
@@ -21,7 +22,7 @@ const updatedDate = updatedAtDate.toLocaleDateString('fi-FI', {
 const timeStr = updatedAtDate.toLocaleTimeString('fi-FI', {
   hour: '2-digit', minute: '2-digit', timeZone: HELSINKI_TZ,
 });
-const updatedTime = timeStr === '00.00' ? null : timeStr;
+const updatedTime = goldPrice?.source === 'history' ? null : timeStr;
 
 // Pörssiarvo per gramma karaateittain = pitoisuus × spot (calculateGoldValue on
 // ainoa sallittu laskentapolku). Tällä sivulla EI näytetä tavoitehintaa lainkaan:
