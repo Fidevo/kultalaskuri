@@ -62,7 +62,7 @@ const schemaData = {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/kullan-myynti/",
       "url": "https://kultalaskuri.fi/kullan-myynti/",
-      "name": "Kullan myynti – Paljonko kullasta saa rahaa?",
+      "name": "Kullan myynti – kullanostajien ostohinta ja paljonko kullasta saa rahaa",
       "description": "Myy kulta fiksusti. Laske kullan arvo sekunneissa ja katso paljonko koruistasi voi saada. Vältä alihinnoittelu ja löydä paras hinta.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
@@ -238,7 +238,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <nav aria-label="Sisällysluettelo" class="mb-12 p-6 bg-gray-50 rounded-2xl border border-gray-200">
         <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Tällä sivulla</h2>
         <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-          <li><a href="#paljonko-saa" class="text-gold-600 font-bold hover:underline">Paljonko kullasta saa rahaa?</a></li>
+          <li><a href="#paljonko-saa" class="text-gold-600 font-bold hover:underline">Kullanostajien ostohinta</a></li>
           <li><a href="#nain-toimii" class="text-gold-600 font-bold hover:underline">Näin myynti toimii käytännössä</a></li>
           <li><a href="#missa-myyda" class="text-gold-600 font-bold hover:underline">Missä kulta kannattaa myydä?</a></li>
           <li><a href="#vertaa-tarjouksia" class="text-gold-600 font-bold hover:underline">Näin vertaat saamiasi tarjouksia</a></li>
@@ -248,7 +248,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </ol>
       </nav>
 
-      <h2 id="paljonko-saa" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Paljonko kullasta saa rahaa?</h2>
+      <h2 id="paljonko-saa" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kullanostajien ostohinta – paljonko kullasta saa rahaa?</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Kullan myyntihinta — eli kullan ostohinta, jonka kullanostaja sinulle maksaa — perustuu maailmanmarkkinoiden <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hintaan</a> eli puhtaan 24 karaatin kullan pörssihintaan. Lopullinen summa riippuu kullan pitoisuudesta, painosta ja ostajan käyttämästä marginaalista.
       </p>

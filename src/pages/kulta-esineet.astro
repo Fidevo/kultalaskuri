@@ -62,8 +62,8 @@ const schemaData = {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/kulta-esineet/",
       "url": "https://kultalaskuri.fi/kulta-esineet/",
-      "name": "Paljonko kultaa eri esineissä on?",
-      "description": "Kultakellossa, hammaskullassa ja korussa kultaa on eri verran kuin vaaka näyttää. Näin arvioit kultaosuuden esinetyypeittäin — myös markka-ajan kultarahat ja sijoituskolikot.",
+      "name": "Kultaesineen arvo ja kultaosuus – sormus, kello, harkko, kolikko",
+      "description": "Kultasormuksen, -kellon, -harkon ja -kolikon arvo: näin arvioit kultaosuuden oikein, vaikka vaaka näyttää enemmän kuin kultaa on. Myös markka-ajan kultarahat ja sijoituskolikot.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
@@ -112,8 +112,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 ---
 
 <BaseLayout
-  title="Paljonko kultaa esineessä on? Esinetyypit | Kultalaskuri.fi"
-  description="Kultakellossa, hammaskullassa ja korussa kultaa on eri verran kuin vaaka näyttää. Näin arvioit kultaosuuden esinetyypeittäin — myös markka-ajan kultarahat ja sijoituskolikot."
+  title="Kultaesineen arvo ja kultaosuus – sormus, kello, harkko | Kultalaskuri.fi"
+  description="Kultasormuksen, -kellon, -harkon ja -kolikon arvo: näin arvioit kultaosuuden oikein, vaikka vaaka näyttää enemmän kuin kultaa on. Myös markka-ajan kultarahat ja sijoituskolikot."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -138,9 +138,9 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
-        Paljonko kultaa
+        Kultaesineen arvo
         <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
-          eri esineissä on?
+          paljonko kultaa eri esineissä on?
         </span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
@@ -159,12 +159,12 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Tällä sivulla</h2>
         <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
           <li><a href="#perussaanto" class="text-gold-600 font-bold hover:underline">Perussääntö: paino vs. kultaosuus</a></li>
-          <li><a href="#sormukset" class="text-gold-600 font-bold hover:underline">Sormukset</a></li>
-          <li><a href="#ketjut" class="text-gold-600 font-bold hover:underline">Ketjut ja rannekorut</a></li>
-          <li><a href="#kellot" class="text-gold-600 font-bold hover:underline">Kultakellot ja kellonrannekkeet</a></li>
-          <li><a href="#hammaskulta" class="text-gold-600 font-bold hover:underline">Hammaskulta</a></li>
-          <li><a href="#kolikot" class="text-gold-600 font-bold hover:underline">Kultakolikot</a></li>
-          <li><a href="#harkot" class="text-gold-600 font-bold hover:underline">Kultaharkot</a></li>
+          <li><a href="#sormukset" class="text-gold-600 font-bold hover:underline">Sormuksen arvo ja paino</a></li>
+          <li><a href="#ketjut" class="text-gold-600 font-bold hover:underline">Ketjun ja rannekorun arvo</a></li>
+          <li><a href="#kellot" class="text-gold-600 font-bold hover:underline">Kultakellon arvo</a></li>
+          <li><a href="#hammaskulta" class="text-gold-600 font-bold hover:underline">Hammaskullan arvo</a></li>
+          <li><a href="#kolikot" class="text-gold-600 font-bold hover:underline">Kultakolikon arvo</a></li>
+          <li><a href="#harkot" class="text-gold-600 font-bold hover:underline">Kultaharkon hinta</a></li>
           <li><a href="#ukk" class="text-gold-600 font-bold hover:underline">Usein kysyttyä</a></li>
         </ol>
       </nav>
@@ -200,7 +200,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </p>
       </div>
 
-      <h2 id="sormukset" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Sormukset</h2>
+      <h2 id="sormukset" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Sormuksen arvo ja paino</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Sileässä sormuksessa koko runko on samaa kultaseosta, joten kokonaispaino kelpaa sellaisenaan.
         Tyypillinen paino on siro naisten sormus noin 2 g, vihkisormus noin 4 g ja leveä miesten sormus
@@ -211,7 +211,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <li><strong>Kaksimetalliset sormukset:</strong> osassa nykysormuksia on keraaminen, titaani- tai volframiosa. Vain kultaisen osan paino lasketaan.</li>
       </ul>
 
-      <h2 id="ketjut" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Ketjut ja rannekorut</h2>
+      <h2 id="ketjut" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Ketjun ja rannekorun arvo</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Ketjun lenkit ja lukko ovat samaa kultaa. Ketjun paino riippuu täysin lenkkityypistä:
         sama 50 cm kaulaketju painaa ohuena ankkuriketjuna vain muutaman gramman mutta tukevana
@@ -222,7 +222,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Riipuksessa voi olla kiviä tai muuta metallia kuin itse ketjussa, joten punnitse ja arvioi se erikseen.
       </p>
 
-      <h2 id="kellot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultakellot ja kellonrannekkeet</h2>
+      <h2 id="kellot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultakellon arvo</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Aidossa umpikultaisessa kellossa kultaa on <strong>koko kuori: keskiosa, kehä, pohjakansi ja
         yleensä myös kruunu</strong>. Kultaa <strong>eivät</strong> ole koneisto, kellonlasi, vetoakseli
@@ -244,7 +244,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         huutokaupan arvioitavaksi — vasta sen jälkeen romukullan arvo on vertailukohta.
       </p>
 
-      <h2 id="hammaskulta" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Hammaskulta</h2>
+      <h2 id="hammaskulta" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Hammaskullan arvo</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Hammaskullassa on tavallisesti kultaa, mutta seos vaihtelee eikä sitä ole leimattu.
         Hammasseoksissa käytetään kullan lisäksi platinaa, palladiumia ja hopeaa, ja pitoisuus
@@ -257,7 +257,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         testaustulos eli paino ja mitattu pitoisuus näytetään sinulle ennen tarjousta.
       </p>
 
-      <h2 id="kolikot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultakolikot</h2>
+      <h2 id="kolikot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultakolikon arvo</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Kolikossa kultamäärä on tiedossa tarkasti, koska se perustuu lyöntistandardiin. Suomen
         markka-ajan kultarahat (10 ja 20 markkaa, lyöty 1878–1913) noudattivat samaa standardia
@@ -326,7 +326,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <a href="/kullan-myynti-verotus/" class="text-gold-600 font-bold hover:underline">verotusopas</a>.
       </p>
 
-      <h2 id="harkot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultaharkot</h2>
+      <h2 id="harkot" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kultaharkon hinta</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Kultaharkko on 24 karaatin kultaa (leima 999 tai 999,9). Harkkoon on lyöty paino, pitoisuus ja
         valmistajan tunnus, joten kultamäärä on suoraan luettavissa — koko punnittu paino on puhdasta
