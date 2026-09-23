@@ -161,7 +161,7 @@ const schemaData = {
           "name": "Mikä on kullan hinta tänään euroissa?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Puhtaan kullan (24K) spot-hinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena euroina grammalta. Korukullasta maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 14K tai 18K) ja kullanostajan katteesta."
+            "text": "Kullan spot-hinta eli maailmanmarkkinahinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena euroina grammalta. Korukullasta maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 14K tai 18K) ja kullanostajan katteesta."
           }
         },
         {
@@ -262,7 +262,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">kurssi, grammahinta ja hintakehitys</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-          Puhtaan kullan (24K) kurssi on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
+          Kullan spot-hinta (maailmanmarkkinahinta) on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
           Alla näet kullan hinnan karaateittain (14K, 18K, 24K), unssi- ja kilohinnan sekä
           hintakehityksen päivä päivältä ja kuukausittain — kaikki euroina.
         </p>
@@ -281,7 +281,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <p class="text-center text-gray-400 text-xs mt-6 leading-relaxed">
-        Kullan spot-hinta euroina per gramma (24K, puhdas kulta). Lähde: MetalPrice API ·
+        Kullan spot-hinta euroina per gramma (maailmanmarkkinahinta). Lähde: MetalPrice API ·
         {chartHistory.length} päivän historia · Hintahistoria tallennetaan pörssipäivinä klo 18 ·
         Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
@@ -297,7 +297,9 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Korukullan hinta riippuu pitoisuudesta: 14K-kullassa (leima 585) puhdasta kultaa on 58,5 %
         ja 18K-kullassa (leima 750) 75 %. Taulukossa on jokaisen pitoisuuden <strong>pörssiarvo
         euroina grammalta</strong> päivän kurssilla: puhtaan kullan kurssi
-        ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna kultapitoisuudella.
+        ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna kultapitoisuudella. Myös 24 karaatin
+        kultatuotteen korkein sallittu pitoisuusleima Suomessa on 999 eli 99,9 % — täyttä 100 %:a
+        ei tuotteissa leimata — joten taulukon 24K-rivi on hieman yllä mainittua kurssia matalampi.
       </p>
       <p class="text-sm text-gray-500 leading-relaxed mb-6">
         Kullanostajan maksama hinta on pörssiarvoa matalampi, koska ostaja vähentää sulatus- ja
@@ -426,7 +428,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
       <p class="text-sm text-gray-500 leading-relaxed mb-14">
         Troy-unssi on 31,1035 grammaa, eli tavallista unssia (28,35 g) painavampi. Luvut ovat puhtaan
-        kullan (24K) spot-kurssi — kultaharkoista ja -kolikoista maksetaan lisäksi valmistus- tai
+        kullan spot-kurssi — kultaharkoista ja -kolikoista maksetaan lisäksi valmistus- tai
         keräilypreemio, joten niitä ei hinnoitella romukultana.
       </p>
 

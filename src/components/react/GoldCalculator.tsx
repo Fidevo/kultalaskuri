@@ -823,7 +823,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 </p>
                 <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                   <span><strong>Päivämäärä:</strong> {today}</span>
-                  <span><strong>Pörssikurssi:</strong> {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g (24K)</span>
+                  <span><strong>Pörssikurssi:</strong> {spotPriceEurPerGram.toFixed(2).replace('.', ',')} €/g</span>
                   <span><strong>Lähde:</strong> kultalaskuri.fi</span>
                 </div>
                 {offers.some((o) => parseOfferAmount(o.amount) !== null) && (

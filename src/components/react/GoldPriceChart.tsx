@@ -195,11 +195,11 @@ export default function GoldPriceChart({ data }: Props) {
       {/* ── Stats row ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Viimeisin</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Edellinen päätös</p>
           <p className="text-[22px] font-black leading-none text-white">
             {stats.last.price.toFixed(2).replace('.', ',')} <span className="text-sm font-semibold text-gray-400">€/g</span>
           </p>
-          <p className="text-[10px] text-gray-400 mt-1">{fmtDateFull(stats.last.date)}</p>
+          <p className="text-[10px] text-gray-400 mt-1">{fmtDateFull(stats.last.date)} klo 18</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
@@ -233,7 +233,7 @@ export default function GoldPriceChart({ data }: Props) {
         {/* Header / range selector */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-            Kullan spot-hinta €/g · 24K
+            Kullan spot-hinta €/g
           </span>
           <fieldset className="flex gap-0.5 bg-white/5 rounded-lg p-0.5">
             <legend className="sr-only">Kuvaajan aikaväli</legend>
@@ -264,8 +264,9 @@ export default function GoldPriceChart({ data }: Props) {
 
         {/* Ruudunlukijayhteenveto — SVG:n sisältö ei ole saavutettavissa */}
         <p className="sr-only">
-          Kullan viimeisin spot-hinta on {stats.last.price.toFixed(2).replace('.', ',')} euroa grammalta
-          ({fmtDateFull(stats.last.date)}). Muutos 30 päivässä: {isUp ? 'nousua' : 'laskua'}{' '}
+          Kullan edellisen pörssipäivän päätöskurssi on {stats.last.price.toFixed(2).replace('.', ',')} euroa grammalta
+          ({fmtDateFull(stats.last.date)} klo 18). Sivun yläosassa näkyy tämän hetken kurssi.
+          Muutos 30 päivässä: {isUp ? 'nousua' : 'laskua'}{' '}
           {Math.abs(stats.chg).toFixed(1).replace('.', ',')} prosenttia.
           30 päivän korkein hinta {stats.high30.toFixed(2).replace('.', ',')} €/g,
           matalin {stats.low30.toFixed(2).replace('.', ',')} €/g.
