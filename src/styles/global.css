@@ -6,13 +6,13 @@
 @layer base {
   html {
     @apply scroll-smooth;
-    scroll-padding-top: 100px; 
-    
+    scroll-padding-top: 100px;
+
     /* Firefoxin scrollbar-tuki */
     scrollbar-width: thin;
-    scrollbar-color: #4B5563 #0B0F19;
+    scrollbar-color: #56637F #0B0F19;
   }
-  
+
   body {
     /* Vaalea pohja, tumma teksti */
     @apply font-sans antialiased text-gray-900 bg-gray-50;
@@ -20,22 +20,43 @@
     /* Poistaa mobiililaitteiden ruman sinisen/harmaan välähdyksen linkkejä painettaessa */
     -webkit-tap-highlight-color: transparent;
 
-    /* Plus Jakarta Sans ei sisällä painoa 900 (Google Fonts palauttaa vain
-       400/600/700/800) — font-black (900) saisi selaimen keksimään puuttuvan
-       painon itse (font-synthesis: weight on oletuksena päällä), mikä näyttää
-       ladottua mustaa leikkausta pehmeämmältä/"tuhruisemmalta" erityisesti
-       isoissa otsikoissa ja hintanäytössä. Estetään tämä: font-black renderöityy
-       nyt oikealla, ladatulla 800-painolla ilman keinotekoista paksunnusta. */
+    /* Fontit ladataan vain käytetyillä painoilla (Inter 400–700, Source Serif 4
+       600/700). Estetään selainta keksimästä puuttuvia painoja itse
+       (font-synthesis), mikä näyttäisi isoissa luvuissa "tuhruiselta". */
     font-synthesis: none;
+    font-feature-settings: "cv11", "ss03";
   }
 
-  /* Saavutettavuus ja näppäimistönavigointi (Tyylikäs kultainen focus) */
+  /* Redesign 9/2026: sisältöotsikot serifillä — rahoitusalan luottamussignaali.
+     Pienet uppercase-otsikot (esim. "Tällä sivulla") pysyvät groteskina. */
+  :is(h1, h2, h3):not(.uppercase) {
+    font-family: theme('fontFamily.serif');
+    font-weight: 600;
+    font-optical-sizing: auto;
+  }
+  :is(h1, h2, h3):not(.uppercase):is(.font-black, .font-extrabold, .font-bold) {
+    font-weight: 600;
+  }
+  :is(h1, h2, h3):not(.uppercase):is(.tracking-tight, .tracking-tighter) {
+    letter-spacing: -0.012em;
+  }
+
+  /* Näppäimistöfokus: tumma kulta vaalealla pohjalla (5,1:1), vaalea kulta
+     tummilla pinnoilla — molemmissa yli 3:1 (WCAG 2.2 ei-tekstikontrasti). */
   :focus-visible {
-    outline: 2px solid #D4AF37;
+    outline: 2px solid #856B19;
     outline-offset: 2px;
   }
+  :is(header, footer, .hero-surface, .bg-ink-950, .bg-ink-900, .mobile-navigation) :focus-visible {
+    outline-color: #ECD895;
+  }
 
-  /* Tyylitelty scrollbar (Premium-look) Chrome/Safari/Edge */
+  /* Taulukoissa numerot aina tasalevyisinä — sarakkeet asettuvat pystyyn */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tyylitelty scrollbar Chrome/Safari/Edge */
   ::-webkit-scrollbar {
     width: 10px;
   }
@@ -43,36 +64,93 @@
     background: #0B0F19;
   }
   ::-webkit-scrollbar-thumb {
-    background: #4B5563;
+    background: #56637F;
     border-radius: 5px;
     border: 2px solid #0B0F19;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #D4AF37; /* Gold hover */
+    background: #D4AF37;
   }
 }
 
 @layer components {
-  /* Moderni valkoinen kortti varjolla */
-  .card-white {
-    @apply bg-white rounded-3xl border border-gray-100 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)];
+  /* Tumma hero-pinta: logon musteensininen, hienovarainen "millimetripaperi"-ruudukko
+     ja kultainen hiusviiva alareunassa. Korvaa aiemmat blur-blob-taustat. */
+  .hero-surface {
+    background-color: #0B0F19;
+    background-image:
+      radial-gradient(ellipse 70% 55% at 50% 0%, rgb(38 52 90 / 0.55) 0%, rgb(11 15 25 / 0) 70%),
+      radial-gradient(ellipse 50% 40% at 85% 100%, rgb(212 175 55 / 0.07) 0%, rgb(11 15 25 / 0) 70%);
   }
-  
-  /* Vaalea input-kenttä */
-  .input-light {
-    @apply w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 
-           text-gray-900 font-bold text-xl placeholder-gray-400 outline-none 
-           transition-all duration-300
-           focus:border-gold-400 focus:ring-4 focus:ring-gold-400/10 focus:bg-white;
+  .hero-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 20%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 75% 70% at 50% 20%, #000 20%, transparent 75%);
+  }
+  .hero-surface::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgb(212 175 55 / 0) 0%, rgb(212 175 55 / 0.5) 50%, rgb(212 175 55 / 0) 100%);
   }
 
-  /* CTA-painike (Nyt yhtenäinen muun UI:n kanssa: rounded-2xl) */
+  /* Osion yläpuolinen kicker: hiusviiva + harvennettu versaali (korvaa pillerit) */
+  .kicker {
+    @apply inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] mb-4;
+  }
+  .kicker::before {
+    content: '';
+    display: inline-block;
+    width: 1.25rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+  .kicker-dark {
+    @apply kicker text-gold-400;
+  }
+  .kicker-light {
+    @apply kicker text-gold-700;
+  }
+
+  /* Valkoinen kortti hiusviivalla */
+  .card-white {
+    @apply bg-white rounded-2xl border border-gray-200 shadow-sm;
+  }
+
+  /* Vaalea input-kenttä */
+  .input-light {
+    @apply w-full bg-white border border-gray-300 rounded-lg px-4 py-4
+           text-gray-900 font-semibold text-xl placeholder-gray-400 outline-none
+           transition-colors duration-200
+           focus:border-ink-600 focus:ring-4 focus:ring-ink-600/10;
+  }
+
+  /* CTA-painike: logon kulta, tumma teksti (9,1:1), asiallinen kulma */
   .btn-cta {
-    @apply inline-flex items-center justify-center gap-2 px-8 py-4 
-           bg-gradient-to-r from-gold-300 to-gold-500 
-           text-[#0B0F19] font-bold text-lg rounded-2xl 
-           transform transition-all duration-300
-           hover:from-gold-200 hover:to-gold-400 hover:scale-[1.02];
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
+           bg-gold-400 text-ink-950 font-semibold text-base rounded-lg
+           border border-gold-300/60 shadow-sm
+           transition-colors duration-200
+           hover:bg-gold-300;
+  }
+
+  /* Numerodata: tabulaariset, vuorattomat numerot */
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum", "lnum", "cv11", "ss03";
   }
 }
 
@@ -129,9 +207,9 @@
   left: 0.5rem;
   z-index: 100;
   padding: 0.85rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 0.375rem;
   background: white;
-  color: #0b0f19;
+  color: #0B0F19;
   font-weight: 700;
   transform: translateY(-160%);
 }
@@ -150,10 +228,11 @@
   max-height: 100dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: #0b0f19;
+  background: #0B0F19;
+  border-left: 1px solid rgb(212 175 55 / 0.2);
 }
 .mobile-navigation::backdrop {
-  background: rgb(0 0 0 / 0.6);
+  background: rgb(11 15 25 / 0.7);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -216,6 +295,34 @@
     color: #000000 !important;
     padding: 0 !important;
     overflow: visible !important;
+  }
+
+  /* Hero-pinnan koristeruudukko ja hiusviiva pois tulosteesta */
+  .hero-surface::before,
+  .hero-surface::after {
+    display: none !important;
+  }
+
+  /* Laskurin tumma näyttöpaneeli → valkoinen, musta teksti (muste säästyy) */
+  .calc-display {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #999999 !important;
+    box-shadow: none !important;
+  }
+  .calc-display * {
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #cccccc !important;
+  }
+  /* Valittu pitoisuusnäppäin: musta reunus tumman täytön sijaan */
+  #laskuri button[aria-pressed="true"] {
+    background: #ffffff !important;
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+  }
+  #laskuri button[aria-pressed="true"] * {
+    color: #000000 !important;
   }
 
   /* Näytä print-only-elementit */

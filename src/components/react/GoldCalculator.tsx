@@ -275,18 +275,18 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
     <div className="grid lg:grid-cols-12 gap-0 bg-white overflow-hidden">
       
       {/* --- VASEN PUOLI: SYÖTTÖ --- */}
-      <div className="lg:col-span-5 min-w-0 bg-gray-50/80 p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col gap-6 md:gap-8">
-        
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm text-gold-400">
-            <Scale size={20} />
+      <div className="lg:col-span-5 min-w-0 bg-gray-50 p-6 md:p-9 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col gap-6 md:gap-7">
+
+        <div className="flex items-center gap-3 pb-5 border-b border-gray-200">
+          <div className="w-10 h-10 rounded-lg bg-ink-950 flex items-center justify-center text-gold-400">
+            <Scale size={19} strokeWidth={1.75} />
           </div>
           <h2 className="text-xl font-bold text-gray-900">Syötä esineen tiedot</h2>
         </div>
 
         {/* Paino */}
         <div>
-          <label htmlFor="gold-weight" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+          <label htmlFor="gold-weight" className="block text-[11px] font-semibold text-gray-600 uppercase tracking-[0.14em] mb-2">
             Paino (grammaa)
           </label>
           <div className="relative group">
@@ -308,9 +308,9 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 // käyttäjä vierittää sen tarkasteluun itse "Näytä tulos" -napilla.
               }}
               placeholder="Esim. 4,5"
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-gray-900 font-bold text-2xl placeholder-gray-300 outline-none transition-all duration-300 focus:border-gold-400 focus:ring-4 focus:ring-gold-400/10"
+              className="num w-full bg-white border border-gray-300 rounded-lg pl-4 pr-10 py-4 text-gray-900 font-semibold text-3xl tracking-[-0.02em] placeholder:text-gray-300 placeholder:font-medium shadow-sm outline-none transition-colors duration-200 focus:border-ink-600 focus:ring-4 focus:ring-ink-600/10"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold group-focus-within:text-gold-500 transition-colors pointer-events-none select-none">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-lg group-focus-within:text-ink-600 transition-colors pointer-events-none select-none">
               g
             </span>
           </div>
@@ -328,7 +328,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
           <button
             type="button"
             onClick={scrollToResult}
-            className="lg:hidden w-full flex items-center justify-center gap-2 min-h-11 px-4 py-3 rounded-xl bg-[#0B0F19] text-white font-bold text-sm no-print"
+            className="lg:hidden w-full flex items-center justify-center gap-2 min-h-11 px-4 py-3 rounded-lg bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold text-sm border border-gold-300/60 transition-colors no-print"
           >
             Näytä tulos
             <ArrowRight size={16} aria-hidden="true" />
@@ -337,7 +337,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
 
         {/* Pitoisuus */}
         <fieldset>
-          <legend className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+          <legend className="block text-[11px] font-semibold text-gray-600 uppercase tracking-[0.14em] mb-2">
             Pitoisuus
           </legend>
 
@@ -353,20 +353,20 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                   aria-pressed={isActive}
                   onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
-                    relative flex flex-col items-start justify-center px-4 py-3 w-full rounded-xl border transition-all duration-200
+                    relative flex flex-col items-start justify-center px-4 py-3 w-full rounded-lg border transition-colors duration-150
                     ${isActive
-                      ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-md'
-                      : 'bg-white border-gray-200 hover:border-gold-300 hover:shadow-sm'
+                      ? 'bg-ink-950 border-ink-950 shadow-md'
+                      : 'bg-white border-gray-300 hover:border-ink-400 shadow-sm'
                     }
                   `}
                 >
                   {isCommon && (
-                    <span className="absolute top-2 right-2 text-[9px] font-bold text-gold-600 uppercase tracking-wide">yleisin</span>
+                    <span className={`absolute top-2 right-2.5 text-[9px] font-semibold uppercase tracking-[0.12em] ${isActive ? 'text-gold-400' : 'text-gold-700'}`}>yleisin</span>
                   )}
-                  <span className={`text-lg font-black ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
+                  <span className={`text-lg font-semibold num ${isActive ? 'text-white' : 'text-gray-900'}`}>
                     {code}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className={`text-xs num ${isActive ? 'text-gray-300' : 'text-gray-500'}`}>
                     {GOLD_PURITIES[code].label.split(' ')[1]}
                   </span>
                 </button>
@@ -385,49 +385,49 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                   aria-pressed={isActive}
                   onClick={() => { setPurity(code); track('laskuri-karaatti', { purity: code }); }}
                   className={`
-                    flex flex-col items-center justify-center py-2 w-full rounded-lg border text-xs transition-all duration-200
+                    flex flex-col items-center justify-center py-2 w-full rounded-md border text-xs transition-colors duration-150
                     ${isActive
-                      ? 'bg-white border-gold-500 ring-2 ring-gold-500/20 shadow-sm'
-                      : 'bg-white border-gray-200 hover:border-gold-300 text-gray-500'
+                      ? 'bg-ink-950 border-ink-950'
+                      : 'bg-white border-gray-300 hover:border-ink-400 text-gray-600'
                     }
                   `}
                 >
-                  <span className={`font-bold ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{code}</span>
-                  <span className="text-[11px] text-gray-500">{GOLD_PURITIES[code].label.split(' ')[1]}</span>
+                  <span className={`font-semibold num ${isActive ? 'text-white' : 'text-gray-700'}`}>{code}</span>
+                  <span className={`text-[11px] num ${isActive ? 'text-gray-300' : 'text-gray-500'}`}>{GOLD_PURITIES[code].label.split(' ')[1]}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-3 flex gap-2 text-sm text-gray-500 bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
-            <Info size={18} className="text-gold-500 shrink-0" />
+          <div className="mt-3 flex gap-2.5 text-sm text-gray-600 bg-white p-3 rounded-md border border-gray-200">
+            <Info size={17} strokeWidth={1.75} className="text-gold-600 shrink-0 mt-px" />
             <p className="text-xs leading-relaxed">{GOLD_PURITIES[purity].description}</p>
           </div>
         </fieldset>
       </div>
 
       {/* --- OIKEA PUOLI: TULOS --- */}
-      <div ref={resultPanelRef} className="lg:col-span-7 min-w-0 p-6 md:p-10 bg-white relative min-h-[300px] lg:min-h-auto flex flex-col">
+      <div ref={resultPanelRef} className="lg:col-span-7 min-w-0 p-5 md:p-8 bg-white relative min-h-[300px] lg:min-h-auto flex flex-col">
 
         {/* ESINELISTA — usean esineen summa */}
         {items.length > 0 && (
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-100 rounded-2xl">
-            <h4 className="text-[11px] font-bold text-gray-500 uppercase tracking-[0.15em] mb-3">
+          <div className="mb-5 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <h4 className="text-[11px] font-semibold text-gray-600 uppercase tracking-[0.14em] mb-3">
               Esineesi ({items.length} kpl)
             </h4>
-            <ul className="space-y-1.5 mb-3">
+            <ul className="divide-y divide-dashed divide-gray-200 mb-3">
               {items.map((item, i) => (
-                <li key={i} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="text-gray-600">
+                <li key={i} className="flex items-center justify-between gap-2 text-sm py-1.5">
+                  <span className="text-gray-600 num">
                     {String(item.weight).replace('.', ',')} g · {item.purity}
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="font-bold text-gray-900 tabular-nums">{formatEur(item.value)}</span>
+                    <span className="font-semibold text-gray-900 num">{formatEur(item.value)}</span>
                     <button
                       type="button"
                       onClick={() => removeItem(i)}
                       aria-label={`Poista esine ${String(item.weight).replace('.', ',')} g ${item.purity}`}
-                      className="w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors no-print"
+                      className="w-6 h-6 flex items-center justify-center rounded-md text-gray-500 hover:text-red-700 hover:bg-red-50 transition-colors no-print"
                     >
                       ×
                     </button>
@@ -435,40 +435,45 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 </li>
               ))}
             </ul>
-            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-              <span className="text-sm font-bold text-gray-700">
+            <div className="flex items-center justify-between pt-3 border-t border-gray-300">
+              <span className="text-sm font-semibold text-gray-700">
                 Yhteensä{result ? ' (sis. nykyinen)' : ''}
               </span>
-              <span className="text-lg font-black text-gray-900 tabular-nums">{formatEur(grandTotal)}</span>
+              <span className="text-lg font-semibold text-gray-900 num">{formatEur(grandTotal)}</span>
             </div>
           </div>
         )}
 
         {result ? (
           <div className="h-full flex flex-col justify-center animate-in fade-in duration-300">
-            
+
+            {/* NÄYTTÖPANEELI — tulos kuin arvopaperin hintanäytössä:
+                tumma pinta, iso tabulaarinen luku, lukemat hiusviivan alla. */}
+            <div className="calc-display relative overflow-hidden rounded-xl bg-ink-950 text-white p-5 md:p-7 mb-6 ring-1 ring-ink-800">
+              <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-400/60 to-transparent" aria-hidden="true"></span>
+
             {/* TAGI */}
-            <div className="mb-2">
-               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-[10px] md:text-xs font-bold border border-green-100 uppercase tracking-wide">
-                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+            <div className="mb-3">
+               <span className="inline-flex items-center gap-2 text-gold-400 text-[11px] font-semibold uppercase tracking-[0.18em]">
+                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                  Arvioitu myyntihinta
                </span>
             </div>
 
             {/* ISO HINTA */}
-            <div className="mb-6">
-              <span className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight tabular-nums leading-none">
+            <div>
+              <span className="text-5xl md:text-7xl font-semibold text-white tracking-[-0.035em] num leading-none">
                 {formatEur(result.targetValue)}
               </span>
-              
-              <p className="text-gray-500 mt-4 md:text-lg leading-relaxed max-w-md">
+
+              <p className="text-gray-300 mt-4 text-[15px] md:text-base leading-relaxed max-w-md">
                 Tämä on arvioitu taso, jota sinun kannattaa myynnissä vähintään tavoitella. Vertaa saamiasi tarjouksia siihen.
               </p>
 
               {/* VAROITUSLAATIKKO */}
-              <div className="mt-4 inline-flex items-start gap-3 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl max-w-md w-full md:w-auto">
-                <AlertTriangle size={18} className="shrink-0 mt-0.5" />
-                <span className="font-bold text-xs md:text-sm">
+              <div className="mt-4 inline-flex items-start gap-2.5 bg-gold-400/10 border border-gold-400/30 text-gold-200 px-3.5 py-2.5 rounded-md max-w-md w-full md:w-auto">
+                <AlertTriangle size={17} strokeWidth={1.75} className="shrink-0 mt-0.5 text-gold-400" />
+                <span className="font-semibold text-xs md:text-sm">
                    Vinkki: Älä myy kultaasi alle tämän tason.
                 </span>
               </div>
@@ -476,7 +481,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               {/* KUMPPANIN HINTALUPAUS — näkyy heti tuloksen yhteydessä, ei vasta
                   kauempana sivulla. Renderöityy vain jos partner-prop annettu. */}
               {partner && (
-                <div className="mt-3 flex items-start gap-3 bg-gold-50 border border-gold-200 text-gray-800 px-4 py-3 rounded-xl max-w-md w-full md:w-auto">
+                <div className="mt-3 flex items-start gap-3 bg-gold-50 border border-gold-200 text-gray-800 px-4 py-3 rounded-md max-w-md w-full md:w-auto">
                   <ShieldCheck size={18} className="shrink-0 mt-0.5 text-gold-600" />
                   <p className="text-xs md:text-sm leading-relaxed">
                     <span className="inline-block text-[9px] font-bold uppercase tracking-wide text-gold-700 bg-white border border-gold-200 rounded px-1.5 py-0.5 mr-1.5 align-middle">Kumppani</span>
@@ -495,31 +500,34 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               )}
             </div>
 
-            {/* LISÄTIEDOT & NAPIT YHDESSÄ GRIDISSÄ */}
-            <div className="mt-auto pt-6 border-t border-gray-100">
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div>
-                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Puhdas kulta</p>
-                    <p className="text-base md:text-lg font-bold text-gray-900 font-mono tabular-nums">{result.pureGoldContent.toFixed(2)}g</p>
+              {/* LUKEMAT — hiusviivan alla kuin instrumentin sivunäytöt */}
+              <div className="grid grid-cols-2 mt-6 pt-4 border-t border-white/10 divide-x divide-white/10">
+                <div className="pr-4">
+                    <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] font-semibold mb-1">Puhdas kulta</p>
+                    <p className="text-base md:text-lg font-semibold text-white num">{result.pureGoldContent.toFixed(2)}g</p>
                 </div>
-                <div>
-                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Pörssiarvo (100%)</p>
-                    <p className="text-base md:text-lg font-bold text-blue-600 font-mono tabular-nums">{formatEur(result.spotValue)}</p>
+                <div className="pl-4">
+                    <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] font-semibold mb-1">Pörssiarvo (100%)</p>
+                    <p className="text-base md:text-lg font-semibold text-gold-400 num">{formatEur(result.spotValue)}</p>
                 </div>
               </div>
+            </div>
+
+            {/* LISÄTIEDOT & NAPIT YHDESSÄ GRIDISSÄ */}
+            <div className="mt-auto">
 
               {/* Selittävä mikroteksti — asettaa odotukset oikein */}
-              <p className="text-xs text-gray-500 leading-relaxed mb-3 -mt-1">
-                Pörssiarvo on raaka-aineen markkinahinta. Liikkeiden ostohinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-600">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
+              <p className="text-xs text-gray-500 leading-relaxed mb-4 pl-3 border-l-2 border-gold-400/60">
+                Pörssiarvo on raaka-aineen markkinahinta. Liikkeiden ostohinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-700">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
               </p>
 
               {/* LISÄÄ LISTAAN — usean esineen summa */}
               <button
                 type="button"
                 onClick={addItemToList}
-                className="w-full mb-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-gold-400 hover:bg-gold-50/50 text-gray-600 hover:text-gray-900 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors no-print"
+                className="w-full mb-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-ink-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors no-print"
               >
-                <span className="text-gold-600 font-black" aria-hidden="true">＋</span>
+                <span className="text-gold-700 font-semibold" aria-hidden="true">＋</span>
                 Lisää listaan ja laske seuraava esine
               </button>
 
@@ -527,10 +535,10 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               <div className="flex flex-col sm:flex-row gap-3 no-print">
                 <button
                   onClick={handleWhatsAppShare}
-                  className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebd5a] text-[#0B0F19] px-4 py-3 rounded-xl font-bold transition-colors shadow-sm"
+                  className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 hover:border-[#1DA851] px-4 py-3 rounded-lg font-semibold transition-colors shadow-sm"
                   aria-label="Jaa tulos WhatsAppissa"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#1DA851" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                   </svg>
                   Jaa WhatsAppissa
@@ -538,7 +546,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 
                 <button 
                   onClick={handleCopyLink}
-                  className="flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-3 rounded-xl font-bold transition-colors"
+                  className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 hover:border-ink-400 px-4 py-3 rounded-lg font-semibold transition-colors shadow-sm"
                   aria-label="Kopioi linkki"
                 >
                   {copied ? (
@@ -559,7 +567,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               </div>
 
               {/* VERTAA SAAMIASI TARJOUKSIA */}
-              <div className="mt-6 p-5 bg-white border border-gray-200 rounded-2xl no-print">
+              <div className="mt-6 p-5 bg-white border border-gray-200 rounded-lg no-print">
                 {!showOffers ? (
                   <button
                     type="button"
@@ -567,8 +575,8 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                     className="w-full flex items-center justify-between gap-3 text-left group/offers"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
-                      <span className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em]">
+                      <span className="w-4 h-px bg-gold-500" aria-hidden="true"></span>
+                      <span className="text-[11px] font-semibold text-gold-700 uppercase tracking-[0.16em]">
                         Vertaa saamiasi tarjouksia
                       </span>
                     </span>
@@ -579,8 +587,8 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                 ) : (
                   <>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
-                      <h4 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em]">
+                      <span className="w-4 h-px bg-gold-500" aria-hidden="true"></span>
+                      <h4 className="text-[11px] font-semibold text-gold-700 uppercase tracking-[0.16em]">
                         Vertaa saamiasi tarjouksia
                       </h4>
                     </div>
@@ -600,7 +608,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                         return (
                           <div
                             key={offer.id}
-                            className="flex flex-col gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50"
+                            className="flex flex-col gap-2 p-3 rounded-md border border-gray-200 bg-gray-50"
                           >
                             <div className="flex items-center gap-2">
                               <input
@@ -608,7 +616,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                                 aria-label={`Tarjouksen ${i + 1} nimi`}
                                 value={offer.label}
                                 onChange={(e) => updateOffer(offer.id, { label: e.target.value })}
-                                className="flex-1 min-w-0 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-bold text-gray-900 outline-none transition-colors focus:border-gold-400 focus:ring-2 focus:ring-gold-400/10"
+                                className="flex-1 min-w-0 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 outline-none transition-colors focus:border-ink-600 focus:ring-2 focus:ring-ink-600/10"
                               />
                               <div className="relative w-24 shrink-0">
                                 <input
@@ -622,7 +630,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                                     if (/^[0-9]*[.,]?[0-9]*$/.test(v)) updateOffer(offer.id, { amount: v });
                                   }}
                                   placeholder="0"
-                                  className="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-7 py-2 text-sm font-bold text-gray-900 text-right tabular-nums outline-none transition-colors focus:border-gold-400 focus:ring-2 focus:ring-gold-400/10"
+                                  className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-7 py-2 text-sm font-semibold text-gray-900 text-right num outline-none transition-colors focus:border-ink-600 focus:ring-2 focus:ring-ink-600/10"
                                 />
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm pointer-events-none select-none">
                                   €
@@ -632,7 +640,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                                 type="button"
                                 onClick={() => removeOffer(offer.id)}
                                 aria-label={`Poista tarjous ${i + 1}`}
-                                className="w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                className="w-7 h-7 shrink-0 flex items-center justify-center rounded-md text-gray-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                               >
                                 ×
                               </button>
@@ -664,19 +672,19 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                       <button
                         type="button"
                         onClick={addOffer}
-                        className="w-full mb-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-gold-400 hover:bg-gold-50/50 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-xl text-sm font-bold transition-colors"
+                        className="w-full mb-3 flex items-center justify-center gap-2 border border-dashed border-gray-300 hover:border-ink-400 hover:bg-gray-50 text-gray-700 hover:text-gray-900 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
                       >
-                        <span className="text-gold-600 font-black" aria-hidden="true">＋</span>
+                        <span className="text-gold-700 font-semibold" aria-hidden="true">＋</span>
                         Lisää tarjous
                       </button>
                     )}
 
                     {comparison.bestBand && (
                       <div
-                        className={`p-4 rounded-xl border text-sm leading-relaxed ${
+                        className={`p-4 rounded-md border-l-[3px] border text-sm leading-relaxed ${
                           comparison.bestBand === 'meets'
-                            ? 'bg-green-50 border-green-100 text-green-800'
-                            : 'bg-amber-50 border-amber-100 text-amber-900'
+                            ? 'bg-green-50 border-green-200 border-l-green-600 text-green-900'
+                            : 'bg-amber-50 border-amber-200 border-l-amber-600 text-amber-900'
                         }`}
                       >
                         {comparison.bestBand === 'meets' ? (
@@ -722,9 +730,9 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               </div>
 
               {/* MITÄ SEURAAVAKSI? -OHJEKORTTI */}
-              <div className="mt-6 p-5 bg-gradient-to-br from-gold-50/50 to-amber-50/20 border border-gold-100 rounded-2xl no-print">
-                <h4 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
-                  <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
+              <div className="mt-6 p-5 bg-gray-50 border border-gray-200 rounded-lg no-print">
+                <h4 className="text-[11px] font-semibold text-gold-700 uppercase tracking-[0.16em] mb-4 flex items-center gap-2">
+                  <span className="w-4 h-px bg-gold-500" aria-hidden="true"></span>
                   Mitä seuraavaksi?
                 </h4>
                 <ol className="space-y-2.5">
@@ -734,22 +742,22 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                       <a
                         href={`tel:${partner.phoneHref}`}
                         onClick={() => track('seuraavaksi-kumppani', { partner: partner.name })}
-                        className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
+                        className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white transition-colors"
                       >
-                        <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-500 border border-gold-500 text-[#0B0F19] text-xs font-black flex items-center justify-center shadow-sm tabular-nums">1</span>
+                        <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-gold-400 border border-gold-400 text-ink-950 text-xs font-semibold flex items-center justify-center num">1</span>
                         <div className="flex-1 flex items-center gap-2 pt-0.5">
                           <Phone size={15} className="text-gold-600 shrink-0" />
                           <span className="text-sm text-gray-700 leading-snug">
                             <strong className="font-bold text-gray-900">Soita {partner.name}</strong> ja sovi käynti
                           </span>
-                          <ArrowRight size={14} className="ml-auto text-gold-500 shrink-0 group-hover/step:translate-x-1 transition-transform" />
+                          <ArrowRight size={14} className="ml-auto text-gold-600 shrink-0 group-hover/step:translate-x-1 transition-transform" />
                         </div>
                       </a>
                     </li>
                   )}
                   {/* KOHTA 1 — DESKTOP: Tulosta-nappi, MOBIILI: Kuva-ohje */}
                   <li className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg">
-                    <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">{partner?.phoneHref ? 2 : 1}</span>
+                    <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-white border border-gold-400/60 text-gold-700 text-xs font-semibold flex items-center justify-center num">{partner?.phoneHref ? 2 : 1}</span>
                     <div className="flex-1 min-w-0 flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         {/* Desktop: tulostin-ikoni */}
@@ -765,7 +773,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                       {/* Tulosta-nappi vain desktopissa */}
                       <button
                         onClick={handlePrint}
-                        className="hidden md:inline-flex text-xs font-bold text-gold-700 bg-white border border-gold-200 hover:border-gold-400 hover:bg-gold-50 px-3 py-1.5 rounded-lg transition-colors shadow-sm whitespace-nowrap items-center gap-1"
+                        className="hidden md:inline-flex text-xs font-semibold text-gold-700 bg-white border border-gold-400/60 hover:border-gold-500 hover:bg-gold-50 px-3 py-1.5 rounded-md transition-colors whitespace-nowrap items-center gap-1"
                         aria-label="Tulosta hinta-arvio"
                       >
                         Tulosta <ArrowRight size={13} />
@@ -778,15 +786,15 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                     <a
                       href="/kullan-myynti/"
                       onClick={() => track('seuraavaksi-myyntivinkit')}
-                      className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
+                      className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white transition-colors"
                     >
-                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">{partner?.phoneHref ? 3 : 2}</span>
+                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-white border border-gold-400/60 text-gold-700 text-xs font-semibold flex items-center justify-center num">{partner?.phoneHref ? 3 : 2}</span>
                       <div className="flex-1 flex items-center gap-2 pt-0.5">
-                        <BookOpen size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-500 transition-colors" />
+                        <BookOpen size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-600 transition-colors" />
                         <span className="text-sm text-gray-700 leading-snug">
                           <strong className="font-bold text-gray-900">Lue myyntivinkit</strong> reilumman tarjouksen saamiseksi
                         </span>
-                        <ArrowRight size={14} className="ml-auto text-gold-500 shrink-0 group-hover/step:translate-x-1 transition-transform" />
+                        <ArrowRight size={14} className="ml-auto text-gold-600 shrink-0 group-hover/step:translate-x-1 transition-transform" />
                       </div>
                     </a>
                   </li>
@@ -796,15 +804,15 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                     <a
                       href="/kullan-leimat/"
                       onClick={() => track('seuraavaksi-leimat')}
-                      className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white/70 transition-colors"
+                      className="group/step flex items-start gap-3 p-2 -m-2 rounded-lg hover:bg-white transition-colors"
                     >
-                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-white border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">{partner?.phoneHref ? 4 : 3}</span>
+                      <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-white border border-gold-400/60 text-gold-700 text-xs font-semibold flex items-center justify-center num">{partner?.phoneHref ? 4 : 3}</span>
                       <div className="flex-1 flex items-center gap-2 pt-0.5">
-                        <Stamp size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-500 transition-colors" />
+                        <Stamp size={15} className="text-gray-400 shrink-0 group-hover/step:text-gold-600 transition-colors" />
                         <span className="text-sm text-gray-700 leading-snug">
                           <strong className="font-bold text-gray-900">Tarkista korun aitous</strong> — leimat 585, 750
                         </span>
-                        <ArrowRight size={14} className="ml-auto text-gold-500 shrink-0 group-hover/step:translate-x-1 transition-transform" />
+                        <ArrowRight size={14} className="ml-auto text-gold-600 shrink-0 group-hover/step:translate-x-1 transition-transform" />
                       </div>
                     </a>
                   </li>
@@ -870,9 +878,9 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                     scheduleInstantScroll(lastVisit.weight, lastVisit.purity);
                     track('laskuri-palaava', { purity: lastVisit.purity });
                   }}
-                  className="text-left p-4 rounded-2xl bg-[#0B0F19] text-white hover:ring-2 hover:ring-gold-400/50 transition-all"
+                  className="text-left p-4 rounded-lg bg-ink-950 text-white ring-1 ring-ink-800 hover:ring-2 hover:ring-gold-400/50 transition-all"
                 >
-                  <span className="text-[10px] text-gold-300 uppercase tracking-wider font-bold block mb-1">
+                  <span className="text-[10px] text-gold-400 uppercase tracking-wider font-bold block mb-1">
                     Viime käynnilläsi {lastVisit.date}
                   </span>
                   <span className="text-sm text-gray-300 block">
@@ -894,28 +902,28 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
             {/* DESKTOP-VERSIO: Näin laskuri toimii (3 askelta) */}
             <div className="hidden lg:block">
               <div className="flex items-center gap-2 mb-1">
-                <span className="w-1 h-3 bg-gold-400 rounded-full"></span>
-                <h3 className="text-[11px] font-bold text-gold-700 uppercase tracking-[0.15em]">Näin laskuri toimii</h3>
+                <span className="w-4 h-px bg-gold-500" aria-hidden="true"></span>
+                <h3 className="text-[11px] font-semibold text-gold-700 uppercase tracking-[0.16em]">Näin laskuri toimii</h3>
               </div>
               <p className="text-base font-bold text-gray-900 mb-4">Kolme yksinkertaista askelta</p>
 
               <ol className="space-y-3">
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">1</span>
+                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-ink-950 text-gold-400 text-xs font-semibold flex items-center justify-center num">1</span>
                   <div>
                     <strong className="text-sm font-bold text-gray-900">Punnitse esineesi</strong>
                     <p className="text-xs text-gray-500 mt-0.5">Vaaka, mielellään 0,1 g tarkkuudella</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">2</span>
+                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-ink-950 text-gold-400 text-xs font-semibold flex items-center justify-center num">2</span>
                   <div>
                     <strong className="text-sm font-bold text-gray-900">Valitse pitoisuus</strong>
                     <p className="text-xs text-gray-500 mt-0.5">Etsi leima — yleisin Suomessa on 585 (14K)</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-xs font-black flex items-center justify-center shadow-sm tabular-nums">3</span>
+                  <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-ink-950 text-gold-400 text-xs font-semibold flex items-center justify-center num">3</span>
                   <div>
                     <strong className="text-sm font-bold text-gray-900">Saat reilun tavoitehinnan</strong>
                     <p className="text-xs text-gray-500 mt-0.5">Numero, jota kannattaa tavoitella liikkeessä</p>
@@ -930,16 +938,16 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
             <a
               href="/#vaaka"
               onClick={() => track('empty-vaaka-click')}
-              className="group/vaaka flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-gold-50/50 to-amber-50/20 border border-gold-100 hover:border-gold-300 hover:shadow-sm transition-all"
+              className="group/vaaka flex items-center gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200 hover:border-ink-400 transition-colors"
             >
-              <div className="w-11 h-11 rounded-full bg-white border border-gold-100 flex items-center justify-center shrink-0 shadow-sm">
-                <Scale size={20} className="text-gold-500" />
+              <div className="w-11 h-11 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                <Scale size={20} strokeWidth={1.75} className="text-gold-600" />
               </div>
               <div className="flex-1 text-left min-w-0">
                 <div className="text-sm font-bold text-gray-900 leading-tight">Ei vaakaa kotona?</div>
                 <div className="text-xs text-gray-500 mt-0.5">Arvioi paino tästä</div>
               </div>
-              <ArrowRight size={18} className="text-gold-500 shrink-0 group-hover/vaaka:translate-x-1 transition-transform" />
+              <ArrowRight size={18} className="text-gold-600 shrink-0 group-hover/vaaka:translate-x-1 transition-transform" />
             </a>
 
             {/* Esimerkki-laatikko (klikattava → täyttää arvot ja näyttää tuloksen heti) */}
@@ -952,14 +960,14 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                   scheduleInstantScroll('4', '14K');
                   track('laskuri-esimerkki');
                 }}
-                className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 hover:border-gray-200 transition-all text-left w-full"
+                className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-600 hover:border-ink-400 transition-colors text-left w-full"
                 aria-label="Kokeile esimerkkiä — laske 14 karaatin 4 gramman sormuksen arvo"
               >
                 <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold block mb-1">Kokeile esimerkkiä</span>
                 <span className="text-sm">
                   <span className="font-bold text-gray-700">14K sormus 4 g</span>
                   {' '}≈{' '}
-                  <span className="font-black text-gray-900">
+                  <span className="font-semibold text-gray-900 num">
                     {(calculateGoldValue(4, '14K', spotPriceEurPerGram)?.targetValue ?? 0).toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €
                   </span>
                 </span>

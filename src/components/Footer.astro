@@ -22,40 +22,47 @@ const footerLinks = {
 };
 ---
 
-<footer class="bg-[#0B0F19] border-t border-white/5 mt-auto pt-16 pb-8">
+<footer class="relative bg-ink-950 border-t border-gold-400/20 mt-auto pt-14 md:pt-16 pb-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
-      
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 mb-12">
+
       {/* 1. LOGO JA KUVAUS */}
       <div class="md:col-span-5">
-        <a href="/" class="inline-block mb-6 group">
-          <span class="text-2xl font-black tracking-tight leading-none">
+        <a href="/" class="inline-flex items-center gap-3 mb-6 group">
+          <svg class="w-9 h-9 shrink-0" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <rect x="0.5" y="0.5" width="35" height="35" rx="3" fill="#0B0F19" stroke="#D4AF37" stroke-opacity="0.45" />
+            <svg x="6.5" y="11" width="23" height="14" viewBox="24 110 1018 593">
+              <path fill="#D4AF37" d="M24 110h121v263l241-263h161L324 341l235 362H404L241 425l-96 98v180H24z" />
+              <path fill="#FFFFFF" d="M624 115h120v488h298v100H624z" />
+            </svg>
+          </svg>
+          <span class="font-serif text-2xl font-semibold tracking-[-0.01em] leading-none">
             <span class="text-gold-400">Kulta</span><span class="text-white">laskuri</span><span class="text-gold-400">.fi</span>
           </span>
         </a>
-        
+
         <p class="text-gray-400 leading-relaxed max-w-sm mb-6 text-sm">
           Suomen helpoin tapa selvittää kultakorujen arvo.
           Tarjoamme päivittyvää markkinadataa, jotta tiedät jalometalliesi todellisen hinnan.
         </p>
 
         {/* YHTEYDENOTTO LINKKI */}
-        <div class="pt-4">
-          <a href={`mailto:${contactEmail}`} class="text-sm font-bold text-gold-400 hover:text-white transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <div class="pt-2">
+          <a href={`mailto:${contactEmail}`} class="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-md border border-white/10 bg-white/[0.03] text-sm font-medium text-gray-200 hover:border-gold-400/50 hover:text-white transition-colors">
+            <svg class="w-4 h-4 shrink-0 text-gold-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
             <span>Yhteistyö & palaute: {contactEmail}</span>
           </a>
         </div>
       </div>
 
       {/* 2. PIKALINKIT */}
-      <div class="md:col-span-3">
-        <h3 class="text-white font-bold mb-6">Pikalinkit</h3>
-        <ul class="space-y-4">
+      <div class="md:col-span-4">
+        <h3 class="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-400 mb-5">Pikalinkit</h3>
+        <ul class="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
           {footerLinks.main.map((link) => (
             <li>
-              <a href={link.href} class="text-sm text-gray-400 hover:text-gold-400 transition-colors">
+              <a href={link.href} class="text-sm text-gray-300 hover:text-white hover:underline decoration-gold-400/60 underline-offset-4 transition-colors">
                 {link.label}
               </a>
             </li>
@@ -64,28 +71,28 @@ const footerLinks = {
       </div>
 
       {/* 3. TURVALLISUUS & LUOTTAMUS */}
-      <div class="md:col-span-4">
-        <h3 class="text-white font-bold mb-6">Turvallisuus</h3>
-        <ul class="space-y-4 mb-8">
+      <div class="md:col-span-3">
+        <h3 class="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-400 mb-5">Turvallisuus</h3>
+        <ul class="space-y-3 mb-8">
           {footerLinks.legal.map((link) => (
             <li>
-              <a href={link.href} class="text-sm text-gray-400 hover:text-gold-400 transition-colors">
+              <a href={link.href} class="text-sm text-gray-300 hover:text-white hover:underline decoration-gold-400/60 underline-offset-4 transition-colors">
                 {link.label}
               </a>
             </li>
           ))}
         </ul>
 
-        <div class="space-y-3 pt-6 border-t border-white/5">
-          <div class="flex items-center gap-3 text-sm text-gray-400">
+        <div class="space-y-3 pt-6 border-t border-white/10">
+          <div class="flex items-center gap-3 text-sm text-gray-300">
             <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
             <span>Puolueeton — emme osta kultaa</span>
           </div>
-          <div class="flex items-center gap-3 text-sm text-gray-400">
+          <div class="flex items-center gap-3 text-sm text-gray-300">
             <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path><path d="M8.5 8.5v.01"></path><path d="M16 15.5v.01"></path><path d="M12 12v.01"></path><path d="M11 17v.01"></path><path d="M7 14v.01"></path></svg>
             <span>Suomalainen palvelu</span>
           </div>
-          <div class="flex items-center gap-3 text-sm text-gray-400">
+          <div class="flex items-center gap-3 text-sm text-gray-300">
             <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             <span>Hinta päivittyy automaattisesti</span>
           </div>
@@ -94,7 +101,7 @@ const footerLinks = {
     </div>
 
     {/* ALAREUNA */}
-    <div class="pt-8 border-t border-white/5 text-center md:text-left">
+    <div class="pt-8 border-t border-white/10 text-center md:text-left">
       <p class="text-sm text-gray-400">
         © {currentYear} Kultalaskuri.fi. Kaikki oikeudet pidätetään.
       </p>

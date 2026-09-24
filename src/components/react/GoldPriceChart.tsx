@@ -27,13 +27,13 @@ const RANGES: { label: string; key: Range; days: number }[] = [
   { label: 'Kaikki',  key: 'Max', days: Infinity },
 ];
 
+// Suorat viivasegmentit päätöskurssien välillä (ei Bézier-pehmennystä) —
+// finanssikuvaajan tapaan jokainen piste on todellinen havainto.
 function smoothPath(pts: { x: number; y: number }[]): string {
   if (pts.length < 2) return pts.length === 1 ? `M${pts[0].x},${pts[0].y}` : '';
   let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
   for (let i = 1; i < pts.length; i++) {
-    const prev = pts[i - 1], curr = pts[i];
-    const cpx = ((prev.x + curr.x) / 2).toFixed(1);
-    d += ` C${cpx},${prev.y.toFixed(1)} ${cpx},${curr.y.toFixed(1)} ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
+    d += ` L${pts[i].x.toFixed(1)},${pts[i].y.toFixed(1)}`;
   }
   return d;
 }
@@ -187,40 +187,40 @@ export default function GoldPriceChart({ data }: Props) {
   const selectedIndex = Math.min(keyboardIndex ?? filtered.length - 1, filtered.length - 1);
   const selectedPoint = filtered[selectedIndex];
   const isUp = stats.chg >= 0;
-  const SVG_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  const SVG_FONT = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
   return (
     <div className="space-y-4">
 
       {/* ── Stats row ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Edellinen päätös</p>
-          <p className="text-[22px] font-black leading-none text-white">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Edellinen päätös</p>
+          <p className="text-[22px] font-semibold tracking-[-0.02em] leading-none num text-white">
             {stats.last.price.toFixed(2).replace('.', ',')} <span className="text-sm font-semibold text-gray-400">€/g</span>
           </p>
           <p className="text-[10px] text-gray-400 mt-1">{fmtDateFull(stats.last.date)} klo 18</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">30 pv muutos</p>
-          <p className={`text-[22px] font-black leading-none ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">30 pv muutos</p>
+          <p className={`text-[22px] font-semibold tracking-[-0.02em] leading-none num ${isUp ? 'text-emerald-400' : 'text-red-400'}`}>
             {isUp ? '▲' : '▼'} {Math.abs(stats.chg).toFixed(1).replace('.', ',')} %
           </p>
           <p className="text-[10px] text-gray-400 mt-1">{isUp ? 'Nouseva trendi' : 'Laskeva trendi'}</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">30 pv korkein</p>
-          <p className="text-[22px] font-black leading-none text-[#D4AF37]">
-            {stats.high30.toFixed(2).replace('.', ',')} <span className="text-sm font-semibold text-[#B59428]">€/g</span>
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">30 pv korkein</p>
+          <p className="text-[22px] font-semibold tracking-[-0.02em] leading-none num text-gold-400">
+            {stats.high30.toFixed(2).replace('.', ',')} <span className="text-sm font-semibold text-gold-500">€/g</span>
           </p>
           <p className="text-[10px] text-gray-400 mt-1">Kuukauden huippu</p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">30 pv matalin</p>
-          <p className="text-[22px] font-black leading-none text-gray-300">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">30 pv matalin</p>
+          <p className="text-[22px] font-semibold tracking-[-0.02em] leading-none num text-gray-300">
             {stats.low30.toFixed(2).replace('.', ',')} <span className="text-sm font-semibold text-gray-400">€/g</span>
           </p>
           <p className="text-[10px] text-gray-400 mt-1">Kuukauden pohja</p>
@@ -228,14 +228,14 @@ export default function GoldPriceChart({ data }: Props) {
       </div>
 
       {/* ── Chart card ── */}
-      <div className="rounded-2xl border border-white/10 bg-[#0d1424] overflow-hidden">
+      <div className="rounded-xl border border-white/10 bg-ink-900/70 overflow-hidden">
 
         {/* Header / range selector */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+        <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3 border-b border-white/10">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
             Kullan spot-hinta €/g
           </span>
-          <fieldset className="flex gap-0.5 bg-white/5 rounded-lg p-0.5">
+          <fieldset className="flex gap-0.5 bg-black/20 border border-white/10 rounded-md p-0.5">
             <legend className="sr-only">Kuvaajan aikaväli</legend>
             {RANGES.map(r => (
               <button
@@ -250,9 +250,9 @@ export default function GoldPriceChart({ data }: Props) {
                   setHovIdx(null);
                   track('hintahistoria-range', { range: r.key });
                 }}
-                className={`min-h-11 px-3 py-1 rounded-md text-[11px] font-bold transition-all duration-150 ${
+                className={`min-h-11 px-3 py-1 rounded text-[11px] font-semibold num transition-colors duration-150 ${
                   range === r.key
-                    ? 'bg-[#D4AF37] text-[#0B0F19] shadow-sm'
+                    ? 'bg-white/10 text-gold-400 ring-1 ring-gold-400/40'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
@@ -287,14 +287,10 @@ export default function GoldPriceChart({ data }: Props) {
         >
           <defs>
             <linearGradient id="gpc-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#D4AF37" stopOpacity="0.30" />
-              <stop offset="60%"  stopColor="#D4AF37" stopOpacity="0.06" />
+              <stop offset="0%"   stopColor="#D4AF37" stopOpacity="0.18" />
+              <stop offset="60%"  stopColor="#D4AF37" stopOpacity="0.04" />
               <stop offset="100%" stopColor="#D4AF37" stopOpacity="0"    />
             </linearGradient>
-            <filter id="gpc-glow">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
           </defs>
 
           {/* Kaikki visuaaliset SVG-lapset: pointer-events:none jotta klikit
@@ -306,12 +302,12 @@ export default function GoldPriceChart({ data }: Props) {
             <g key={i}>
               <line
                 x1={P.l} y1={t.y} x2={VW - P.r} y2={t.y}
-                stroke="rgba(255,255,255,0.05)" strokeWidth="1"
+                stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="2 4"
               />
               <text
                 x={P.l - 8} y={t.y}
                 textAnchor="end" dominantBaseline="middle"
-                fill="rgba(255,255,255,0.22)" fontSize="11"
+                fill="rgba(255,255,255,0.55)" fontSize="11"
                 fontFamily={SVG_FONT}
               >
                 {t.price.toFixed(0)}€
@@ -328,7 +324,7 @@ export default function GoldPriceChart({ data }: Props) {
               d={linePath}
               fill="none"
               stroke="#D4AF37"
-              strokeWidth="2.2"
+              strokeWidth="1.75"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -339,26 +335,24 @@ export default function GoldPriceChart({ data }: Props) {
             <g>
               <line
                 x1={hovPt.x} y1={P.t} x2={hovPt.x} y2={P.t + CH}
-                stroke="rgba(255,255,255,0.18)" strokeWidth="1"
-                strokeDasharray="4 3"
+                stroke="rgba(212,175,55,0.45)" strokeWidth="1"
+                strokeDasharray="3 3"
               />
-              <circle cx={hovPt.x} cy={hovPt.y} r="14" fill="#D4AF37" fillOpacity="0.10" />
-              <circle cx={hovPt.x} cy={hovPt.y} r="6"  fill="#D4AF37" filter="url(#gpc-glow)" />
-              <circle cx={hovPt.x} cy={hovPt.y} r="3"  fill="#fff" />
+              <circle cx={hovPt.x} cy={hovPt.y} r="5.5" fill="#0B0F19" stroke="#D4AF37" strokeWidth="2" />
 
               {/* Tooltip */}
               <rect
                 x={tooltipPos.x} y={tooltipPos.y}
                 width={tooltipPos.w} height={tooltipPos.h}
-                rx="8" ry="8"
-                fill="#131b2e"
-                stroke="rgba(212,175,55,0.35)" strokeWidth="1"
+                rx="4" ry="4"
+                fill="#0B0F19"
+                stroke="rgba(212,175,55,0.45)" strokeWidth="1"
               />
               <text
                 x={tooltipPos.x + tooltipPos.w / 2}
                 y={tooltipPos.y + 18}
                 textAnchor="middle"
-                fill="rgba(255,255,255,0.40)"
+                fill="rgba(255,255,255,0.65)"
                 fontSize="11"
                 fontFamily={SVG_FONT}
               >
@@ -370,8 +364,9 @@ export default function GoldPriceChart({ data }: Props) {
                 textAnchor="middle"
                 fill="#D4AF37"
                 fontSize="16"
-                fontWeight="700"
+                fontWeight="600"
                 fontFamily={SVG_FONT}
+                style={{ fontVariantNumeric: 'tabular-nums' }}
               >
                 {hovPt.price.toFixed(2).replace('.', ',')} €
               </text>
@@ -384,7 +379,7 @@ export default function GoldPriceChart({ data }: Props) {
               key={i}
               x={t.x} y={VH - 8}
               textAnchor="middle"
-              fill="rgba(255,255,255,0.22)"
+              fill="rgba(255,255,255,0.55)"
               fontSize="11"
               fontFamily={SVG_FONT}
             >
@@ -413,9 +408,9 @@ export default function GoldPriceChart({ data }: Props) {
                 track('hintahistoria-interaktio', { range });
               }
             }}
-            className="w-full h-11 accent-[#D4AF37]"
+            className="w-full h-11 accent-gold-400"
           />
-          <output htmlFor={sliderId} className="block text-sm text-gray-200">
+          <output htmlFor={sliderId} className="block text-sm text-gray-200 num">
             {fmtDateFull(selectedPoint.date)} · <strong>{selectedPoint.price.toFixed(2).replace('.', ',')} €/g</strong>
           </output>
           <p className="text-xs text-gray-400 mt-2">Voit siirtää valintaa myös näppäimistön nuolinäppäimillä.</p>

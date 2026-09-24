@@ -12,7 +12,7 @@ heti realistisen euromääräisen myyntihinnan päivän pörssikurssilla.
 | Runko | Astro v5, `output: 'static'` (SSG) |
 | Interaktiiviset osat | React 19 -islandit (`client:load` / `client:visible`) |
 | Tyylit | **Tailwind CSS v3** (`@astrojs/tailwind`-integraatio) + custom gold-paletti |
-| Fontti | Plus Jakarta Sans (Google Fonts) |
+| Fontit | Source Serif 4 (otsikot h1–h3) + Inter (leipäteksti, luvut) — Google Fonts |
 | Ikonit | lucide-react (React-komponenteissa), inline-SVG (Astro-tiedostoissa) |
 | Hintadata | [MetalPrice API](https://metalpriceapi.com) (EU-palvelin `api-eu.metalpriceapi.com`) |
 | Analytiikka | Umami (evästeetön) + Microsoft Clarity — vain tuotannossa |

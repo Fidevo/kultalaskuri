@@ -89,10 +89,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   schema={JSON.stringify(schemaData)}
 >
 
-  <div class="relative bg-[#0B0F19] pt-28 pb-20 px-4 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
-    </div>
+  <div class="relative hero-surface pt-28 pb-20 px-4 overflow-hidden">
 
     <div class="max-w-3xl mx-auto relative z-10 text-center">
       <nav aria-label="Murupolku" class="mb-6">
@@ -107,7 +104,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kullan myynti ja
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">verotus</span>
+        <span class="text-gold-400 pb-1.5">verotus</span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 leading-relaxed max-w-2xl mx-auto">
         Hyvä uutinen useimmille: omien korujen myynti on tavallisesti verovapaata.
@@ -243,10 +240,10 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </p>
       </div>
 
-      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center">
+      <div class="relative overflow-hidden hero-surface rounded-2xl p-8 md:p-10 text-center ring-1 ring-gold-400/20">
         <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Selvitä ensin, paljonko kultasi on arvoltaan</h2>
         <p class="text-gray-400 mb-6 max-w-xl mx-auto">Vero lasketaan vasta voitosta — ensin kannattaa tietää reilu myyntihinta.</p>
-        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm">
           Laske kultasi arvo →
         </a>
       </div>

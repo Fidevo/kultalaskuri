@@ -8,16 +8,16 @@ interface Props {
 const { question, answer } = Astro.props;
 ---
 
-<details class="group bg-white p-6 rounded-2xl border border-gray-100
-  shadow-sm hover:shadow-md hover:border-gold-200 transition-all">
-  <summary class="flex justify-between items-center font-bold text-gray-900
-    list-none cursor-pointer select-none">
+<details class="group bg-white px-5 py-4 md:px-6 md:py-5 rounded-lg border border-gray-200
+  hover:border-gray-300 open:border-gold-400/50 open:shadow-sm transition-colors">
+  <summary class="flex justify-between items-start gap-4 font-semibold text-gray-900 leading-snug
+    list-none cursor-pointer select-none [&::-webkit-details-marker]:hidden">
     <span>{question}</span>
-    <span class="transition-transform duration-200 group-open:rotate-180 text-gray-500 shrink-0 ml-4">
-      ▼
-    </span>
+    <svg class="w-5 h-5 mt-0.5 shrink-0 text-gold-600 transition-transform duration-200 group-open:rotate-180"
+      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
   </summary>
   {/* Turvallinen: data tulee staattisesta frontmatterista */}
-  <p class="text-gray-600 mt-4 leading-relaxed text-sm md:text-base"
+  <p class="text-gray-600 mt-3 pt-3 border-t border-gray-100 leading-relaxed text-sm md:text-[15px]"
     set:html={answer} />
 </details>

@@ -167,13 +167,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   ogImage={kuva750.src}
 >
 
-  <div class="relative bg-[#0B0F19] pt-28 pb-40 md:pt-36 md:pb-48 px-4 overflow-hidden">
+  <div class="relative hero-surface pt-28 pb-40 md:pt-36 md:pb-48 px-4 overflow-hidden">
 
-    {/* Blob-taustaefektit (kevyt CSS-only) */}
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
-      <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
-    </div>
 
     <div class="max-w-4xl mx-auto text-center relative z-10">
 
@@ -186,14 +181,14 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </nav>
 
       {/* Badge */}
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-md shadow-lg mb-8">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-white/[0.04] border border-white/10 mb-8">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <span class="text-xs text-gray-400 uppercase tracking-widest font-medium">Tunnistusopas</span>
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kullan leimat ja merkinnät
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
+        <span class="block text-gold-400 mt-1 pb-1.5">
           585, 750, 375, 916, 999 – mitä ne tarkoittavat?
         </span>
       </h1>
@@ -206,13 +201,13 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   </div>
 
   <div class="max-w-3xl mx-auto -mt-16 relative z-30 px-4">
-    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="text-left md:max-w-xs">
         <h2 class="text-xl font-bold text-gray-900 mb-2">Tiedätkö jo painon ja leiman?</h2>
         <p class="text-gray-600 text-sm">Tarkista korujesi arvo heti ilmaisella laskurilla.</p>
       </div>
       <div class="w-full md:w-auto flex flex-col items-center">
-        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-[#0B0F19] text-white w-full px-8 py-4 rounded-xl font-bold hover:bg-gold-500 hover:text-[#0B0F19] hover:scale-105 transition-all duration-300 shadow-md whitespace-nowrap">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-ink-950 text-white w-full px-8 py-4 rounded-xl font-bold hover:bg-ink-800 hover:text-white transition-all duration-300 shadow-md whitespace-nowrap">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
           Laske arvo heti
         </a>
@@ -251,11 +246,11 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <table class="w-full text-left border-collapse">
           <caption class="sr-only">Yleisimmät kullan pitoisuusleimat, karaattivastine ja kultapitoisuus</caption>
           <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
-              <th class="py-3.5 px-5 font-bold">Leima</th>
-              <th class="py-3.5 px-5 font-bold">Karaatti</th>
-              <th class="py-3.5 px-5 font-bold text-right">Kultaa</th>
-              <th class="py-3.5 px-5 font-bold">Missä käytetään</th>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-3.5 px-5 font-semibold">Leima</th>
+              <th class="py-3.5 px-5 font-semibold">Karaatti</th>
+              <th class="py-3.5 px-5 font-semibold text-right">Kultaa</th>
+              <th class="py-3.5 px-5 font-semibold">Missä käytetään</th>
             </tr>
           </thead>
           <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
@@ -336,7 +331,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </p>
 
       <h2 id="leima-585" class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight scroll-mt-24">Mitä kullan leima 585 tarkoittaa?</h2>
-      <div class="bg-gray-50 rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group mb-12">
+      <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition-shadow group mb-12">
         <div class="aspect-video bg-white rounded-2xl mb-8 overflow-hidden relative flex items-center justify-center border border-gray-200">
           <Image 
             src={kuva585} 
@@ -365,7 +360,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <h2 id="leima-750" class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight scroll-mt-24">Mitä kullan leima 750 tarkoittaa?</h2>
-      <div class="bg-gold-50/30 rounded-3xl p-8 border border-gold-100 shadow-sm hover:shadow-md transition-shadow group mb-16">
+      <div class="bg-gold-50/30 rounded-2xl p-8 border border-gold-100 shadow-sm hover:shadow-md transition-shadow group mb-16">
         <div class="aspect-video bg-white rounded-2xl mb-8 overflow-hidden relative flex items-center justify-center border border-gold-200">
            <Image 
             src={kuva750} 
@@ -583,11 +578,11 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   <table class="w-full text-left border-collapse">
     <caption class="sr-only">Kansainväliset kultaleimat, karaatit ja niiden kultapitoisuus</caption>
     <thead>
-      <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
-        <th class="py-5 px-6 font-bold">Leima</th>
-        <th class="py-5 px-6 font-bold">Karaatti</th>
-        <th class="py-5 px-6 font-bold">Kultaa (%)</th>
-        <th class="py-5 px-6 font-bold">Yleinen käyttökohde ja markkina-alue</th>
+      <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+        <th class="py-5 px-6 font-semibold">Leima</th>
+        <th class="py-5 px-6 font-semibold">Karaatti</th>
+        <th class="py-5 px-6 font-semibold">Kultaa (%)</th>
+        <th class="py-5 px-6 font-semibold">Yleinen käyttökohde ja markkina-alue</th>
       </tr>
     </thead>
     <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
@@ -690,7 +685,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
     <div class="max-w-4xl mx-auto px-4 text-center">
       <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-8 tracking-tight">
         Katso heti,<br class="hidden md:block" />
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-600 pb-1.5">
+        <span class="text-gold-600 pb-1.5">
           paljonko kultasi on arvoltaan.
         </span>
       </h2>
@@ -699,7 +694,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </p>
       
       <div class="flex flex-col items-center">
-        <a href="/#laskuri" class="inline-flex items-center justify-center gap-3 bg-[#0B0F19] text-white px-8 py-5 rounded-2xl font-bold text-lg hover:bg-gold-500 hover:text-[#0B0F19] hover:scale-105 transition-all duration-300 shadow-xl">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-3 bg-ink-950 text-white px-8 py-5 rounded-lg font-semibold text-lg border border-gold-400/30 hover:bg-ink-800 transition-colors duration-200 shadow-lg">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calculator">
             <rect width="16" height="20" x="4" y="2" rx="2"></rect>
             <line x1="8" x2="16" y1="6" y2="6"></line>

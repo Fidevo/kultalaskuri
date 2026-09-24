@@ -117,11 +117,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   schema={JSON.stringify(schemaData)}
 >
 
-  <div class="relative bg-[#0B0F19] pt-28 pb-20 px-4 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
-      <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
-    </div>
+  <div class="relative hero-surface pt-28 pb-20 px-4 overflow-hidden">
 
     <div class="max-w-3xl mx-auto relative z-10 text-center">
       <nav aria-label="Murupolku" class="mb-6">
@@ -132,14 +128,13 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </ol>
       </nav>
 
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-400/10 text-gold-400 text-[10px] font-bold uppercase tracking-widest mb-4 border border-gold-400/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
+      <div class="kicker-dark">
         Esinetyypit
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kultaesineen arvo
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
+        <span class="block text-gold-400 mt-1 pb-1.5">
           paljonko kultaa eri esineissä on?
         </span>
       </h1>
@@ -293,11 +288,11 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <table class="w-full text-left border-collapse">
           <caption class="sr-only">Yleisten kultakolikoiden kokonaispaino, pitoisuus ja puhtaan kullan määrä</caption>
           <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
-              <th class="py-4 px-5 font-bold">Kolikko</th>
-              <th class="py-4 px-5 font-bold text-right">Kokonaispaino</th>
-              <th class="py-4 px-5 font-bold text-right">Pitoisuus</th>
-              <th class="py-4 px-5 font-bold text-right">Puhdasta kultaa</th>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-4 px-5 font-semibold">Kolikko</th>
+              <th class="py-4 px-5 font-semibold text-right">Kokonaispaino</th>
+              <th class="py-4 px-5 font-semibold text-right">Pitoisuus</th>
+              <th class="py-4 px-5 font-semibold text-right">Puhdasta kultaa</th>
             </tr>
           </thead>
           <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
@@ -354,12 +349,12 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </p>
       </div>
 
-      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
+      <div class="relative overflow-hidden hero-surface rounded-2xl p-8 md:p-10 text-center ring-1 ring-gold-400/20 mb-16">
         <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Laske esineesi kultaosuuden arvo</h2>
         <p class="text-gray-400 mb-6 max-w-xl mx-auto">
           Kun tiedät kultaosuuden painon ja pitoisuuden, laskuri näyttää reilun tavoitehinnan päivän kurssilla.
         </p>
-        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm">
           Laske esineesi arvo →
         </a>
       </div>

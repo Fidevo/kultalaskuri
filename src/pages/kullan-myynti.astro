@@ -167,13 +167,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   schema={JSON.stringify(schemaData)}
 >
 
-  <div class="relative bg-[#0B0F19] pt-28 pb-40 px-4 overflow-hidden">
+  <div class="relative hero-surface pt-28 pb-40 px-4 overflow-hidden">
 
-    {/* Blob-taustaefektit (kevyt CSS-only) */}
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div class="absolute top-0 right-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
-      <div class="absolute top-20 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
-    </div>
 
     <div class="max-w-4xl mx-auto text-center relative z-10">
 
@@ -186,7 +181,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </nav>
 
       {/* Live-hintabadge */}
-      <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 border border-white/10 backdrop-blur-md shadow-lg mb-8">
+      <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-md bg-white/[0.04] border border-white/10 mb-8">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -199,7 +194,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
         Kullan myynti –
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 mt-1 pb-1.5">
+        <span class="block text-gold-400 mt-1 pb-1.5">
           näin saat parhaan hinnan kullastasi
         </span>
       </h1>
@@ -207,7 +202,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Selvitä kullan arvo sekunneissa ja vältä alihinnoittelu. Katso mitä koruistasi oikeasti kannattaa pyytää.
       </p>
 
-      <a href="#myyntilaskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white hover:scale-105 transition-all duration-300 shadow-xl whitespace-nowrap">
+      <a href="#myyntilaskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm whitespace-nowrap">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"></rect><line x1="8" x2="16" y1="6" y2="6"></line><line x1="16" x2="16" y1="14" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
         Laske kullan arvo ↓
       </a>
@@ -215,7 +210,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   </div>
 
   <div id="myyntilaskuri" class="max-w-5xl mx-auto -mt-20 relative z-30 px-4 mb-24">
-    <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 p-2 md:p-6">
+    <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 md:p-6">
       <div class="text-center mb-4 px-4 pt-4">
         <p class="text-sm text-gray-500">Syötä korun paino ja pitoisuus – näet heti reilun vähimmäistason euroissa päivän kurssin perusteella.</p>
       </div>

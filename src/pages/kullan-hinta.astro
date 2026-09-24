@@ -234,13 +234,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   schema={JSON.stringify(schemaData)}
 >
 
-  <div class="relative bg-[#0B0F19] pt-28 pb-16 px-4 overflow-hidden">
+  <div class="relative hero-surface pt-28 pb-16 px-4 overflow-hidden">
 
-    {/* Blob-taustaefektit (kevyt CSS-only) */}
-    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob"></div>
-      <div class="absolute top-20 right-1/4 w-80 h-80 bg-blue-600/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
-    </div>
 
     <div class="max-w-5xl mx-auto relative z-10">
 
@@ -253,13 +248,12 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </nav>
 
       <div class="text-center mb-10">
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold-400/10 text-gold-400 text-[10px] font-bold uppercase tracking-widest mb-4 border border-gold-400/20">
-          <span class="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse"></span>
+        <div class="kicker-dark">
           Kurssi päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}
         </div>
         <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
           Kullan hinta tänään
-          <span class="block text-transparent bg-clip-text bg-gradient-to-r from-gold-200 to-gold-600 pb-1.5">kurssi, grammahinta ja hintakehitys</span>
+          <span class="block text-gold-400 pb-1.5">kurssi, grammahinta ja hintakehitys</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
           Kullan spot-hinta (maailmanmarkkinahinta) on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
@@ -329,12 +323,12 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <table class="w-full text-left border-collapse">
           <caption class="sr-only">Kullan pörssiarvo euroina grammalta karaateittain päivän kurssilla</caption>
           <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
-              <th class="py-3.5 px-5 font-bold">Karaatti</th>
-              <th class="py-3.5 px-5 font-bold">Leima</th>
-              <th class="py-3.5 px-5 font-bold text-right">Kultaa</th>
-              <th class="py-3.5 px-5 font-bold">Tyypillinen käyttö</th>
-              <th class="py-3.5 px-5 font-bold text-right">Pörssiarvo €/g</th>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-3.5 px-5 font-semibold">Karaatti</th>
+              <th class="py-3.5 px-5 font-semibold">Leima</th>
+              <th class="py-3.5 px-5 font-semibold text-right">Kultaa</th>
+              <th class="py-3.5 px-5 font-semibold">Tyypillinen käyttö</th>
+              <th class="py-3.5 px-5 font-semibold text-right">Pörssiarvo €/g</th>
             </tr>
           </thead>
           <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
@@ -477,11 +471,11 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <table class="w-full text-left border-collapse">
           <caption class="sr-only">Kullan spot-hinta kuukausittain euroissa per gramma</caption>
           <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-sm uppercase tracking-wider text-gray-500">
-              <th class="py-4 px-5 font-bold">Kuukausi</th>
-              <th class="py-4 px-5 font-bold text-right">Keskihinta €/g</th>
-              <th class="py-4 px-5 font-bold text-right">Korkein €/g</th>
-              <th class="py-4 px-5 font-bold text-right">Matalin €/g</th>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-4 px-5 font-semibold">Kuukausi</th>
+              <th class="py-4 px-5 font-semibold text-right">Keskihinta €/g</th>
+              <th class="py-4 px-5 font-semibold text-right">Korkein €/g</th>
+              <th class="py-4 px-5 font-semibold text-right">Matalin €/g</th>
             </tr>
           </thead>
           <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
@@ -521,10 +515,10 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Päivän pörssiarvot pitoisuuksittain löydät <a href="#hinta-nyt" class="text-gold-600 font-bold hover:underline">karaattitaulukosta</a>.
       </p>
 
-      <div class="bg-[#0B0F19] rounded-3xl p-8 md:p-10 text-center mb-16">
+      <div class="relative overflow-hidden hero-surface rounded-2xl p-8 md:p-10 text-center ring-1 ring-gold-400/20 mb-16">
         <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Paljonko sinun kultasi on arvoltaan?</h2>
         <p class="text-gray-400 mb-6 max-w-xl mx-auto">Syötä paino ja pitoisuus, niin näet reilun tavoitehinnan päivän kurssilla.</p>
-        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-500 text-[#0B0F19] px-8 py-4 rounded-xl font-bold hover:bg-white transition-all duration-300 shadow-xl">
+        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm">
           Laske kultasi arvo →
         </a>
       </div>
