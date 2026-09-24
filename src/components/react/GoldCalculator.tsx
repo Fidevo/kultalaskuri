@@ -518,7 +518,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
 
               {/* Selittävä mikroteksti — asettaa odotukset oikein */}
               <p className="text-xs text-gray-500 leading-relaxed mb-4 pl-3 border-l-2 border-gold-400/60">
-                Pörssiarvo on raaka-aineen markkinahinta. Liikkeiden ostohinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-700">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
+                Pörssiarvo on raaka-aineen markkinahinta. Kullanostajien ostohinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-700">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
               </p>
 
               {/* LISÄÄ LISTAAN — usean esineen summa */}

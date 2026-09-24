@@ -219,7 +219,7 @@ const schemaData = {
           "name": "Miksi kullanostajan maksama hinta on spot-hintaa matalampi?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Spot-hinta on puhtaan kullan tukkuhinta maailmanmarkkinoilla. Kun myyt koruja, ostohinnasta vähennetään sulatus- ja jalostuskulut sekä liikkeen kate. Kultalaskuri.fi:n laskuri näyttää suoraan reilun vähimmäistason, jota kullasta kannattaa vähintään tavoitella."
+            "text": "Spot-hinta on puhtaan kullan tukkuhinta maailmanmarkkinoilla. Kun myyt koruja, kullanostajan ostohinnasta vähennetään sulatus- ja jalostuskulut sekä ostajan kate. Kultalaskuri.fi:n laskuri näyttää suoraan reilun vähimmäistason, jota kullasta kannattaa vähintään tavoitella."
           }
         }
       ]
@@ -232,7 +232,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
 <BaseLayout
   title="Kullan hinta tänään €/g – kurssi ja grammahinta | Kultalaskuri.fi"
-  description="Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi eli maailmanmarkkinahinta, 14K- ja 18K-kullan grammahinnat sekä hinta unssilta ja kilolta. Päivittyy arkisin."
+  description="Kullan hinta tänään euroina grammalta: kurssi eli maailmanmarkkinahinta, 14K- ja 18K-kullan grammahinnat sekä hinta unssilta ja kilolta. Päivittyy arkisin."
   schema={JSON.stringify(schemaData)}
 >
 

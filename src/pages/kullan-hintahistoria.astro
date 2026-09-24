@@ -100,7 +100,8 @@ const worstDay = pastRows.slice(1).reduce((m, r, i) => {
 const faqItems = [
   ...(tenBack ? [{
     question: 'Miten kullan hinta on kehittynyt kymmenessä vuodessa?',
-    answer: `Kullan keskihinta oli vuonna ${tenBack.year} noin ${fmt(tenBack.avg)} €/g ja vuonna ${lastFull.year} noin ${fmt(lastFull.avg)} €/g — euromääräinen hinta on siis noussut noin ${Math.round(((lastFull.avg - tenBack.avg) / tenBack.avg) * 100)} %. Kehitys ei ole ollut tasaista: välissä on ollut sekä jyrkkiä pudotuksia että nopeita nousuja. Vuosittaiset luvut ovat tämän sivun vuositaulukossa.`,
+    // Ei €/g-lukuja: vastaus menee FAQPage-schemaan (CLAUDE.md sääntö 3) — vain prosenttimuutos.
+    answer: `Kullan euromääräinen keskihinta nousi vuodesta ${tenBack.year} vuoteen ${lastFull.year} noin ${Math.round(((lastFull.avg - tenBack.avg) / tenBack.avg) * 100)} %. Kehitys ei ole ollut tasaista: välissä on ollut sekä jyrkkiä pudotuksia että nopeita nousuja. Vuosittaiset luvut ovat tämän sivun vuositaulukossa.`,
   }] : []),
   {
     question: 'Milloin kullan hinta laski eniten?',
@@ -126,7 +127,7 @@ const pageUrl = 'https://kultalaskuri.fi/kullan-hintahistoria/';
 // "hintahistoria" + vuosihaut. /kullan-hinta/ omistaa "kullan hinta (tänään/nyt/gramma/kurssi)".
 // Sisäiset linkit: ankkuri "hintakehitys" → tänne, "kullan hinta tänään" → /kullan-hinta/.
 const pageTitle = `Kullan hintakehitys ja hintahistoria ${firstYear}–${lastYear} | Kultalaskuri.fi`;
-const pageDescription = `Kullan hintakehitys euroina grammalta vuodesta ${firstYear}: vuosittaiset keski-, ala- ja ylähinnat, kuukausimuutokset ja käännekohdat, jotka selittävät suurimmat heilahdukset.`;
+const pageDescription = `Kullan hintakehitys euroina grammalta vuodesta ${firstYear}: vuositilastot, kuukausimuutokset ja käännekohdat, jotka selittävät suurimmat heilahdukset.`;
 
 const schemaData = {
   "@context": "https://schema.org",
