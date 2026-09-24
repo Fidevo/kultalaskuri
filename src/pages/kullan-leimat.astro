@@ -4,19 +4,13 @@ import FaqItem from '../components/FaqItem.astro';
 import { Image } from 'astro:assets';
 import kuva585 from '../assets/585-kultaleima.jpeg';
 import kuva750 from '../assets/750-kultaleima.jpeg';
+import YearMarkLookup from '../components/react/YearMarkLookup.tsx';
+import { yearMarkRows } from '../lib/yearMarks';
 
 const dateModified = new Date().toISOString();
 
 // ── Suomalaiset vuosileimat ──
-// Järjestelmä: kirjain + kierrosnumero. Sarja alkoi 1810 kirjaimella A.
-// Kierrossa 24 kirjainta (ei J, W, Å, Ä, Ö). Lähde: Tukes / leimat.fi
-// Ankkurit varmistettu: Z8 = 2001, A9 = 2002, K9 = 2011, Z9 = 2025, A10 = 2026.
-const YEAR_LETTERS = ['A','B','C','D','E','F','G','H','I','K','L','M','N','O','P','Q','R','S','T','U','V','X','Y','Z'];
-const cycleStart = (cycle: number) => 1810 + (cycle - 1) * 24;
-
-const yearMarkRows = (cycle: number) =>
-  YEAR_LETTERS.map((letter, i) => ({ mark: `${letter}${cycle}`, year: cycleStart(cycle) + i }));
-
+// Algoritmi ja varmistetut ankkurit: src/lib/yearMarks.ts (sama lähde kuin vuosileimahaulla).
 const cycle5 = yearMarkRows(5);  // 1906–1929
 const cycle6 = yearMarkRows(6);  // 1930–1953
 const cycle7 = yearMarkRows(7);  // 1954–1977
@@ -456,6 +450,10 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         ajoittamaan perintökorut ja tunnistamaan vanhat design-korut. Etsi leima alla olevista
         taulukoista.
       </p>
+
+      {/* Vuosileimahaku — sama algoritmi kuin taulukoissa (lib/yearMarks.ts).
+          Taulukot pysyvät alla myös ilman JavaScriptiä / hakukoneille. */}
+      <YearMarkLookup client:visible buildYear={currentMark.year} />
 
       <div class="grid md:grid-cols-2 gap-6 mb-8">
         <div class="rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
