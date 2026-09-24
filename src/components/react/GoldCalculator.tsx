@@ -367,7 +367,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                     {code}
                   </span>
                   <span className={`text-xs num ${isActive ? 'text-gray-300' : 'text-gray-500'}`}>
-                    {GOLD_PURITIES[code].label.split(' ')[1]}
+                    {GOLD_PURITIES[code].label.slice(GOLD_PURITIES[code].label.indexOf(' ') + 1)}
                   </span>
                 </button>
               );
@@ -393,7 +393,7 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
                   `}
                 >
                   <span className={`font-semibold num ${isActive ? 'text-white' : 'text-gray-700'}`}>{code}</span>
-                  <span className={`text-[11px] num ${isActive ? 'text-gray-300' : 'text-gray-500'}`}>{GOLD_PURITIES[code].label.split(' ')[1]}</span>
+                  <span className={`text-[11px] num ${isActive ? 'text-gray-300' : 'text-gray-500'}`}>{GOLD_PURITIES[code].label.slice(GOLD_PURITIES[code].label.indexOf(' ') + 1)}</span>
                 </button>
               );
             })}
@@ -504,10 +504,10 @@ export default function GoldCalculator({ spotPriceEurPerGram, partner }: Props) 
               <div className="grid grid-cols-2 mt-6 pt-4 border-t border-white/10 divide-x divide-white/10">
                 <div className="pr-4">
                     <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] font-semibold mb-1">Puhdas kulta</p>
-                    <p className="text-base md:text-lg font-semibold text-white num">{result.pureGoldContent.toFixed(2)}g</p>
+                    <p className="text-base md:text-lg font-semibold text-white num">{result.pureGoldContent.toFixed(2).replace('.', ',')} g</p>
                 </div>
                 <div className="pl-4">
-                    <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] font-semibold mb-1">Pörssiarvo (100%)</p>
+                    <p className="text-[11px] text-gray-400 uppercase tracking-[0.12em] font-semibold mb-1">Pörssiarvo (100 %)</p>
                     <p className="text-base md:text-lg font-semibold text-gold-400 num">{formatEur(result.spotValue)}</p>
                 </div>
               </div>

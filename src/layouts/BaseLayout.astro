@@ -94,7 +94,11 @@ const isProd = import.meta.env.PROD;
       />
     )}
 
-    {/* Microsoft Clarity — session recording & heatmapit */}
+    {/* Microsoft Clarity — session recording & heatmapit.
+        Evästeetön tila KAIKILLE kävijöille: suostumus "denied" → Clarity ei aseta
+        evästeitä (ETA-alueella se jättää ne pois muutenkin, muualla ei). Sivustolla ei
+        ole evästebanneria tarkoituksella — jos sellainen joskus lisätään, tämä kutsu
+        vaihdetaan käyttäjän valinnan mukaiseksi. Tietosuojaseloste lupaa evästeettömyyden. */}
     {isProd && (
       <script type="text/javascript" is:inline>
         (function(c,l,a,r,i,t,y){
@@ -102,6 +106,7 @@ const isProd = import.meta.env.PROD;
           t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "wafdvf8nrk");
+        window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });
       </script>
     )}
   </head>

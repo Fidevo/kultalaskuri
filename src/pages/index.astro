@@ -94,7 +94,7 @@ const benefitCards = [
   {
     icon: `<svg ${iconSvgAttrs}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>`,
     title: 'Tunnista arvoesineet',
-    text: 'Kaikki kulta ei ole samanarvoista. 18 karaatin vihkisormus on arvokkaampi kuin 14 karaatin ketju, eikä esineen koko paino aina ole kultaa. <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Katso paljonko kultaa eri esineissä on →</a>'
+    text: 'Kaikki kulta ei ole samanarvoista. Gramma 18 karaatin kultaa on arvokkaampi kuin gramma 14 karaatin kultaa, mutta esineen arvo riippuu myös painosta — eikä esineen koko paino aina ole kultaa. <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Katso paljonko kultaa eri esineissä on →</a>'
   },
   {
     icon: `<svg ${iconSvgAttrs}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>`,
@@ -104,8 +104,8 @@ const benefitCards = [
 ];
 
 const stampCards = [
-  { purity: '585', karat: '14 Karaattia', desc: 'Suomen yleisin korukulta. Sisältää 58,5% puhdasta kultaa.' },
-  { purity: '750', karat: '18 Karaattia', desc: 'Arvokorut ja vihkisormukset. Sisältää 75% puhdasta kultaa.' },
+  { purity: '585', karat: '14 Karaattia', desc: 'Suomen yleisin korukulta. Sisältää 58,5 % puhdasta kultaa.' },
+  { purity: '750', karat: '18 Karaattia', desc: 'Arvokorut ja vihkisormukset. Sisältää 75 % puhdasta kultaa.' },
   { purity: '999', karat: '24 Karaattia', desc: 'Puhdas sijoituskulta, kuten kultaharkot.' },
 ];
 
@@ -116,11 +116,11 @@ const faqItems = [
   },
   {
     question: 'Mitä tarkoittaa kullan ostohinta?',
-    answer: 'Kullan ostohinta tarkoittaa hintaa, jonka kullanostaja maksaa sinulle koruistasi tai muusta kullastasi — eli samaa asiaa kuin myyntihintasi tai laskurin näyttämä tavoitehinta. Ostohinta on aina kullan pörssihintaa (spot-hintaa) matalampi, koska ostaja vähentää siitä omat kulunsa ja katteensa.'
+    answer: 'Kullan ostohinta tarkoittaa hintaa, jonka kullanostaja maksaa sinulle koruistasi tai muusta kullastasi. Laskurin näyttämä tavoitehinta on eri asia: se on taso, jota kannattaa vähintään tavoitella, kun vertaat kullanostajien tarjouksia. Ostohinta on aina kullan pörssihintaa (spot-hintaa) matalampi, koska ostaja vähentää siitä omat kulunsa ja katteensa.'
   },
   {
     question: 'Mitä eroa on 14K ja 18K kullalla?',
-    answer: 'Ero on kultapitoisuudessa. 14K (leima 585) sisältää 58,5 % puhdasta kultaa ja on kovempaa, mikä tekee siitä Suomen yleisimmän korumateriaalin. 18K (leima 750) sisältää 75 % kultaa; se on arvokkaampaa ja väriltään syvemmän keltaista, mutta pehmeämpänä se naarmuuntuu helpommin.'
+    answer: 'Ero on kultapitoisuudessa. 14K (leima 585) sisältää 58,5 % puhdasta kultaa ja on kovempaa, mikä tekee siitä Suomen yleisimmän korumateriaalin. 18K (leima 750) sisältää 75 % kultaa; se on grammalta arvokkaampaa ja väriltään syvemmän keltaista, mutta pehmeämpänä se naarmuuntuu helpommin.'
   },
   { 
     question: 'Mitä tarkoittaa leima 585?', 
@@ -181,7 +181,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
         <span id="price-status-dot-closed" class="hidden inline-block h-1.5 w-1.5 rounded-full bg-gray-400 shrink-0"></span>
         <span class="text-gray-300 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-medium num">
           <span id="price-status-text-live">
-            <span class="sm:hidden">Päivitetty {updatedDateShort}{updatedTime && ` klo ${updatedTime}`}</span>
+            <span class="sm:hidden">Pörssihinta · {updatedDateShort}{updatedTime && ` klo ${updatedTime}`}</span>
             <span class="hidden sm:inline">Pörssihinta · päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}</span>
           </span>
           <span id="price-status-text-closed" class="hidden">
@@ -428,7 +428,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
             <h3 class="text-xl font-bold text-gray-900 mt-8 mb-3">Tunnista kultaleimat (585, 750, 999)</h3>
             <p>
               Jalometallituotteissa on lähes aina leima, joka kertoo pitoisuuden. 
-              Suomessa yleisin leima on <strong>585</strong>, mikä tarkoittaa 14 karaatin kultaa (58,5% puhdasta kultaa).
+              Suomessa yleisin leima on <strong>585</strong>, mikä tarkoittaa 14 karaatin kultaa (58,5 % puhdasta kultaa).
             </p>
             
             <ul class="space-y-3 mt-6">
