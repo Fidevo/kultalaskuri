@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect, useId } from 'react';
+import { GOLD_PURITIES } from '../../lib/calculations/goldCalculator';
 
 interface PricePoint {
   date: string;
@@ -6,6 +7,18 @@ interface PricePoint {
 }
 
 type Range = '7D' | '30D' | '90D' | 'Max';
+type Series = 'spot' | '18K' | '14K';
+type Mode = 'explore' | 'measure';
+
+// Pitoisuusnäkymä: spot = puhdas kulta (100 %), muut = pörssiarvo grammalta
+// kyseisellä pitoisuudella. Kertoimet GOLD_PURITIES-taulukosta (ei kovakoodausta).
+// HUOM: vain pörssiarvo — tavoitehintaa ei piirretä, koska kahden viivan suhteesta
+// voisi päätellä laskennan kertoimen (CLAUDE.md sääntö 4).
+const SERIES: { key: Series; label: string; title: string; factor: number }[] = [
+  { key: 'spot', label: 'Spot', title: 'Kullan spot-hinta €/g', factor: 1 },
+  { key: '18K', label: '18K', title: '18K (750) pörssiarvo €/g', factor: GOLD_PURITIES['18K'].decimal },
+  { key: '14K', label: '14K', title: '14K (585) pörssiarvo €/g', factor: GOLD_PURITIES['14K'].decimal },
+];
 
 interface Props {
   data: PricePoint[];
@@ -52,14 +65,52 @@ function fmtDateFull(s: string): string {
   return parseDate(s).toLocaleDateString('fi-FI', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+const fmt2 = (n: number) => n.toFixed(2).replace('.', ',');
+
+function daysBetween(a: string, b: string): number {
+  return Math.round((parseDate(b).getTime() - parseDate(a).getTime()) / 86400000);
+}
+
+interface Change { pct: number; eur: number; dir: 'up' | 'down' | 'flat' }
+
+function changeBetween(from: number, to: number): Change {
+  const pct = from > 0 ? ((to - from) / from) * 100 : 0;
+  // Alle 0,05 %:n liike näytetään "ennallaan" (sama kohinaraja kuin etusivun heroissa)
+  const dir = Math.abs(pct) < 0.05 ? 'flat' : pct > 0 ? 'up' : 'down';
+  return { pct, eur: to - from, dir };
+}
+
+function ChangeText({ c }: { c: Change }) {
+  const color = c.dir === 'up' ? 'text-emerald-400' : c.dir === 'down' ? 'text-red-400' : 'text-gray-300';
+  const arrow = c.dir === 'up' ? '▲' : c.dir === 'down' ? '▼' : '';
+  const sign = c.eur > 0 ? '+' : c.eur < 0 ? '−' : '±';
+  return (
+    <>
+      <span className={`font-semibold ${color}`}>
+        {arrow && `${arrow} `}{Math.abs(c.pct).toFixed(1).replace('.', ',')} %
+      </span>
+      <span className="text-gray-300"> ({sign}{fmt2(Math.abs(c.eur))} €/g)</span>
+    </>
+  );
+}
+
 export default function GoldPriceChart({ data }: Props) {
   const sliderId = useId();
   const [keyboardIndex, setKeyboardIndex] = useState<number | null>(null);
   const [range, setRange] = useState<Range>('90D');
   const [hovIdx, setHovIdx] = useState<number | null>(null);
   const [isNarrow, setIsNarrow] = useState(false);
+  const [series, setSeries] = useState<Series>('spot');
+  const [mode, setMode] = useState<Mode>('explore');
+  // Mittausväli indekseinä filtered-taulukkoon; null = koko aikaväli (oletus)
+  const [measure, setMeasure] = useState<{ a: number; b: number } | null>(null);
+  // Ref eikä state: peräkkäiset osoitintapahtumat eivät saa lukea vanhentunutta arvoa
+  const draggingRef = useRef(false);
+  const measureAId = useId();
+  const measureBId = useId();
   const svgRef = useRef<SVGSVGElement>(null);
   const hasTrackedInteraction = useRef(false);
+  const hasTrackedMeasure = useRef(false);
 
   // Mobiilissa (≤640 px) kapeampi viewBox → kuvaaja korkeampi ja tekstit isompia
   useEffect(() => {
@@ -75,10 +126,29 @@ export default function GoldPriceChart({ data }: Props) {
   const CW = VW - P.l - P.r;
   const CH = VH - P.t - P.b;
 
+  const seriesCfg = SERIES.find(s => s.key === series)!;
+
+  // Valittu aikaväli valitulla pitoisuudella (spot → sellaisenaan)
   const filtered = useMemo(() => {
     const cfg = RANGES.find(r => r.key === range)!;
-    return cfg.days === Infinity ? data : data.slice(-cfg.days);
-  }, [data, range]);
+    const sliced = cfg.days === Infinity ? data : data.slice(-cfg.days);
+    if (seriesCfg.factor === 1) return sliced;
+    // Ei pyöristystä laskennassa — vain näytössä (muuten %-muutos poikkeaisi spotista)
+    return sliced.map(d => ({ date: d.date, price: d.price * seriesCfg.factor }));
+  }, [data, range, seriesCfg]);
+
+  // Jakson muutos valitulla aikavälillä (ensimmäisestä viimeiseen pisteeseen)
+  const periodChange = filtered.length > 1
+    ? changeBetween(filtered[0].price, filtered[filtered.length - 1].price)
+    : null;
+  const periodLabel = range === 'Max'
+    ? (filtered.length ? `${fmtDateFull(filtered[0].date)} alkaen` : '')
+    : `${RANGES.find(r => r.key === range)!.days} päivässä`;
+
+  // Mittausväli: oletuksena koko aikaväli; järjestetään aina vanhempi → uudempi
+  const mA = measure ? Math.min(measure.a, measure.b) : 0;
+  const mB = measure ? Math.max(measure.a, measure.b) : Math.max(0, filtered.length - 1);
+  const measureChange = filtered.length > 1 ? changeBetween(filtered[mA].price, filtered[mB].price) : null;
 
   const { pts, minP, maxP } = useMemo(() => {
     if (!filtered.length) return { pts: [], minP: 0, maxP: 0 };
@@ -145,13 +215,9 @@ export default function GoldPriceChart({ data }: Props) {
     };
   }, [data]);
 
-  // Yhteinen osoitinlogiikka hiirelle ja kosketukselle
-  const handlePointer = useCallback((clientX: number) => {
-    if (!pts.length || !svgRef.current) return;
-    if (!hasTrackedInteraction.current) {
-      hasTrackedInteraction.current = true;
-      track('hintahistoria-interaktio', { range });
-    }
+  // Lähin datapiste osoittimen x-koordinaatista
+  const indexAt = useCallback((clientX: number): number | null => {
+    if (!pts.length || !svgRef.current) return null;
     const rect = svgRef.current.getBoundingClientRect();
     const svgX = ((clientX - rect.left) / rect.width) * VW;
     let best = 0, bestDist = Infinity;
@@ -159,8 +225,48 @@ export default function GoldPriceChart({ data }: Props) {
       const d = Math.abs(p.x - svgX);
       if (d < bestDist) { bestDist = d; best = i; }
     });
+    return best;
+  }, [pts, VW]);
+
+  // Yhteinen osoitinlogiikka hiirelle ja kosketukselle (tutki päivää -tila)
+  const handlePointer = useCallback((clientX: number) => {
+    if (mode !== 'explore') return;
+    const best = indexAt(clientX);
+    if (best === null) return;
+    if (!hasTrackedInteraction.current) {
+      hasTrackedInteraction.current = true;
+      track('hintahistoria-interaktio', { range });
+    }
     setHovIdx(best);
-  }, [pts, VW, range]);
+  }, [indexAt, mode, range]);
+
+  const trackMeasure = () => {
+    if (hasTrackedMeasure.current) return;
+    hasTrackedMeasure.current = true;
+    track('hintahistoria-mittaus', { range, series });
+  };
+
+  // Mittaa muutos -tila: painallus asettaa alkupisteen, veto loppupisteen
+  const onMeasureDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (mode !== 'measure') return;
+    const i = indexAt(e.clientX);
+    if (i === null) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    draggingRef.current = true;
+    setMeasure({ a: i, b: i });
+    trackMeasure();
+  };
+  const onMeasureMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (mode !== 'measure' || !draggingRef.current) return;
+    const i = indexAt(e.clientX);
+    if (i !== null) setMeasure(m => (m ? { a: m.a, b: i } : { a: i, b: i }));
+  };
+  const onMeasureUp = () => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    // Pelkkä napautus (a === b) ei ole väli — palataan koko aikaväliin
+    setMeasure(m => (m && m.a === m.b ? null : m));
+  };
 
   const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     handlePointer(e.clientX);
@@ -230,11 +336,20 @@ export default function GoldPriceChart({ data }: Props) {
       {/* ── Chart card ── */}
       <div className="rounded-xl border border-white/10 bg-ink-900/70 overflow-hidden">
 
-        {/* Header / range selector */}
-        <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3 border-b border-white/10">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
-            Kullan spot-hinta €/g
-          </span>
+        {/* Header: sarjan nimi + jakson muutos, alla aikaväli- ja pitoisuusvalinnat */}
+        <div className="flex flex-col gap-3 px-4 md:px-5 py-3 border-b border-white/10">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-300">
+              {seriesCfg.title}
+            </span>
+            {periodChange && (
+              <p className="num text-sm" aria-live="polite">
+                <ChangeText c={periodChange} />
+                <span className="text-gray-400"> {periodLabel}</span>
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
           <fieldset className="flex gap-0.5 bg-black/20 border border-white/10 rounded-md p-0.5">
             <legend className="sr-only">Kuvaajan aikaväli</legend>
             {RANGES.map(r => (
@@ -244,10 +359,11 @@ export default function GoldPriceChart({ data }: Props) {
                 onClick={() => {
                   setRange(r.key);
                   setKeyboardIndex(null);
-                  // hovIdx osoittaa indeksiin filtered-taulukossa — se on eri
-                  // taulukko uudella aikavälillä, joten vanha indeksi on nollattava
-                  // ettei osoitin/tooltip jää osoittamaan väärää päivää (ks. selitys alla)
+                  // hovIdx ja mittausväli osoittavat indekseihin filtered-taulukossa —
+                  // se on eri taulukko uudella aikavälillä, joten vanhat indeksit on
+                  // nollattava ettei osoitin/tooltip jää osoittamaan väärää päivää
                   setHovIdx(null);
+                  setMeasure(null);
                   track('hintahistoria-range', { range: r.key });
                 }}
                 className={`min-h-11 px-3 py-1 rounded text-[11px] font-semibold num transition-colors duration-150 ${
@@ -260,6 +376,27 @@ export default function GoldPriceChart({ data }: Props) {
               </button>
             ))}
           </fieldset>
+          <fieldset className="flex gap-0.5 bg-black/20 border border-white/10 rounded-md p-0.5">
+            <legend className="sr-only">Pitoisuus</legend>
+            {SERIES.map(s => (
+              <button
+                key={s.key}
+                aria-pressed={series === s.key}
+                onClick={() => {
+                  setSeries(s.key);
+                  track('hintahistoria-pitoisuus', { series: s.key });
+                }}
+                className={`min-h-11 px-3 py-1 rounded text-[11px] font-semibold num transition-colors duration-150 ${
+                  series === s.key
+                    ? 'bg-white/10 text-gold-400 ring-1 ring-gold-400/40'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </fieldset>
+          </div>
         </div>
 
         {/* Ruudunlukijayhteenveto — SVG:n sisältö ei ole saavutettavissa */}
@@ -276,8 +413,13 @@ export default function GoldPriceChart({ data }: Props) {
         <svg
           ref={svgRef}
           viewBox={`0 0 ${VW} ${VH}`}
-          className="w-full cursor-crosshair select-none"
-          style={{ height: 'auto', display: 'block', touchAction: 'pan-y' }}
+          className={`w-full select-none ${mode === 'measure' ? 'cursor-ew-resize' : 'cursor-crosshair'}`}
+          // Mittaustilassa veto ei saa vierittää sivua (touch-action: none)
+          style={{ height: 'auto', display: 'block', touchAction: mode === 'measure' ? 'none' : 'pan-y' }}
+          onPointerDown={onMeasureDown}
+          onPointerMove={onMeasureMove}
+          onPointerUp={onMeasureUp}
+          onPointerCancel={onMeasureUp}
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setHovIdx(null)}
           onTouchStart={handleTouch}
@@ -330,8 +472,35 @@ export default function GoldPriceChart({ data }: Props) {
             />
           )}
 
+          {/* Mittaa muutos: valittu väli varjostettuna, päätepisteet ja muutos-% */}
+          {mode === 'measure' && measureChange && pts[mA] && pts[mB] && (() => {
+            const lo = pts[mA], hi = pts[mB];
+            const color = measureChange.dir === 'up' ? '#34D399' : measureChange.dir === 'down' ? '#F87171' : '#D4AF37';
+            const label = `${measureChange.dir === 'up' ? '▲ ' : measureChange.dir === 'down' ? '▼ ' : ''}${Math.abs(measureChange.pct).toFixed(1).replace('.', ',')} %`;
+            const chipW = 70, chipH = 24;
+            const chipX = Math.max(P.l, Math.min(VW - P.r - chipW, (lo.x + hi.x) / 2 - chipW / 2));
+            return (
+              <g>
+                <rect x={lo.x} y={P.t} width={Math.max(hi.x - lo.x, 1)} height={CH} fill="#D4AF37" fillOpacity="0.07" />
+                {[lo, hi].map((p, i) => (
+                  <line key={i} x1={p.x} y1={P.t} x2={p.x} y2={P.t + CH}
+                    stroke="rgba(212,175,55,0.6)" strokeWidth="1" strokeDasharray="3 3" />
+                ))}
+                <line x1={lo.x} y1={lo.y} x2={hi.x} y2={hi.y} stroke={color} strokeWidth="1.25" strokeOpacity="0.7" strokeDasharray="1 3" />
+                {[lo, hi].map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r="5" fill="#0B0F19" stroke="#D4AF37" strokeWidth="2" />
+                ))}
+                <rect x={chipX} y={P.t + 4} width={chipW} height={chipH} rx="4" fill="#0B0F19" stroke={color} strokeOpacity="0.6" />
+                <text x={chipX + chipW / 2} y={P.t + 4 + chipH / 2} textAnchor="middle" dominantBaseline="central"
+                  fill={color} fontSize="12" fontWeight="600" fontFamily={SVG_FONT} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {label}
+                </text>
+              </g>
+            );
+          })()}
+
           {/* Hover */}
-          {hovPt && tooltipPos && (
+          {mode === 'explore' && hovPt && tooltipPos && (
             <g>
               <line
                 x1={hovPt.x} y1={P.t} x2={hovPt.x} y2={P.t + CH}
@@ -391,29 +560,103 @@ export default function GoldPriceChart({ data }: Props) {
         </svg>
 
         <div className="border-t border-white/10 px-4 py-4">
-          <label htmlFor={sliderId} className="block text-sm text-gray-300 font-semibold">Tutki yksittäistä päivää</label>
-          <input
-            id={sliderId}
-            type="range"
-            min={0}
-            max={filtered.length - 1}
-            value={selectedIndex}
-            aria-valuetext={`${fmtDateFull(selectedPoint.date)}: ${selectedPoint.price.toFixed(2).replace('.', ',')} euroa grammalta`}
-            onChange={(e) => {
-              const i = Number(e.target.value);
-              setKeyboardIndex(i);
-              setHovIdx(i);
-              if (!hasTrackedInteraction.current) {
-                hasTrackedInteraction.current = true;
-                track('hintahistoria-interaktio', { range });
-              }
-            }}
-            className="w-full h-11 accent-gold-400"
-          />
-          <output htmlFor={sliderId} className="block text-sm text-gray-200 num">
-            {fmtDateFull(selectedPoint.date)} · <strong>{selectedPoint.price.toFixed(2).replace('.', ',')} €/g</strong>
-          </output>
-          <p className="text-xs text-gray-400 mt-2">Voit siirtää valintaa myös näppäimistön nuolinäppäimillä.</p>
+          {/* Tilanvaihto: yksittäinen päivä ↔ kahden päivän välinen muutos */}
+          <div role="group" aria-label="Kuvaajan tila" className="inline-flex gap-0.5 bg-black/20 border border-white/10 rounded-md p-0.5 mb-4">
+            {([['explore', 'Tutki päivää'], ['measure', 'Mittaa muutos']] as [Mode, string][]).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={mode === key}
+                onClick={() => {
+                  setMode(key);
+                  setHovIdx(null);
+                  draggingRef.current = false;
+                  if (key === 'measure') trackMeasure();
+                }}
+                className={`min-h-11 px-3.5 py-1 rounded text-xs font-semibold transition-colors duration-150 ${
+                  mode === key
+                    ? 'bg-white/10 text-gold-400 ring-1 ring-gold-400/40'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {mode === 'explore' ? (
+            <>
+              <label htmlFor={sliderId} className="block text-sm text-gray-300 font-semibold">Tutki yksittäistä päivää</label>
+              <input
+                id={sliderId}
+                type="range"
+                min={0}
+                max={filtered.length - 1}
+                value={selectedIndex}
+                aria-valuetext={`${fmtDateFull(selectedPoint.date)}: ${selectedPoint.price.toFixed(2).replace('.', ',')} euroa grammalta`}
+                onChange={(e) => {
+                  const i = Number(e.target.value);
+                  setKeyboardIndex(i);
+                  setHovIdx(i);
+                  if (!hasTrackedInteraction.current) {
+                    hasTrackedInteraction.current = true;
+                    track('hintahistoria-interaktio', { range });
+                  }
+                }}
+                className="w-full h-11 accent-gold-400"
+              />
+              <output htmlFor={sliderId} className="block text-sm text-gray-200 num">
+                {fmtDateFull(selectedPoint.date)} · <strong>{selectedPoint.price.toFixed(2).replace('.', ',')} €/g</strong>
+              </output>
+              <p className="text-xs text-gray-400 mt-2">Voit siirtää valintaa myös näppäimistön nuolinäppäimillä.</p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-gray-300 mb-3">
+                Vedä kuvaajassa alkupäivästä loppupäivään — tai säädä päivät alla.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
+                {([['a', 'Alkupäivä', measureAId, mA], ['b', 'Loppupäivä', measureBId, mB]] as const).map(([which, label, id, idx]) => (
+                  <div key={which}>
+                    <label htmlFor={id} className="flex justify-between gap-2 text-sm text-gray-300 font-semibold">
+                      <span>{label}</span>
+                      <span className="num font-medium text-gray-400">{fmtDateFull(filtered[idx].date)}</span>
+                    </label>
+                    <input
+                      id={id}
+                      type="range"
+                      min={0}
+                      max={filtered.length - 1}
+                      value={idx}
+                      aria-valuetext={`${fmtDateFull(filtered[idx].date)}: ${fmt2(filtered[idx].price)} euroa grammalta`}
+                      onChange={(e) => {
+                        const i = Number(e.target.value);
+                        // Alku ei voi ohittaa loppua eikä päinvastoin (ei hyppiviä liukusäätimiä)
+                        setMeasure(which === 'a' ? { a: Math.min(i, mB), b: mB } : { a: mA, b: Math.max(i, mA) });
+                        trackMeasure();
+                      }}
+                      className="w-full h-11 accent-gold-400"
+                    />
+                  </div>
+                ))}
+              </div>
+              {measureChange && (
+                <output
+                  htmlFor={`${measureAId} ${measureBId}`}
+                  aria-live="polite"
+                  className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-md border border-white/10 bg-black/20 px-3 py-2.5 text-sm num"
+                >
+                  <span className="text-gray-200">
+                    {fmt2(filtered[mA].price)} → {fmt2(filtered[mB].price)} €/g
+                  </span>
+                  <span aria-hidden="true" className="text-gray-500">·</span>
+                  <ChangeText c={measureChange} />
+                  <span aria-hidden="true" className="text-gray-500">·</span>
+                  <span className="text-gray-400">{daysBetween(filtered[mA].date, filtered[mB].date)} pv</span>
+                </output>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
