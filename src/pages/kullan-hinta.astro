@@ -60,7 +60,9 @@ const ex18k = spot > 0 ? calculateGoldValue(4, '18K', spot) : null;
 
 // Viikonloppujen puuttuvat päivät täytetään edellisen hinnan toistolla, jotta
 // graafi ja kuukausikooste eivät hyppää suoraan perjantaista maanantaihin
-const chartHistory = fillMissingDays(priceHistory);
+// Vain viimeiset 12 kk: pitkä historia on /kullan-hintahistoria/-sivulla, ja price-history.json
+// kasvaa vuosi vuodelta (ei leikata) — ilman rajausta sivun HTML paisuisi.
+const chartHistory = fillMissingDays(priceHistory).slice(-366);
 
 // ── Tilastot hintahistoriasta (build-aikana, ei client-JS:ää) ──
 const last = chartHistory[chartHistory.length - 1];
@@ -147,8 +149,8 @@ const schemaData = {
       "@type": "WebPage",
       "@id": "https://kultalaskuri.fi/kullan-hinta/",
       "url": "https://kultalaskuri.fi/kullan-hinta/",
-      "name": "Kullan hinta tänään – kurssi euroina grammalta ja hintakehitys",
-      "description": "Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi, 14K- ja 18K-kullan grammahinnat, hinta unssilta ja kilolta sekä hintakehitys ja kuukausitilastot.",
+      "name": "Kullan hinta tänään – kurssi ja grammahinta euroina",
+      "description": "Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi eli maailmanmarkkinahinta, 14K- ja 18K-kullan grammahinnat sekä hinta unssilta ja kilolta. Päivittyy arkisin.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
@@ -190,10 +192,10 @@ const schemaData = {
         },
         {
           "@type": "Question",
-          "name": "Miten kullan hintakehitys on ollut vuonna 2026?",
+          "name": "Miten kullan hinta on muuttunut viime kuukausina?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Tämän sivun kuvaaja ja kuukausitaulukko näyttävät kullan euromääräisen grammahinnan kehityksen päivä päivältä sekä jokaisen kuukauden keskihinnan, korkeimman ja matalimman noteerauksen. Taulukko päivittyy automaattisesti jokaisena pörssipäivänä, joten se kuvaa aina kuluvan vuoden tilannetta."
+            "text": "Tämän sivun kuvaaja ja kuukausitaulukko näyttävät kullan euromääräisen grammahinnan viimeisen vuoden ajalta päivä päivältä sekä jokaisen kuukauden keskihinnan, korkeimman ja matalimman noteerauksen. Taulukko päivittyy automaattisesti jokaisena pörssipäivänä. Pidemmän aikavälin kullan hintakehitys vuodesta 2011 on Kultalaskurin hintahistoriasivulla."
           }
         },
         {
@@ -229,8 +231,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 ---
 
 <BaseLayout
-  title="Kullan hinta tänään €/g – kurssi ja hintakehitys | Kultalaskuri.fi"
-  description="Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi, 14K- ja 18K-kullan hinnat, hinta unssilta ja kilolta sekä hintakehitys kuukausittain. Päivittyy arkisin."
+  title="Kullan hinta tänään €/g – kurssi ja grammahinta | Kultalaskuri.fi"
+  description="Kullan hinta tänään euroina grammalta: puhtaan kullan kurssi eli maailmanmarkkinahinta, 14K- ja 18K-kullan grammahinnat sekä hinta unssilta ja kilolta. Päivittyy arkisin."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -253,19 +255,20 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </div>
         <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
           Kullan hinta tänään
-          <span class="block text-gold-400 pb-1.5">kurssi, grammahinta ja hintakehitys</span>
+          <span class="block text-gold-400 pb-1.5">kurssi ja grammahinta euroina</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
           Kullan spot-hinta (maailmanmarkkinahinta) on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
           Alla näet kullan hinnan karaateittain (14K, 18K, 24K), unssi- ja kilohinnan sekä
-          hintakehityksen päivä päivältä ja kuukausittain — kaikki euroina.
+          viimeisen vuoden kurssin päivä päivältä ja kuukausittain — kaikki euroina. Pidempi
+          kehitys vuodesta 2011: <a href="/kullan-hintahistoria/" class="text-gold-400 underline underline-offset-2 decoration-gold-400/40 hover:decoration-gold-400">kullan hintakehitys ja hintahistoria</a>.
         </p>
         <p class="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-gray-400">
           <a href="#hinta-nyt" class="hover:text-gold-400 transition-colors underline underline-offset-2">Hinta karaateittain</a>
           <a href="#14k" class="hover:text-gold-400 transition-colors underline underline-offset-2">14K-kullan hinta</a>
           <a href="#18k" class="hover:text-gold-400 transition-colors underline underline-offset-2">18K-kullan hinta</a>
           <a href="#unssi-kilo" class="hover:text-gold-400 transition-colors underline underline-offset-2">Unssi ja kilo</a>
-          <a href="#hintakehitys" class="hover:text-gold-400 transition-colors underline underline-offset-2">Hintakehitys</a>
+          <a href="#hintakehitys" class="hover:text-gold-400 transition-colors underline underline-offset-2">Kuukausittain</a>
         </p>
       </div>
 
@@ -278,6 +281,11 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Kullan spot-hinta euroina per gramma (maailmanmarkkinahinta). Lähde: MetalPrice API ·
         {chartHistory.length} päivän historia · Hintahistoria tallennetaan pörssipäivinä klo 18 ·
         Historiallinen kehitys ei ennusta tulevaa hintaa.
+      </p>
+      <p class="text-center mt-3">
+        <a href="/kullan-hintahistoria/" class="inline-flex items-center gap-1.5 text-gold-400 font-bold hover:underline text-sm">
+          Kullan hintakehitys vuodesta 2011 →
+        </a>
       </p>
     </div>
   </div>
@@ -427,7 +435,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </p>
 
       {/* ── Hintakehitys ── */}
-      <h2 id="hintakehitys" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kullan hintakehitys kuukausittain</h2>
+      <h2 id="hintakehitys" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Kullan hinta kuukausittain</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-4">
         Taulukossa on kullan spot-hinnan keskiarvo sekä korkein ja matalin noteeraus kuukausittain
         seurantajaksolla {fmtDateFi(first.date)} – {fmtDateFi(last.date)}. Koko jakson
@@ -435,6 +443,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         (korkein {fmt(allHigh)} €/g, matalin {fmt(allLow)} €/g).
       </p>
       <p class="text-sm text-gray-500 leading-relaxed mb-8">
+        Pidemmän aikavälin vuosi- ja kuukausitilastot vuodesta 2011 löydät sivulta
+        <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys ja hintahistoria</a>.
         Huomaa: luvut ovat <strong>euroissa grammalta</strong>. Dollarimääräiset noteeraukset
         (esim. pankkien ja välittäjien USD/unssi-kurssit) voivat kehittyä eri tahtiin,
         koska EUR/USD-valuuttakurssin muutos vaikuttaa euromääräiseen hintaan.
@@ -531,7 +541,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-        <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">Kullan hintahistoria vuodesta 2011 →</a>
+        <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">Kullan hintakehitys vuodesta 2011 →</a>
         <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti – näin saat parhaan hinnan →</a>
         <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
         <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Paljonko kultaa eri esineissä on →</a>

@@ -27,7 +27,8 @@ const lastHist = priceHistory[priceHistory.length - 1];
 const prevHist = priceHistory[priceHistory.length - 2];
 // Graafiin täytetään viikonloppujen puuttuvat päivät edellisen hinnan toistolla,
 // jotta aikajana ei hyppää perjantaista maanantaihin
-const chartHistory = fillMissingDays(priceHistory);
+// Etusivun graafiin viimeiset 12 kk (pitkä historia: /kullan-hintahistoria/)
+const chartHistory = fillMissingDays(priceHistory).slice(-366);
 const buildDay = new Date().toLocaleDateString('sv-SE', { timeZone: HELSINKI_TZ }); // YYYY-MM-DD Suomen ajassa
 const refHist = lastHist?.date === buildDay ? prevHist : lastHist;
 const dayChangePct = spot > 0 && refHist && refHist.price > 0
@@ -143,7 +144,7 @@ const faqItems = [
   },
   {
     question: 'Miten kullan maailmanmarkkinahinta määräytyy?',
-    answer: 'Kullan hinta (spot-hinta) määräytyy kansainvälisissä pörsseissä kysynnän ja tarjonnan mukaan. Siihen vaikuttavat maailmantalouden tilanne, dollarin kurssi, inflaatio ja geopoliittinen epävarmuus. Kultalaskuri.fi seuraa tätä hintaa päivittäin — katso <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a>.'
+    answer: 'Kullan hinta (spot-hinta) määräytyy kansainvälisissä pörsseissä kysynnän ja tarjonnan mukaan. Siihen vaikuttavat maailmantalouden tilanne, dollarin kurssi, inflaatio ja geopoliittinen epävarmuus. Kultalaskuri.fi seuraa tätä hintaa päivittäin — katso <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a>.'
   },
   {
     question: 'Pitääkö kullan myynnistä maksaa veroa?',
@@ -219,7 +220,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
             </p>
           ) : null}
           <p>
-            <a href="/kullan-hinta/" class="text-gold-400 font-medium hover:text-gold-200 transition-colors underline decoration-gold-400/40 underline-offset-4 hover:decoration-gold-300">
+            <a href="/kullan-hintahistoria/" class="text-gold-400 font-medium hover:text-gold-200 transition-colors underline decoration-gold-400/40 underline-offset-4 hover:decoration-gold-300">
               Kullan hintakehitys
             </a>
           </p>
@@ -397,9 +398,12 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
         Lähde: MetalPrice API · {chartHistory.length} päivän historia · Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
 
-      <p class="text-center mt-4">
+      <p class="text-center mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <a href="/kullan-hintahistoria/" class="inline-flex items-center gap-1.5 text-gold-400 font-bold hover:underline text-sm">
+          Kullan hintakehitys vuodesta 2011 →
+        </a>
         <a href="/kullan-hinta/" class="inline-flex items-center gap-1.5 text-gold-400 font-bold hover:underline text-sm">
-          Katso koko hintahistoria ja kuukausitilastot →
+          Kullan hinta tänään karaateittain →
         </a>
       </p>
 

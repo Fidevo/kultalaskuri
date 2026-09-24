@@ -10,7 +10,7 @@ interface PricePoint {
   price: number;
 }
 
-type Range = '7D' | '30D' | '90D' | 'Max';
+type Range = '7D' | '30D' | '90D' | '1Y';
 type Series = 'spot' | '18K' | '14K';
 type Mode = 'explore' | 'measure';
 
@@ -37,7 +37,9 @@ const RANGES: { label: string; key: Range; days: number }[] = [
   { label: '7 pv',    key: '7D',  days: 7 },
   { label: '30 pv',   key: '30D', days: 30 },
   { label: '90 pv',   key: '90D', days: 90 },
-  { label: 'Kaikki',  key: 'Max', days: Infinity },
+  // 1 v = viimeiset 365 päivää. Kun dataa on alle vuoden, näytetään kaikki ja
+  // muutosrivi kertoo aloituspäivän ("1.1.2026 alkaen"). Pidempi historia: /kullan-hintahistoria/.
+  { label: '1 v',     key: '1Y',  days: 365 },
 ];
 
 export default function GoldPriceChart({ data }: Props) {
@@ -77,7 +79,7 @@ export default function GoldPriceChart({ data }: Props) {
   // Valittu aikaväli valitulla pitoisuudella (spot → sellaisenaan)
   const filtered = useMemo(() => {
     const cfg = RANGES.find(r => r.key === range)!;
-    const sliced = cfg.days === Infinity ? data : data.slice(-cfg.days);
+    const sliced = data.slice(-cfg.days);
     if (seriesCfg.factor === 1) return sliced;
     // Ei pyöristystä laskennassa — vain näytössä (muuten %-muutos poikkeaisi spotista)
     return sliced.map(d => ({ date: d.date, price: d.price * seriesCfg.factor }));
@@ -87,9 +89,13 @@ export default function GoldPriceChart({ data }: Props) {
   const periodChange = filtered.length > 1
     ? changeBetween(filtered[0].price, filtered[filtered.length - 1].price)
     : null;
-  const periodLabel = range === 'Max'
+  // Jos data kattaa valittua aikaväliä lyhyemmän jakson (esim. 1 v, mutta dataa vasta
+  // tammikuusta), kerrotaan aloituspäivä eikä väitetä koko jaksoa.
+  const rangeDays = RANGES.find(r => r.key === range)!.days;
+  const coveredDays = filtered.length > 1 ? daysBetween(filtered[0].date, filtered[filtered.length - 1].date) : 0;
+  const periodLabel = coveredDays < rangeDays - 7
     ? (filtered.length ? `${fmtDateFull(filtered[0].date)} alkaen` : '')
-    : `${RANGES.find(r => r.key === range)!.days} päivässä`;
+    : range === '1Y' ? 'vuodessa' : `${rangeDays} päivässä`;
 
   // Mittausväli: oletuksena koko aikaväli; järjestetään aina vanhempi → uudempi
   const mA = measure ? Math.min(measure.a, measure.b) : 0;

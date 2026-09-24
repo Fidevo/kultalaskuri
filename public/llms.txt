@@ -32,13 +32,13 @@
   myyntikanavien vertailu — paikallinen kullanostaja, posti-/verkkopalvelu,
   panttilainaamo, huutokauppa ja yksityismyynti; aikataulu, kulut, riskit ja
   kenelle kukin sopii, sekä ostajan luotettavuuden tarkistus.
-- [Kullan hinta tänään ja hintakehitys](https://kultalaskuri.fi/kullan-hinta/):
+- [Kullan hinta tänään](https://kultalaskuri.fi/kullan-hinta/):
   päivän kurssi euroina grammalta, pörssiarvo karaateittain (8K–24K, mm. 14K/585
-  ja 18K/750), hinta unssilta ja kilolta, spot-hinnan päiväkohtainen historia,
-  kuukausitilastot ja selitys siitä mistä kullan hinta muodostuu (korkotaso,
+  ja 18K/750), hinta unssilta ja kilolta, viimeisen vuoden kurssikäyrä ja
+  kuukausitilastot sekä selitys siitä mistä kullan hinta muodostuu (korkotaso,
   dollarin kurssi, keskuspankkien ostot, geopolitiikka).
-- [Kullan hintahistoria](https://kultalaskuri.fi/kullan-hintahistoria/): kullan hinta
-  euroina grammalta kesäkuusta 2011 alkaen — vuosittaiset keski-, ala- ja ylähinnat,
+- [Kullan hintakehitys ja hintahistoria](https://kultalaskuri.fi/kullan-hintahistoria/): kullan
+  hinta euroina grammalta kesäkuusta 2011 alkaen — vuosittaiset keski-, ala- ja ylähinnat,
   kuukausimuutokset, pitoisuuskohtainen pörssiarvo (14K/18K) sekä käännekohdat
   (esim. eurokriisi 2011, romahdus 2013, Brexit 2016, koronakriisi 2020) lähteineen.
 - [Kullan leimat ja merkinnät](https://kultalaskuri.fi/kullan-leimat/): pitoisuusleimat
