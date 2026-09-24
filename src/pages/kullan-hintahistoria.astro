@@ -1,0 +1,404 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+import GoldHistoryChart from '../components/react/GoldHistoryChart.tsx';
+import GoldValueOverTime from '../components/react/GoldValueOverTime.tsx';
+import { getGoldPrice } from '../lib/api/metalPriceApi';
+import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore } from '../lib/utils/longHistory';
+import { GOLD_EVENTS, eventMetric } from '../lib/goldEvents';
+
+// ── Data (build-aikana) ──
+// Arkisto 6/2011–2025 + päivittäinen historia 2026 → arkipäivät. Ks. lib/utils/longHistory.ts.
+const HELSINKI_TZ = 'Europe/Helsinki';
+const todayHki = new Date().toLocaleDateString('sv-SE', { timeZone: HELSINKI_TZ }); // YYYY-MM-DD
+const currentYear = Number(todayHki.slice(0, 4));
+
+const rows = loadLongHistory();
+const first = rows[0];
+const last = rows[rows.length - 1];
+const firstYear = Number(first.date.slice(0, 4));
+const lastYear = Number(last.date.slice(0, 4));
+
+// Kuvaajan data: 1 v päivittäin, pidemmät aikavälit viikoittain (kevyempi HTML)
+const oneYearAgo = `${lastYear - 1}${last.date.slice(4)}`;
+const daily = rows.filter(r => r.date >= oneYearAgo);
+// Ensimmäinen havainto mukaan, jotta "Kaikki"-aikaväli alkaa samasta päivästä kuin tunnusluvut
+const weeklyRows = [first, ...weekly(rows).filter(r => r.date !== first.date)];
+
+const years = yearStats(rows, currentYear);
+const yearsDesc = [...years].reverse();
+const completedYears = years.filter(y => !y.ongoing);
+const heatmap = monthlyReturns(rows, todayHki.slice(0, 7));
+
+// "Nyt": sama hintalähde kuin muualla sivustolla (build-aikainen spot)
+const goldPrice = await getGoldPrice();
+const nowSpot = goldPrice?.priceEurGram || last.price;
+const nowDate = goldPrice?.updatedAt ? new Date(goldPrice.updatedAt) : new Date(`${last.date}T12:00:00Z`);
+const nowLabel = nowDate.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: HELSINKI_TZ });
+
+const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+const fmtInt = (n: number) => new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }).format(n);
+const fmtPct = (n: number, d = 1) => `${n > 0 ? '+' : n < 0 ? '−' : '±'}${Math.abs(n).toFixed(d).replace('.', ',')} %`;
+const fmtDateFi = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d}.${m}.${y}`;
+};
+
+// Tunnusluvut (näkyvä UI — ei schemaan eikä metaan, sääntö 3)
+const ath = rows.reduce((m, r) => (r.price > m.price ? r : m));
+const tenYearsAgoIso = `${lastYear - 10}${last.date.slice(4)}`;
+const tenYearsAgo = rows[indexOnOrBefore(rows, tenYearsAgoIso)];
+const change10y = ((last.price - tenYearsAgo.price) / tenYearsAgo.price) * 100;
+
+// Käännekohdat: toimitettu teksti + datasta lasketut luvut
+const events = GOLD_EVENTS
+  .map(e => {
+    const m = eventMetric(rows, e);
+    if (!m) return null;
+    return {
+      id: e.id,
+      kind: e.kind,
+      anchorDate: m.anchorDate,
+      dateLabel: fmtDateFi(e.date),
+      title: e.title,
+      text: e.text,
+      metricLabel: m.label,
+      metricValue: m.value,
+      dir: m.dir,
+      price: m.price,
+      sourceName: e.sourceName,
+      sourceUrl: e.sourceUrl,
+    };
+  })
+  .filter((e): e is NonNullable<typeof e> => e !== null);
+
+// Lämpökartan värit — AA-kontrasti: vahvoissa soluissa valkoinen teksti *-700-pohjalla
+const heatClass = (pct: number | null) => {
+  if (pct === null) return 'bg-transparent text-gray-300';
+  const a = Math.abs(pct);
+  if (a < 1) return 'bg-gray-100 text-gray-700';
+  if (pct > 0) return a < 3 ? 'bg-emerald-50 text-emerald-900' : a < 6 ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-700 text-white';
+  return a < 3 ? 'bg-red-50 text-red-900' : a < 6 ? 'bg-red-200 text-red-950' : 'bg-red-700 text-white';
+};
+const heatLabel = (pct: number | null) =>
+  pct === null ? '' : `${pct > 0.5 ? '+' : pct < -0.5 ? '−' : ''}${Math.abs(Math.round(pct))}`;
+const MONTHS_SHORT = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
+const MONTHS_INITIAL = ['T', 'H', 'M', 'H', 'T', 'K', 'H', 'E', 'S', 'L', 'M', 'J'];
+
+// ── UKK (sama data näkyvään osioon ja FAQPage-skeemaan) ──
+// Vain päättyneiden vuosien lukuja — ei päivittyvää hintaa (sääntö 3).
+const lastFull = completedYears[completedYears.length - 1];
+const tenBack = completedYears.find(y => y.year === lastFull.year - 10);
+const worstYear = completedYears.reduce((m, y) => (y.changePct < m.changePct ? y : m));
+const bestYear = completedYears.reduce((m, y) => (y.changePct > m.changePct ? y : m));
+const pastRows = rows.filter(r => Number(r.date.slice(0, 4)) <= lastFull.year);
+const worstDay = pastRows.slice(1).reduce((m, r, i) => {
+  const pct = ((r.price - pastRows[i].price) / pastRows[i].price) * 100;
+  return pct < m.pct ? { date: r.date, pct } : m;
+}, { date: '', pct: 0 });
+
+const faqItems = [
+  ...(tenBack ? [{
+    question: 'Miten kullan hinta on kehittynyt kymmenessä vuodessa?',
+    answer: `Kullan keskihinta oli vuonna ${tenBack.year} noin ${fmt(tenBack.avg)} €/g ja vuonna ${lastFull.year} noin ${fmt(lastFull.avg)} €/g — euromääräinen hinta on siis noussut noin ${Math.round(((lastFull.avg - tenBack.avg) / tenBack.avg) * 100)} %. Kehitys ei ole ollut tasaista: välissä on ollut sekä jyrkkiä pudotuksia että nopeita nousuja. Vuosittaiset luvut ovat tämän sivun vuositaulukossa.`,
+  }] : []),
+  {
+    question: 'Milloin kullan hinta laski eniten?',
+    answer: `Päättyneistä kalenterivuosista heikoin oli ${worstYear.year}, jolloin euromääräinen hinta laski ${fmtPct(worstYear.changePct, 0).replace('−', '')}. Suurin yksittäisen päivän pudotus aineistossa osui päivälle ${fmtDateFi(worstDay.date)} (${fmtPct(worstDay.pct)}). Vahvin vuosi oli ${bestYear.year} (${fmtPct(bestYear.changePct, 0)}). Taustat löytyvät sivun käännekohdista.`,
+  },
+  {
+    question: 'Miksi kullan hinta euroissa kehittyy eri tavalla kuin dollareissa?',
+    answer: 'Kultaa noteerataan maailmalla dollareissa, joten euromääräiseen hintaan vaikuttaa myös euron ja dollarin välinen kurssi. Kun euro heikkenee, kulta kallistuu euroissa, vaikka dollarihinta pysyisi ennallaan — ja päinvastoin. Esimerkiksi kesällä 2022 dollarimääräinen hinta laski selvästi, mutta euron heikentyessä euromääräinen pudotus jäi paljon pienemmäksi. Suomalaiselle myyjälle ratkaisee euromääräinen hinta.',
+  },
+  {
+    question: 'Mistä kullan hintahistorian tiedot ovat peräisin?',
+    answer: `Hinnat perustuvat MetalPrice API -palvelun päivittäisiin noteerauksiin kesäkuusta 2011 alkaen. Dollarimääräinen unssihinta muunnetaan euroiksi grammalta saman päivän valuuttakurssilla. Aineistossa ovat pörssipäivät; pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen. Lue lisää kohdasta <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä ja lähteet</a>.`,
+  },
+  {
+    question: 'Ennustaako kullan hintahistoria tulevaa hintaa?',
+    answer: 'Ei. Historia näyttää, miten hinta on reagoinut esimerkiksi korkoihin, kriiseihin ja valuuttakursseihin, mutta tulevaa hintaa se ei ennusta. Jos harkitset kullan myyntiä, olennaista on tämän päivän hinta — oman esineesi tavoitehinnan näet <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">kultalaskurista</a>.',
+  },
+];
+
+const stripHtml = (html: string) => html.replace(/<[^>]+>/g, '').trim();
+const pageUrl = 'https://kultalaskuri.fi/kullan-hintahistoria/';
+const pageTitle = `Kullan hintahistoria euroina ${firstYear}–${lastYear} | Kultalaskuri.fi`;
+const pageDescription = `Kullan hinnan historia euroina grammalta vuodesta ${firstYear}: vuosittaiset keski-, ala- ja ylähinnat, kuukausimuutokset ja käännekohdat, jotka selittävät suurimmat heilahdukset.`;
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", "@id": "https://kultalaskuri.fi/#website", "url": "https://kultalaskuri.fi", "name": "Kultalaskuri.fi", "inLanguage": "fi-FI" },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Kullan hinta", "item": "https://kultalaskuri.fi/kullan-hinta/" },
+        { "@type": "ListItem", "position": 3, "name": "Kullan hintahistoria", "item": pageUrl }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": pageUrl,
+      "url": pageUrl,
+      "name": `Kullan hintahistoria euroina ${firstYear}–${lastYear}`,
+      "description": pageDescription,
+      "inLanguage": "fi-FI",
+      "dateModified": new Date().toISOString(),
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
+    },
+    {
+      "@type": "Dataset",
+      "name": "Kullan hintahistoria euroina grammalta",
+      "description": `Kullan spot-hinnan (puhdas kulta) päivittäinen historia euroina grammalta pörssipäiviltä ${fmtDateFi(first.date)} alkaen. Vuosittaiset keski-, ala- ja ylähinnat sekä kuukausimuutokset. Lähde: MetalPrice API; muunnos dollaria unssilta → euroa grammalta päivän valuuttakurssilla.`,
+      "url": pageUrl,
+      "temporalCoverage": `${first.date}/${last.date}`,
+      "variableMeasured": "Kullan hinta euroina grammalta (€/g)",
+      "measurementTechnique": "Päivittäinen noteeraus, muunnettu USD/troy-unssi → EUR/gramma",
+      "isBasedOn": "https://metalpriceapi.com/",
+      "inLanguage": "fi-FI",
+      "creator": { "@type": "Organization", "name": "Kultalaskuri.fi", "url": "https://kultalaskuri.fi" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": faqItems.map(f => ({
+        "@type": "Question",
+        "name": f.question,
+        "acceptedAnswer": { "@type": "Answer", "text": stripHtml(f.answer) }
+      }))
+    }
+  ]
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} schema={JSON.stringify(schemaData)}>
+
+  <div class="relative hero-surface pt-28 pb-14 md:pb-16 px-4 overflow-hidden">
+    <div class="max-w-4xl mx-auto relative z-10 text-center">
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center justify-center gap-2 text-xs text-gray-400">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li><a href="/kullan-hinta/" class="hover:text-gold-400 transition-colors">Kullan hinta</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-300">Hintahistoria</li>
+        </ol>
+      </nav>
+
+      <div class="kicker-dark">Hintahistoria {firstYear}–{lastYear}</div>
+
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+        Kullan hintahistoria
+        <span class="block text-gold-400 mt-1 pb-1.5">euroina vuodesta {firstYear}</span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
+        Kullan hinta euroina grammalta yli {lastYear - firstYear} vuoden ajalta: pitkän aikavälin kehitys,
+        vuosittaiset tilastot, kuukausimuutokset — ja käännekohdat, jotka selittävät, miksi hinta
+        on heilahdellut.
+      </p>
+    </div>
+
+    {/* Tunnusluvut */}
+    <div class="max-w-5xl mx-auto relative z-10 mt-10 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Aineisto alkaa</p>
+        <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-white">{fmt(first.price)} <span class="text-sm text-gray-400">€/g</span></p>
+        <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(first.date)}</p>
+      </div>
+      <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Korkein päätös</p>
+        <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-gold-400">{fmt(ath.price)} <span class="text-sm text-gold-500">€/g</span></p>
+        <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(ath.date)}</p>
+      </div>
+      <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Muutos 10 vuodessa</p>
+        <p class={`num text-[22px] font-semibold tracking-[-0.02em] leading-none ${change10y >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{fmtPct(change10y, 0)}</p>
+        <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(tenYearsAgo.date)} → {fmtDateFi(last.date)}</p>
+      </div>
+      <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Pörssipäiviä</p>
+        <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-white">{fmtInt(rows.length)}</p>
+        <p class="text-[11px] text-gray-400 mt-1.5">päivittäistä noteerausta</p>
+      </div>
+    </div>
+  </div>
+
+  {/* ── Kuvaaja + käännekohdat ── */}
+  <section id="kuvaaja" class="bg-ink-950 border-t border-white/5 py-14 md:py-16 px-4 scroll-mt-24">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">Kullan hinta euroina {firstYear}–{lastYear}</h2>
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl leading-relaxed mb-6">
+        Numeroidut merkit kuvaajassa ovat käännekohtia — päiviä, jolloin hinta heilahti poikkeuksellisen
+        paljon tai suunta kääntyi. Valitse aikaväli, vaihda pitoisuutta tai mittaa muutos kahden päivän välillä.
+      </p>
+
+      <GoldHistoryChart
+        client:load
+        daily={daily}
+        weekly={weeklyRows}
+        events={events}
+        eventsHeading="Kullan hinnan käännekohdat"
+        eventsIntro="Miksi hinta heilahti? Alla on tunnetuimmat tapahtumat, jotka ovat liikuttaneet kullan hintaa. Tapahtumien kuvaukset perustuvat uutislähteisiin, joiden prosenttiluvut ovat yleensä dollareissa. Korttien hintaluvut on laskettu tämän sivun euromääräisestä aineistosta."
+      />
+
+      <p class="text-gray-400 text-xs mt-8 leading-relaxed">
+        Kullan spot-hinta euroina per gramma (maailmanmarkkinahinta, puhdas kulta). Lähde: MetalPrice API ·
+        {fmtInt(rows.length)} pörssipäivää {fmtDateFi(first.date)}–{fmtDateFi(last.date)} · Historiallinen kehitys ei ennusta tulevaa hintaa.
+      </p>
+    </div>
+  </section>
+
+  {/* ── Vuositaulukko ── */}
+  <section id="vuosittain" class="bg-white py-16 px-4 scroll-mt-24">
+    <div class="max-w-4xl mx-auto">
+      <div class="kicker-light">Vuositilastot</div>
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">Kullan hinta vuosittain</h2>
+      <p class="text-gray-600 leading-relaxed mb-8">
+        Vuoden keskihinta sekä matalin ja korkein päätöskurssi euroina grammalta. Muutos on laskettu
+        edellisen vuoden viimeisestä noteerauksesta vuoden viimeiseen.
+      </p>
+
+      <div class="rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <caption class="sr-only">Kullan hinta vuosittain euroina grammalta: keskihinta, matalin, korkein ja vuosimuutos</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-3.5 px-4 md:px-5 font-semibold">Vuosi</th>
+              <th class="py-3.5 px-4 md:px-5 font-semibold text-right">Keskihinta</th>
+              <th class="hidden md:table-cell py-3.5 px-5 font-semibold text-right">Matalin</th>
+              <th class="hidden md:table-cell py-3.5 px-5 font-semibold text-right">Korkein</th>
+              <th class="py-3.5 px-4 md:px-5 font-semibold text-right">Muutos</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 bg-white text-gray-700">
+            {yearsDesc.map(y => (
+              <tr class={y.ongoing ? 'bg-gold-50/60' : 'hover:bg-gray-50 transition-colors'}>
+                <td class="py-3 px-4 md:px-5 font-semibold text-gray-900 num">
+                  {y.year}
+                  {y.ongoing && <span class="block text-[11px] font-normal text-gray-500">kuluva vuosi</span>}
+                  {y.partialStart && <span class="block text-[11px] font-normal text-gray-500">{fmtDateFi(y.first.date)} alkaen</span>}
+                </td>
+                <td class="py-3 px-4 md:px-5 text-right num font-semibold text-gray-900">{fmt(y.avg)} €</td>
+                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">{fmt(y.min.price)} €</td>
+                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">{fmt(y.max.price)} €</td>
+                <td class={`py-3 px-4 md:px-5 text-right num font-semibold ${y.changePct >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{fmtPct(y.changePct)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mt-4">
+        Hinnat euroa grammalta (puhdas kulta). Korkeimman ja matalimman päätöskurssin päivät näet
+        kuvaajasta. Aineiston ensimmäinen vuosi alkaa kesäkuusta, joten sen muutos on laskettu
+        ensimmäisestä noteerauksesta.
+      </p>
+    </div>
+  </section>
+
+  {/* ── Lämpökartta ── */}
+  <section id="kuukausimuutokset" class="bg-gray-50 border-t border-gray-100 py-16 px-4 scroll-mt-24">
+    <div class="max-w-5xl mx-auto">
+      <div class="kicker-light">Kuukausittain</div>
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">Kullan hinnan kuukausimuutokset</h2>
+      <p class="text-gray-600 leading-relaxed mb-6 max-w-3xl">
+        Jokainen ruutu kertoo, kuinka monta prosenttia euromääräinen hinta muuttui kuukauden aikana
+        (kuukauden viimeinen noteeraus edellisen kuukauden viimeiseen). Vihreä on nousua, punainen laskua.
+      </p>
+
+      <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-2 sm:p-4">
+        <table class="w-full table-fixed border-separate border-spacing-[2px] sm:border-spacing-1 text-center">
+          <caption class="sr-only">Kullan euromääräisen hinnan kuukausimuutokset prosentteina vuosittain</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="w-10 sm:w-14 text-[10px] sm:text-[11px] font-semibold text-gray-500 text-left pl-1">Vuosi</th>
+              {MONTHS_SHORT.map((m, i) => (
+                <th scope="col" class="text-[10px] sm:text-[11px] font-semibold text-gray-500 pb-1">
+                  <span class="sm:hidden" aria-hidden="true">{MONTHS_INITIAL[i]}</span>
+                  <span class="hidden sm:inline">{m}</span>
+                  <span class="sr-only sm:hidden">{m}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {heatmap.map(row => (
+              <tr>
+                <th scope="row" class="text-[11px] sm:text-xs font-semibold text-gray-700 text-left pl-1 num">{row.year}</th>
+                {row.cells.map(c => (
+                  <td
+                    class={`h-7 sm:h-9 rounded-[3px] text-[10px] sm:text-xs font-semibold num ${heatClass(c.pct)} ${c.ongoing ? 'ring-1 ring-inset ring-gold-500' : ''}`}
+                    title={c.pct !== null ? `${MONTHS_SHORT[c.month - 1]}kuu ${row.year}: ${fmtPct(c.pct)}${c.ongoing ? ' (kesken)' : ''}` : undefined}
+                  >
+                    {c.pct !== null ? heatLabel(c.pct) : <span class="sr-only">ei tietoa</span>}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-xs text-gray-600">
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-emerald-700"></span> yli 6 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-emerald-200"></span> 3–6 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-emerald-50 border border-emerald-100"></span> 1–3 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-gray-100"></span> alle 1 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-50 border border-red-100"></span> −1…−3 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-200"></span> −3…−6 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-700"></span> yli −6 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] ring-1 ring-inset ring-gold-500 bg-white"></span> kuluva kuukausi</span>
+      </div>
+    </div>
+  </section>
+
+  {/* ── Kultasi arvo ajassa ── */}
+  <section id="arvo-ajassa" class="bg-white py-16 px-4 scroll-mt-24">
+    <div class="max-w-5xl mx-auto">
+      <div class="kicker-light">Vertailu</div>
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">Kultasi arvo ajassa</h2>
+      <p class="text-gray-600 leading-relaxed mb-8 max-w-3xl">
+        Paljonko sama kultaesine oli arvoltaan valitsemanasi vuonna — ja paljonko nyt? Vertailu käyttää
+        vuoden keskimääräistä spot-hintaa ja näyttää esineen pörssiarvon eli puhtaan kullan arvon.
+      </p>
+      <GoldValueOverTime
+        client:visible
+        years={completedYears.map(y => ({ year: y.year, avg: y.avg, partial: y.partialStart }))}
+        nowSpot={nowSpot}
+        nowLabel={nowLabel}
+      />
+    </div>
+  </section>
+
+  {/* ── Menetelmä ── */}
+  <section id="menetelma" class="bg-gray-50 border-t border-gray-100 py-16 px-4 scroll-mt-24">
+    <div class="max-w-3xl mx-auto">
+      <div class="kicker-light">Läpinäkyvyys</div>
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Menetelmä ja lähteet</h2>
+      <ul class="space-y-3 text-gray-700 leading-relaxed">
+        <li><strong>Lähde:</strong> MetalPrice API -palvelun päivittäiset noteeraukset {fmtDateFi(first.date)} alkaen (vanhempaa kultadataa palvelussa ei ole).</li>
+        <li><strong>Muunnos:</strong> kullan dollarihinta unssilta muunnetaan euroiksi grammalta saman päivän euron dollarikurssilla (1 troy-unssi = 31,1035 g).</li>
+        <li><strong>Pörssipäivät:</strong> viikonloput eivät ole mukana. Pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen; yhden vuoden kuvaaja ja kaikki tilastot on laskettu päivätasolla.</li>
+        <li><strong>Tarkistus:</strong> aineiston euron dollarikurssin vuosikeskiarvot vastaavat Euroopan keskuspankin julkaisemia ja kullan dollarimääräiset vuosikeskiarvot LBMA:n julkaisemia lukuja alle 0,3 %:n tarkkuudella.</li>
+        <li><strong>Poikkeamat:</strong> lähdeaineistossa virheellisiksi todetut päivät 20.–28.6.2013 on jätetty pois. Yksittäisen päivän noteeraus voi ajoituksen vuoksi osua päivää myöhemmäksi kuin pörssin päätöskurssi.</li>
+        <li><strong>Käännekohdat:</strong> tapahtumien kuvaukset perustuvat kunkin kortin lähdelinkkiin; hintamuutokset on laskettu tämän sivun aineistosta.</li>
+      </ul>
+    </div>
+  </section>
+
+  {/* ── UKK ── */}
+  <section id="ukk" class="bg-white py-16 px-4 scroll-mt-24">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä kullan hintahistoriasta</h2>
+      <div class="grid grid-cols-1 gap-4 mb-12">
+        {faqItems.map(item => <FaqItem question={item.question} answer={item.answer} />)}
+      </div>
+
+      <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">Kullan hinta tänään →</a>
+        <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti – näin saat parhaan hinnan →</a>
+        <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Tunnista kullan leimat →</a>
+        <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

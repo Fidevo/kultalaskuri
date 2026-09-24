@@ -1,5 +1,9 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect, useId } from 'react';
 import { GOLD_PURITIES } from '../../lib/calculations/goldCalculator';
+import {
+  track, SVG_FONT, linePath as smoothPath, fmtDateShort, fmtDateFull, fmt2,
+  daysBetween, changeBetween, ChangeText,
+} from './chartUtils';
 
 interface PricePoint {
   date: string;
@@ -24,10 +28,6 @@ interface Props {
   data: PricePoint[];
 }
 
-const track = (event: string, data?: Record<string, string | number>) => {
-  try { (window as any).umami?.track(event, data); } catch {}
-};
-
 // SVG canvas -reunukset. Leveys/korkeus lasketaan komponentissa
 // responsiivisesti: kapealla näytöllä käytetään pienempää viewBoxia,
 // jolloin kuvaaja renderöityy korkeampana ja tekstit luettavina.
@@ -39,60 +39,6 @@ const RANGES: { label: string; key: Range; days: number }[] = [
   { label: '90 pv',   key: '90D', days: 90 },
   { label: 'Kaikki',  key: 'Max', days: Infinity },
 ];
-
-// Suorat viivasegmentit päätöskurssien välillä (ei Bézier-pehmennystä) —
-// finanssikuvaajan tapaan jokainen piste on todellinen havainto.
-function smoothPath(pts: { x: number; y: number }[]): string {
-  if (pts.length < 2) return pts.length === 1 ? `M${pts[0].x},${pts[0].y}` : '';
-  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-  for (let i = 1; i < pts.length; i++) {
-    d += ` L${pts[i].x.toFixed(1)},${pts[i].y.toFixed(1)}`;
-  }
-  return d;
-}
-
-function parseDate(s: string): Date {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function fmtDateShort(s: string): string {
-  const d = parseDate(s);
-  return `${d.getDate()}.${d.getMonth() + 1}.`;
-}
-
-function fmtDateFull(s: string): string {
-  return parseDate(s).toLocaleDateString('fi-FI', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-const fmt2 = (n: number) => n.toFixed(2).replace('.', ',');
-
-function daysBetween(a: string, b: string): number {
-  return Math.round((parseDate(b).getTime() - parseDate(a).getTime()) / 86400000);
-}
-
-interface Change { pct: number; eur: number; dir: 'up' | 'down' | 'flat' }
-
-function changeBetween(from: number, to: number): Change {
-  const pct = from > 0 ? ((to - from) / from) * 100 : 0;
-  // Alle 0,05 %:n liike näytetään "ennallaan" (sama kohinaraja kuin etusivun heroissa)
-  const dir = Math.abs(pct) < 0.05 ? 'flat' : pct > 0 ? 'up' : 'down';
-  return { pct, eur: to - from, dir };
-}
-
-function ChangeText({ c }: { c: Change }) {
-  const color = c.dir === 'up' ? 'text-emerald-400' : c.dir === 'down' ? 'text-red-400' : 'text-gray-300';
-  const arrow = c.dir === 'up' ? '▲' : c.dir === 'down' ? '▼' : '';
-  const sign = c.eur > 0 ? '+' : c.eur < 0 ? '−' : '±';
-  return (
-    <>
-      <span className={`font-semibold ${color}`}>
-        {arrow && `${arrow} `}{Math.abs(c.pct).toFixed(1).replace('.', ',')} %
-      </span>
-      <span className="text-gray-300"> ({sign}{fmt2(Math.abs(c.eur))} €/g)</span>
-    </>
-  );
-}
 
 export default function GoldPriceChart({ data }: Props) {
   const sliderId = useId();
@@ -293,7 +239,6 @@ export default function GoldPriceChart({ data }: Props) {
   const selectedIndex = Math.min(keyboardIndex ?? filtered.length - 1, filtered.length - 1);
   const selectedPoint = filtered[selectedIndex];
   const isUp = stats.chg >= 0;
-  const SVG_FONT = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
   return (
     <div className="space-y-4">

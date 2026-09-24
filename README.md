@@ -39,6 +39,7 @@ METALPRICE_API_KEY=...       # pakollinen tuotantobuildissa
 |---|---|---|
 | `/` | `src/pages/index.astro` | Päälaskuri, tavoitehinnat, painoarvio + tyypilliset painot -taulukko, hintagraafi, leimaopas-tiiviste, FAQ |
 | `/kullan-hinta/` | `kullan-hinta.astro` | Hintakehityssivu: graafi + kuukausitaulukko + FAQ |
+| `/kullan-hintahistoria/` | `kullan-hintahistoria.astro` | Pitkä historia 6/2011 →: graafi (1 v–kaikki), käännekohdat lähteineen (`lib/goldEvents.ts`), vuositaulukko, kuukausimuutosten lämpökartta, "Kultasi arvo ajassa" (pörssiarvo), Dataset + FAQPage -schema |
 | `/kullan-myynti/` | `kullan-myynti.astro` | Myyntiopas + laskuri (sis. tarjousvertailu) + "Näin vertaat tarjouksia" -osio + FAQ |
 | `/kullan-myyntipaikat/` | `kullan-myyntipaikat.astro` | Myyntikanavien vertailu: kullanostaja, verkkopalvelu, panttilainaamo, huutokauppa, yksityismyynti |
 | `/kulta-esineet/` | `kulta-esineet.astro` | Kultaosuus esinetyypeittäin: sormukset, ketjut, kellot, hammaskulta, kolikot (mm. markka-ajan kultarahat), harkot |

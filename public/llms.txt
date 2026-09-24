@@ -37,6 +37,10 @@
   ja 18K/750), hinta unssilta ja kilolta, spot-hinnan päiväkohtainen historia,
   kuukausitilastot ja selitys siitä mistä kullan hinta muodostuu (korkotaso,
   dollarin kurssi, keskuspankkien ostot, geopolitiikka).
+- [Kullan hintahistoria](https://kultalaskuri.fi/kullan-hintahistoria/): kullan hinta
+  euroina grammalta kesäkuusta 2011 alkaen — vuosittaiset keski-, ala- ja ylähinnat,
+  kuukausimuutokset, pitoisuuskohtainen pörssiarvo (14K/18K) sekä käännekohdat
+  (esim. eurokriisi 2011, romahdus 2013, Brexit 2016, koronakriisi 2020) lähteineen.
 - [Kullan leimat ja merkinnät](https://kultalaskuri.fi/kullan-leimat/): pitoisuusleimat
   (585, 750, 375, 999), kullan kemiallinen merkki Au, nimileimat, vuosileimat
   (esim. A9 = 2002, A10 = 2026), karaattitaulukko ja ulkomaiset merkinnät.
