@@ -45,12 +45,9 @@ async function main() {
     console.log(`✅ Tallennettu: ${today} → ${priceEurGram} €/g`);
   }
 
-  // Säilytä max 3 vuotta (ei leikkaa backfill-skriptillä täydennettyä historiaa)
-  const MAX_DAYS = 1095;
-  if (history.length > MAX_DAYS) {
-    history.splice(0, history.length - MAX_DAYS);
-  }
-
+  // Historiaa EI leikata: aiempi 1095 merkinnän raja olisi poistanut vanhinta
+  // dataa (myös backfillattua) noin neljän vuoden kuluttua. Pitkä historia
+  // ennen tämän tiedoston alkua on erillisessä price-history-archive.json:ssa.
   saveHistory(history);
   console.log(`📊 Historiassa ${history.length} päivää`);
 }

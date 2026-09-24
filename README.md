@@ -62,12 +62,15 @@ MetalPrice API (api-eu.metalpriceapi.com)
   │      └─ fallback: social/data/price-history.json viimeisin piste
   │
   ├─► social/scripts/save-price.mjs ── arkisin klo ~18: lisää päivän hinnan
-  │      └─ social/data/price-history.json  (max 1095 pv)
+  │      └─ social/data/price-history.json  (1.1.2026 →, ei leikata)
   │            ├─► GoldPriceChart (graafi), kuukausitaulukko, muutos-%
   │            └─► fallback-hinta
   │
-  └─► social/scripts/backfill-price-history.mjs ── manuaalinen historian täydennys
-         (timeframe-endpoint: 365 pv / 1 API-kutsu)
+  ├─► social/scripts/backfill-price-history.mjs ── manuaalinen historian täydennys
+  │      (timeframe-endpoint: 365 pv / 1 API-kutsu)
+  │
+  └─► social/scripts/backfill-archive.mjs ── pitkä historia ennen price-history.json:n alkua
+         └─ social/data/price-history-archive.json  (1.6.2011 – 31.12.2025, arkipäivät)
 ```
 
 Laskentalogiikka: `src/lib/calculations/goldCalculator.ts` — `GOLD_PURITIES` sisältää
@@ -110,3 +113,17 @@ node social/scripts/backfill-price-history.mjs 2025-07-01 2025-12-31
 
 Yksi kutsu kattaa enintään 365 päivää. Skripti ei ylikirjoita olemassa olevia päiviä ja
 ottaa varmuuskopion (`price-history.backup.json`).
+
+### Pitkä hintahistoria (arkisto)
+
+```sh
+node --env-file=.env social/scripts/backfill-archive.mjs 2011-06-01 2025-12-31          # kuiva-ajo
+node --env-file=.env social/scripts/backfill-archive.mjs 2011-06-01 2025-12-31 --yes    # hakee
+```
+
+Kirjoittaa `social/data/price-history-archive.json`:iin (ei koske `price-history.json`:iin).
+MetalPrice API:n XAU-historia alkaa **1.6.2011** (testattu 9/2026, Essential-taso).
+Validointi 9/2026: EUR/USD-vuosikeskiarvot vastaavat EKP:tä ~0,001:n tarkkuudella ja
+USD/oz-vuosikeskiarvot LBMA:ta alle 0,3 %:n tarkkuudella. Tunnettu lähdedatan virhejakso
+20.–28.6.2013 on jätetty pois (`EXCLUDED_RANGES` skriptissä). Huom: API:n päiväys voi
+viime vuosina vastata edellisen päivän päätöskurssia (±1 pv ajoitusero).
