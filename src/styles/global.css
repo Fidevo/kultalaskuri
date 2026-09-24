@@ -51,6 +51,14 @@
     outline-color: #ECD895;
   }
 
+  /* Mobiili (< 640 px): serif-otsikot text-3xl (30 px) rivittyivät 343 px:n leveydellä
+     3–4 riville. Kevennetään H1 28 px:iin ja sisältö-H2 26 px:iin — hierarkia säilyy,
+     md:-koot (≥ 768 px) ennallaan. Spesifisyys (elementti + luokka) voittaa utilityn. */
+  @media (max-width: 639px) {
+    h1.text-3xl { font-size: 1.75rem; line-height: 1.18; }
+    h2.text-3xl { font-size: 1.625rem; line-height: 1.2; }
+  }
+
   /* Taulukoissa numerot aina tasalevyisinä — sarakkeet asettuvat pystyyn */
   table {
     font-variant-numeric: tabular-nums;
