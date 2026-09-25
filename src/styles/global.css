@@ -11,6 +11,12 @@
     /* Firefoxin scrollbar-tuki */
     scrollbar-width: thin;
     scrollbar-color: #56637F #0B0F19;
+
+    /* iOS Safarin kumivenytys (overscroll) näyttää html-elementin taustan: ilman tätä
+       tumman footerin alle ja headerin yläpuolelle paljastui vaalea body-väri, joka
+       näytti "loputtomalta valkoiselta rullaukselta". Logon tumma väri → venytysalue
+       jatkaa headeria ja footeria. Sisältöalueen taustan antaa body (bg-gray-50). */
+    background-color: #0B0F19;
   }
 
   body {
