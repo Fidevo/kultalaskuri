@@ -55,7 +55,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/deploy-version.json
-          git add social/data/price-history.json
+          git add social/data/price-history.json social/data/silver-price-history.json
           git commit -m "Päivitä Pages-julkaisuleima [skip ci]"
           git push
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
