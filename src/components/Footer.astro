@@ -2,7 +2,8 @@
 const currentYear = new Date().getFullYear();
 const contactEmail = "info@kultalaskuri.fi";
 
-// Kolme ryhmää (30.9.2026): Kulta / Hopea / Palvelu. Umamin mukaan footeria klikataan
+// Kolme ryhmää (30.9.2026): Kulta / Hopea / Ohjeet ja tietoa. Laskurit oman metallinsa
+// ryhmän kärjessä (Kultalaskuri → Kulta, hopealaskuri → Hopea). Umamin mukaan footeria klikataan
 // vähän (1.–30.9.2026: 25 nav-clickiä vs. header 285), mutta linkit pysyvät kaikkien sivujen
 // löydettävyyden vuoksi. Tiivistys tehtiin toistosta (kolme luottamusriviä → yksi), ei
 // pienentämällä tekstiä tai osuma-alueita. Ankkurit samassa linjassa kuin sisältölinkit:
@@ -11,6 +12,7 @@ const groups = [
   {
     title: 'Kulta',
     links: [
+      { href: '/#laskuri', label: 'Kultalaskuri' },
       { href: '/kullan-hinta/', label: 'Kullan hinta tänään' },
       { href: '/kullan-hintahistoria/', label: 'Kullan hintakehitys' },
       { href: '/kullan-myynti/', label: 'Kullan myynti' },
@@ -28,9 +30,8 @@ const groups = [
     ],
   },
   {
-    title: 'Palvelu',
+    title: 'Ohjeet ja tietoa',
     links: [
-      { href: '/#laskuri', label: 'Kultalaskuri' },
       { href: '/oppaat/', label: 'Oppaat' },
       { href: '/sanasto/', label: 'Sanasto' },
       { href: '/tietoa/', label: 'Tietoa palvelusta' },
@@ -90,7 +91,7 @@ const headingClass = 'text-[11px] font-semibold uppercase tracking-[0.18em] text
         </ul>
       </nav>
 
-      {/* 3. HOPEA + PALVELU — mobiilissa samaan sarakkeeseen Kullan viereen */}
+      {/* 3. HOPEA + OHJEET JA TIETOA — mobiilissa samaan sarakkeeseen Kullan viereen */}
       <div class="col-span-1 md:col-span-5 grid md:grid-cols-2 gap-y-8 md:gap-12">
         {groups.slice(1).map((group) => (
           <nav aria-label={group.title}>
