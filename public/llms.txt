@@ -58,7 +58,7 @@
   harkot sekä kolikot (mm. Suomen markka-ajan 10 ja 20 markan kultarahat ja
   sijoituskolikot puhtaan kullan määrineen); mikä osa esineestä on kultaa ja mikä ei.
 - [Kullan myynti ja verotus](https://kultalaskuri.fi/kullan-myynti-verotus/):
-  korujen myynnin verovapaus 5 000 euroon asti, luovutusvoiton laskenta ja
+  korujen myyntivoittojen verovapaus 5 000 euroon asti, luovutusvoiton laskenta ja
   sijoituskullan verotus. Perustuu Verohallinnon ohjeisiin.
 - [Sanasto](https://kultalaskuri.fi/sanasto/): kullan myyntiin ja pitoisuuksiin
   liittyvät termit selitettyinä.

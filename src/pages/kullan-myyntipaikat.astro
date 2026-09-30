@@ -58,7 +58,7 @@ const schemaData = {
           "name": "Paljonko huutokauppa ottaa provisiota korujen myynnistä?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Myyjän provisio on suomalaisissa huutokauppataloissa tyypillisesti noin 15–25 prosenttia vasarahinnasta, ja lisäksi voi tulla esimerkiksi vakuutusmaksu. Ostaja maksaa vielä erikseen ostoprovision vasarahinnan päälle. Prosessi kestää yleensä viikkoja tai kuukausia, eikä kohde välttämättä mene kaupaksi, jos se ei saavuta lähtöhintaa. Huutokauppa kannattaa lähinnä silloin, kun esineen keräily- tai merkkiarvo ylittää selvästi sen sulatusarvon."
+            "text": "Myyjän provisio on suomalaisissa huutokauppataloissa tyypillisesti noin 15–25 prosenttia vasarahinnasta, ja lisäksi voi tulla esimerkiksi vakuutusmaksu. Ostaja maksaa vielä erikseen ostoprovision vasarahinnan päälle. Prosessi kestää yleensä viikkoja tai kuukausia, eikä kohde välttämättä mene kaupaksi, jos se ei saavuta myyjän kanssa sovittua pohjahintaa. Huutokauppa kannattaa lähinnä silloin, kun esineen keräily- tai merkkiarvo ylittää selvästi sen sulatusarvon."
           }
         },
         {
@@ -247,7 +247,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
         <li><strong>Myyjän provisio:</strong> tyypillisesti noin 15–25 % vasarahinnasta, ja lisäksi voi tulla esimerkiksi vakuutusmaksu. Ostaja maksaa erikseen ostoprovision.</li>
         <li><strong>Aikataulu:</strong> viikoista kuukausiin luettelointiaikataulun mukaan; maksu tilitetään vasta huutokaupan jälkeen.</li>
-        <li><strong>Ei takuuta kaupasta:</strong> jos kohde ei saavuta lähtöhintaa, se jää myymättä.</li>
+        <li><strong>Ei takuuta kaupasta:</strong> jos kohde ei saavuta myyjän kanssa sovittua pohjahintaa, se jää myymättä. Lähtöhinta on yleensä vain arvio — tarkista kyseisen huutokauppatalon ehdot.</li>
       </ul>
       <p class="text-gray-600 leading-relaxed mb-16">
         Kannattaa siis lähinnä silloin, kun nimekkään suunnittelijan koru, vanha merkkikello tai
@@ -273,7 +273,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 id="luotettavuus" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Näin varmistat ostajan</h2>
       <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
-        <li><strong>Rahanpesun valvontarekisteri:</strong> tavarakauppiaan, joka ottaa vastaan tai maksaa käteistä vähintään 10 000 euroa, on kuuluttava Lupa- ja valvontaviraston julkiseen rekisteriin. Rekisterin löydät <a href="https://lvv.fi/raha-omaisuus-ja-kiinteistonvalitys/rahanpesun-valvontarekisteri" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Lupa- ja valvontaviraston sivulta</a>.</li>
+        <li><strong>Rahanpesun valvontarekisteri:</strong> tavarakauppiaan, joka ottaa vastaan tai maksaa käteistä vähintään 10 000 euroa yhtenä tai toisiinsa kytkeytyvinä suorituksina, on kuuluttava Lupa- ja valvontaviraston julkiseen rekisteriin. Rekisterin löydät <a href="https://lvv.fi/raha-omaisuus-ja-kiinteistonvalitys/rahanpesun-valvontarekisteri" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Lupa- ja valvontaviraston sivulta</a>.</li>
         <li><strong>Kirjallinen erittely:</strong> paino, pitoisuus, päivän kurssi ja tarjottu summa eriteltyinä.</li>
         <li><strong>Läpinäkyvä punnitus ja testaus</strong> asiakkaan nähden.</li>
         <li><strong>Vertaa tavoitehintaan:</strong> tuo mukaan tuloste tai kuva <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">laskurin</a> antamasta tasosta.</li>
