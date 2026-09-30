@@ -73,6 +73,7 @@ const events = GOLD_EVENTS
       price: m.price,
       sourceName: e.sourceName,
       sourceUrl: e.sourceUrl,
+      extraSources: e.extraSources,
     };
   })
   .filter((e): e is NonNullable<typeof e> => e !== null);

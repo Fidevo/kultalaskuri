@@ -2,7 +2,10 @@
 // Kullan hinnan käännekohdat /kullan-hintahistoria/-sivun aikajanalle.
 //
 // TOIMITETTU SISÄLTÖ — jokainen tapahtuma on tarkistettu lähteestä (sourceUrl)
-// ja päivämäärän hintaliike omasta datasta (9/2026). Älä lisää tapahtumaa ilman
+// ja päivämäärän hintaliike omasta datasta (9/2026). 30.9.2026 KAIKKI kortit tarkistettu
+// uudelleen avaamalla lähde itse: tekstissä vain lähteessä sanottu + tämän sivun
+// aineistosta laskettu (merkitty "tämän sivun aineistossa"). CNN:n (451 EU:ssa) ja
+// CNBC:n (403) lähteet vaihdettu Suomesta avautuviin. Älä lisää tapahtumaa ilman
 // lähdettä (CLAUDE.md sääntö 6). Tekstit ovat kuvailevia, eivät ennusteita tai
 // sijoitusneuvoja. Euromääräiset luvut EIVÄT ole tässä tiedostossa — ne lasketaan
 // buildissa datasta (eventMetrics), jotta teksti ja data eivät voi erota.
@@ -24,6 +27,8 @@ export interface GoldEvent {
   text: string;
   sourceName: string;
   sourceUrl: string;
+  /** Lisälähde, kun kortin väitteet tulevat kahdesta lähteestä. */
+  extraSources?: { name: string; url: string }[];
 }
 
 export const GOLD_EVENTS: GoldEvent[] = [
@@ -32,9 +37,9 @@ export const GOLD_EVENTS: GoldEvent[] = [
     date: '2011-09-06',
     kind: 'peak',
     title: 'Eurokriisi ja silloinen ennätys',
-    text: 'Euroalueen velkakriisi ja Yhdysvaltain luottoluokituksen lasku elokuussa 2011 ajoivat sijoittajia kultaan. Kulta nousi syyskuun alussa silloiseen ennätykseensä, noin 1 900 dollariin unssilta. Euroissa tämän sivun aineiston huipputaso ylittyi jo syyskuussa 2012.',
-    sourceName: 'CNN Money',
-    sourceUrl: 'https://money.cnn.com/2011/11/17/markets/gold_europe_demand/index.htm',
+    text: 'Kiihtyvä inflaatio, Yhdysvaltain luottoluokituksen lasku ja pahentuva euroalueen velkakriisi ajoivat sijoittajia kultaan. Kulta nousi 5.–6.9.2011 silloiseen ennätykseensä, 1 895 dollariin unssilta (Lontoon iltapäivän hinta). Euroissa tämän sivun aineiston huipputaso ylittyi jo syyskuussa 2012.',
+    sourceName: 'World Gold Council',
+    sourceUrl: 'https://www.gold.org/news-and-events/press-releases/global-gold-demand-6-third-quarter-2011',
   },
   {
     id: 'romahdus-2013',
@@ -60,7 +65,7 @@ export const GOLD_EVENTS: GoldEvent[] = [
     date: '2016-06-24',
     kind: 'shock',
     title: 'Brexit-äänestys',
-    text: 'Britannian äänestettyä EU-erosta kulta nousi päivässä jyrkästi turvasatamakysynnän vuoksi. Euroissa nousu oli dollarihintaa suurempi, koska euro heikkeni samaan aikaan.',
+    text: 'Britannian äänestettyä EU-erosta kulta nousi päivän aikana dollareissa jopa 8 %, ja fyysisen kullan kysyntä kasvoi niin, että osalta jälleenmyyjiltä loppuivat kultakolikot ja kiloharkot. Euroissa kulta nousi kolmen vuoden huippuun, koska euro heikkeni samaan aikaan jyrkästi dollaria vastaan.',
     sourceName: 'Fortune',
     sourceUrl: 'https://fortune.com/2016/06/24/gold-brexit/',
   },
@@ -69,19 +74,20 @@ export const GOLD_EVENTS: GoldEvent[] = [
     date: '2019-06-20',
     kind: 'trend',
     trendDays: 90,
-    title: 'Koronlaskuodotukset käänsivät kullan nousuun',
-    text: 'Kesäkuussa 2019 odotukset Yhdysvaltain keskuspankin koronlaskuista nostivat kullan yli 1 400 dollarin, korkeimmalle tasolle sitten toukokuun 2013. Euroissa tämän sivun aineiston vuoden 2012 huipputaso ylittyi elokuussa 2019.',
+    title: 'Koronlaskuodotukset ja kuuden vuoden huippu',
+    text: 'Kesäkuussa 2019 kulta nousi yli 1 400 dollarin, korkeimmalle tasolle sitten toukokuun 2013, kun markkinat odottivat Yhdysvaltain keskuspankilta koronlaskuja. Euroissa tämän sivun aineiston vuoden 2012 huipputaso ylittyi elokuussa 2019.',
     sourceName: 'Business Standard / Reuters',
-    sourceUrl: 'https://www.business-standard.com/amp/article/markets/gold-slides-over-1-as-fed-dashes-imminent-rate-cut-hopes-119062600164_1.html',
+    sourceUrl: 'https://www.business-standard.com/article/markets/gold-slides-over-1-as-fed-dashes-imminent-rate-cut-hopes-119062600164_1.html',
   },
   {
     id: 'korona-2020',
     date: '2020-03-23',
     kind: 'shock',
     title: 'Koronakriisi: myyntipaniikki ja elvytys',
-    text: 'Maaliskuun 2020 markkinapaniikissa myös kultaa myytiin, kun sijoittajat tarvitsivat käteistä. Kun Yhdysvaltain keskuspankki ilmoitti 23.3. rajattomista arvopaperiostoista, kulta kääntyi jyrkkään nousuun.',
-    sourceName: 'CNBC',
-    sourceUrl: 'https://www.cnbc.com/2020/03/23/gold-markets-coronavirus-stimulus-measures-in-focus.html',
+    text: 'Maaliskuun 2020 markkinapaniikissa kultaakin myytiin, kun sijoittajat tarvitsivat käteistä riskisijoitustensa vakuusvaatimuksiin. Keskuspankkien koronlaskut sekä biljoonien dollarien elvytystoimet nostivat kullan maaliskuun notkahduksesta — Yhdysvaltain keskuspankki ilmoitti 23.3. ostavansa arvopapereita niin paljon kuin tarvitaan.',
+    sourceName: 'World Gold Council',
+    sourceUrl: 'https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q1-2020/investment',
+    extraSources: [{ name: 'Federal Reserve 23.3.2020', url: 'https://www.federalreserve.gov/newsevents/pressreleases/monetary20200323b.htm' }],
   },
   {
     id: 'yli-2000-2020',
@@ -99,9 +105,9 @@ export const GOLD_EVENTS: GoldEvent[] = [
     kind: 'trend',
     trendDays: 14,
     title: 'Venäjä hyökkää Ukrainaan',
-    text: 'Hyökkäyspäivänä kulta nousi päivän aikana yli 3 %, ja maaliskuun alussa se kävi lähellä silloista ennätystään.',
-    sourceName: 'CNBC',
-    sourceUrl: 'https://www.cnbc.com/2022/02/24/russia-invades-ukraine-gold-jumps-to-highest-in-more-than-a-year.html',
+    text: 'Venäjän hyökkäys nosti kullan kysyntää turvasatamana. Tiistaina 8.3.2022 kulta kävi 2 069,89 dollarissa unssilta, aivan vuoden 2020 ennätyksen (2 072,50 dollaria) tuntumassa.',
+    sourceName: 'Reuters / Yahoo Finance',
+    sourceUrl: 'https://finance.yahoo.com/news/russia-shock-hurls-gold-toward-133818938.html',
   },
   {
     id: 'pariteetti-2022',
@@ -109,7 +115,9 @@ export const GOLD_EVENTS: GoldEvent[] = [
     kind: 'trend',
     trendDays: 90,
     title: 'Euro ja dollari samanarvoisiksi',
-    text: 'Euro heikkeni dollarin tasolle ensimmäistä kertaa 20 vuoteen. Dollarimääräinen kullan hinta laski kesällä 2022, mutta euroissa pudotus jäi selvästi pienemmäksi — suomalaiselle myyjälle ratkaisee euromääräinen hinta.',
+    // Kulta-osuus tämän sivun aineistosta (30.9.2026): 1.6.–30.9.2022 dollareissa −10,1 %,
+    // euroissa −2,2 % (USD palautettu saman hintapalvelun EUR/USD-kurssilla).
+    text: 'Euro heikkeni dollarin tasolle ensimmäistä kertaa 20 vuoteen. Tämän sivun aineistossa kullan dollarimääräinen hinta laski kesällä 2022 selvästi, mutta euroissa pudotus jäi paljon pienemmäksi — suomalaiselle myyjälle ratkaisee euromääräinen hinta.',
     sourceName: 'Euronews',
     sourceUrl: 'https://www.euronews.com/business/2022/07/12/euro-reaches-parity-with-dollar-for-the-first-time-in-20-years',
   },
@@ -119,18 +127,18 @@ export const GOLD_EVENTS: GoldEvent[] = [
     kind: 'trend',
     trendDays: 90,
     title: 'Lähi-idän sota käänsi kullan nousuun',
-    text: 'Hamasin hyökkäys Israeliin 7.10.2023 lisäsi turvasatamakysyntää ja käänsi kullan nousuun seitsemän kuukauden pohjalta.',
-    sourceName: 'CNBC',
-    sourceUrl: 'https://www.cnbc.com/2023/10/09/safe-haven-gold-soars-as-investors-run-from-middle-east-clashes.html',
+    text: 'Israelin tapahtumat 7.10.2023 käynnistivät turvasatamakysynnän vauhdittaman nousun: syyskuun lopussa alle 1 850 dollarissa käynyt kulta nousi 27.10. mennessä takaisin yli 2 000 dollarin unssilta.',
+    sourceName: 'World Gold Council',
+    sourceUrl: 'https://www.gold.org/goldhub/research/gold-market-commentary-october-2023',
   },
   {
     id: 'tullit-2025',
     date: '2025-04-22',
     kind: 'peak',
     title: 'Tulliepävarmuus ja 3 500 dollaria',
-    text: 'Yhdysvaltain laajat tullit ja presidentti Trumpin painostus keskuspankkia kohtaan nostivat kullan 22.4.2025 ensimmäistä kertaa yli 3 500 dollarin unssilta.',
-    sourceName: 'CNN',
-    sourceUrl: 'https://www.cnn.com/2025/04/22/business/gold-price-surge-trump-powell-attacks-stocks-hnk-intl/index.html',
+    text: 'Presidentti Trumpin arvaamaton kauppapolitiikka ja hänen hyökkäyksensä keskuspankin pääjohtajaa Jerome Powellia vastaan nostivat kullan 22.4.2025 ensimmäistä kertaa 3 500 dollariin unssilta.',
+    sourceName: 'Investopedia / Yahoo Finance',
+    sourceUrl: 'https://finance.yahoo.com/news/gold-hits-3-500-trumps-105228599.html',
   },
   {
     id: 'pudotus-2025',
@@ -148,9 +156,9 @@ export const GOLD_EVENTS: GoldEvent[] = [
     date: '2026-01-30',
     kind: 'shock',
     title: 'Keskuspankin johtajavalinta romahdutti kullan',
-    text: 'Kulta nousi tammikuussa 2026 ensimmäistä kertaa yli 5 000 dollarin unssilta. Kun presidentti Trump nimesi Kevin Warshin keskuspankin johtoon 30.1., dollari vahvistui ja kulta putosi jyrkästi. Kortin prosenttiluku on laskettu tämän sivun euromääräisestä aineistosta.',
-    sourceName: 'CNBC',
-    sourceUrl: 'https://www.cnbc.com/2026/01/30/silver-gold-fall-price-usd-dollar-fed-warsh-chair-trump-metals.html',
+    text: 'Kulta nousi maanantaina 26.1.2026 ensimmäistä kertaa yli 5 000 dollarin unssilta. Kun presidentti Trump nimesi perjantaina 30.1. Kevin Warshin keskuspankin johtoon, dollari vahvistui ja kulta putosi 11,4 % 4 745,10 dollarin päätöshintaan.',
+    sourceName: 'Fortune',
+    sourceUrl: 'https://fortune.com/2026/01/31/what-happened-gold-silver-dollar-markets-kevin-warsh-fed-reaction/',
   },
 ];
 

@@ -24,6 +24,7 @@ export interface HistoryEvent {
   price: number; // €/g kohdistuspäivänä (spot)
   sourceName: string;
   sourceUrl: string;
+  extraSources?: { name: string; url: string }[];
 }
 
 export interface SeriesDef { key: string; label: string; title: string; factor: number }
@@ -527,11 +528,15 @@ export default function GoldHistoryChart({
                   <h3 className="text-lg md:text-xl font-bold text-white mb-2">{e.title}</h3>
                   <p className="text-sm md:text-[15px] text-gray-300 leading-relaxed">{e.text}</p>
                   <div className="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-white/10">
-                    <a href={e.sourceUrl} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200 underline underline-offset-2 decoration-white/20">
-                      Lähde: {e.sourceName}<ArrowUpRight size={13} aria-hidden="true" />
-                      <span className="sr-only">(avautuu uuteen välilehteen)</span>
-                    </a>
+                    <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      {[{ name: e.sourceName, url: e.sourceUrl }, ...(e.extraSources ?? [])].map((s, k) => (
+                        <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200 underline underline-offset-2 decoration-white/20">
+                          {k === 0 ? 'Lähde: ' : ''}{s.name}<ArrowUpRight size={13} aria-hidden="true" />
+                          <span className="sr-only">(avautuu uuteen välilehteen)</span>
+                        </a>
+                      ))}
+                    </span>
                     <button type="button" onClick={() => showEvent(e.id)}
                       className="inline-flex items-center gap-1.5 min-h-11 px-3 rounded-md border border-white/15 text-xs font-semibold text-gray-200 hover:border-gold-400/60 hover:text-white transition-colors">
                       <Crosshair size={14} aria-hidden="true" className="text-gold-400" />
