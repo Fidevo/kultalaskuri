@@ -11,21 +11,34 @@ interface PricePoint {
 }
 
 type Range = '7D' | '30D' | '90D' | '1Y';
-type Series = 'spot' | '18K' | '14K';
+type Series = string;
 type Mode = 'explore' | 'measure';
+
+export interface SeriesDef { key: string; label: string; title: string; factor: number }
 
 // Pitoisuusnäkymä: spot = puhdas kulta (100 %), muut = pörssiarvo grammalta
 // kyseisellä pitoisuudella. Kertoimet GOLD_PURITIES-taulukosta (ei kovakoodausta).
 // HUOM: vain pörssiarvo — tavoitehintaa ei piirretä, koska kahden viivan suhteesta
 // voisi päätellä laskennan kertoimen (CLAUDE.md sääntö 4).
-const SERIES: { key: Series; label: string; title: string; factor: number }[] = [
+const SERIES: SeriesDef[] = [
   { key: 'spot', label: 'Spot', title: 'Kullan spot-hinta €/g', factor: 1 },
   { key: '18K', label: '18K', title: '18K (750) pörssiarvo €/g', factor: GOLD_PURITIES['18K'].decimal },
   { key: '14K', label: '14K', title: '14K (585) pörssiarvo €/g', factor: GOLD_PURITIES['14K'].decimal },
 ];
 
+// Valinnaiset propsit hopeasivua varten (/hopean-hinta/). Oletukset = kulta,
+// joten kultasivujen käytös ei muutu.
 interface Props {
   data: PricePoint[];
+  seriesDefs?: SeriesDef[];
+  /** Y-akselin desimaalit (hopean grammahinta on alle parin euron). */
+  axisDecimals?: number;
+  /** Y-akselin minimimarginaali €/g — kullalla 1 €, hopealla paljon pienempi. */
+  minPad?: number;
+  /** Ruudunlukijatekstin metalli, esim. "Kullan" / "Hopean". */
+  metalGenitive?: string;
+  /** Umami-tapahtumien etuliite, jotta kulta ja hopea eivät sekoitu. */
+  trackPrefix?: string;
 }
 
 // SVG canvas -reunukset. Leveys/korkeus lasketaan komponentissa
@@ -42,7 +55,9 @@ const RANGES: { label: string; key: Range; days: number }[] = [
   { label: '1 v',     key: '1Y',  days: 365 },
 ];
 
-export default function GoldPriceChart({ data }: Props) {
+export default function GoldPriceChart({
+  data, seriesDefs = SERIES, axisDecimals = 0, minPad = 1, metalGenitive = 'Kullan', trackPrefix = 'hintahistoria',
+}: Props) {
   const sliderId = useId();
   const [keyboardIndex, setKeyboardIndex] = useState<number | null>(null);
   const [range, setRange] = useState<Range>('90D');
@@ -74,7 +89,7 @@ export default function GoldPriceChart({ data }: Props) {
   const CW = VW - P.l - P.r;
   const CH = VH - P.t - P.b;
 
-  const seriesCfg = SERIES.find(s => s.key === series)!;
+  const seriesCfg = seriesDefs.find(s => s.key === series) ?? seriesDefs[0];
 
   // Valittu aikaväli valitulla pitoisuudella (spot → sellaisenaan)
   const filtered = useMemo(() => {
@@ -107,7 +122,7 @@ export default function GoldPriceChart({ data }: Props) {
     const prices = filtered.map(d => d.price);
     const rawMin = Math.min(...prices);
     const rawMax = Math.max(...prices);
-    const pad = Math.max((rawMax - rawMin) * 0.15, 1);
+    const pad = Math.max((rawMax - rawMin) * 0.15, minPad);
     const minP = rawMin - pad;
     const maxP = rawMax + pad;
     const n = filtered.length;
@@ -118,7 +133,7 @@ export default function GoldPriceChart({ data }: Props) {
       price: d.price,
     }));
     return { pts, minP, maxP };
-  }, [filtered, CW, CH]);
+  }, [filtered, CW, CH, minPad]);
 
   const linePath = useMemo(() => smoothPath(pts), [pts]);
 
@@ -187,15 +202,15 @@ export default function GoldPriceChart({ data }: Props) {
     if (best === null) return;
     if (!hasTrackedInteraction.current) {
       hasTrackedInteraction.current = true;
-      track('hintahistoria-interaktio', { range });
+      track(`${trackPrefix}-interaktio`, { range });
     }
     setHovIdx(best);
-  }, [indexAt, mode, range]);
+  }, [indexAt, mode, range, trackPrefix]);
 
   const trackMeasure = () => {
     if (hasTrackedMeasure.current) return;
     hasTrackedMeasure.current = true;
-    track('hintahistoria-mittaus', { range, series });
+    track(`${trackPrefix}-mittaus`, { range, series });
   };
 
   // Mittaa muutos -tila: painallus asettaa alkupisteen, veto loppupisteen
@@ -315,7 +330,7 @@ export default function GoldPriceChart({ data }: Props) {
                   // nollattava ettei osoitin/tooltip jää osoittamaan väärää päivää
                   setHovIdx(null);
                   setMeasure(null);
-                  track('hintahistoria-range', { range: r.key });
+                  track(`${trackPrefix}-range`, { range: r.key });
                 }}
                 className={`min-h-11 px-3 py-1 rounded text-[11px] font-semibold num transition-colors duration-150 ${
                   range === r.key
@@ -329,13 +344,13 @@ export default function GoldPriceChart({ data }: Props) {
           </fieldset>
           <fieldset className="flex gap-0.5 bg-black/20 border border-white/10 rounded-md p-0.5">
             <legend className="sr-only">Pitoisuus</legend>
-            {SERIES.map(s => (
+            {seriesDefs.map(s => (
               <button
                 key={s.key}
                 aria-pressed={series === s.key}
                 onClick={() => {
                   setSeries(s.key);
-                  track('hintahistoria-pitoisuus', { series: s.key });
+                  track(`${trackPrefix}-pitoisuus`, { series: s.key });
                 }}
                 className={`min-h-11 px-3 py-1 rounded text-[11px] font-semibold num transition-colors duration-150 ${
                   series === s.key
@@ -352,7 +367,7 @@ export default function GoldPriceChart({ data }: Props) {
 
         {/* Ruudunlukijayhteenveto — SVG:n sisältö ei ole saavutettavissa */}
         <p className="sr-only">
-          Kullan edellisen pörssipäivän päätöskurssi on {stats.last.price.toFixed(2).replace('.', ',')} euroa grammalta
+          {metalGenitive} edellisen pörssipäivän päätöskurssi on {stats.last.price.toFixed(2).replace('.', ',')} euroa grammalta
           ({fmtDateFull(stats.last.date)} klo 18). Sivun yläosassa näkyy tämän hetken kurssi.
           Muutos 30 päivässä: {isUp ? 'nousua' : 'laskua'}{' '}
           {Math.abs(stats.chg).toFixed(1).replace('.', ',')} prosenttia.
@@ -403,7 +418,7 @@ export default function GoldPriceChart({ data }: Props) {
                 fill="rgba(255,255,255,0.55)" fontSize="11"
                 fontFamily={SVG_FONT}
               >
-                {t.price.toFixed(0)}€
+                {t.price.toFixed(axisDecimals).replace('.', ',')}€
               </text>
             </g>
           ))}
@@ -551,7 +566,7 @@ export default function GoldPriceChart({ data }: Props) {
                   setHovIdx(i);
                   if (!hasTrackedInteraction.current) {
                     hasTrackedInteraction.current = true;
-                    track('hintahistoria-interaktio', { range });
+                    track(`${trackPrefix}-interaktio`, { range });
                   }
                 }}
                 className="w-full h-11 accent-gold-400"

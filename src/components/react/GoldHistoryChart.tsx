@@ -26,16 +26,27 @@ export interface HistoryEvent {
   sourceUrl: string;
 }
 
+export interface SeriesDef { key: string; label: string; title: string; factor: number }
+
 interface Props {
   daily: PricePoint[]; // viimeiset ~13 kk päivittäin
   weekly: PricePoint[]; // koko historia viikoittain
   events: HistoryEvent[];
   eventsHeading: string;
   eventsIntro: string;
+  // Valinnaiset (hopea, /hopean-hintahistoria/). Oletukset = kulta, joten
+  // /kullan-hintahistoria/ ei muutu.
+  seriesDefs?: SeriesDef[];
+  /** Y-akselin desimaalit (hopean grammahinta on alle parin euron). */
+  axisDecimals?: number;
+  /** Y-akselin minimiväli €/g — kullalla 1 €, hopealla paljon pienempi. */
+  minSpan?: number;
+  /** Umami-tapahtumien etuliite, jotta kulta ja hopea eivät sekoitu. */
+  trackPrefix?: string;
 }
 
 type Range = '1Y' | '3Y' | '5Y' | '10Y' | 'Max';
-type Series = 'spot' | '18K' | '14K';
+type Series = string;
 type Mode = 'explore' | 'measure';
 
 const RANGES: { key: Range; label: string; years: number }[] = [
@@ -47,7 +58,7 @@ const RANGES: { key: Range; label: string; years: number }[] = [
 ];
 
 // Vain pörssiarvo pitoisuuksittain — ei tavoitehintaa (sääntö 4)
-const SERIES: { key: Series; label: string; title: string; factor: number }[] = [
+const SERIES: SeriesDef[] = [
   { key: 'spot', label: 'Spot', title: 'Kullan spot-hinta €/g', factor: 1 },
   { key: '18K', label: '18K', title: '18K (750) pörssiarvo €/g', factor: GOLD_PURITIES['18K'].decimal },
   { key: '14K', label: '14K', title: '14K (585) pörssiarvo €/g', factor: GOLD_PURITIES['14K'].decimal },
@@ -72,7 +83,10 @@ const segBtn = (active: boolean) =>
     active ? 'bg-white/10 text-gold-400 ring-1 ring-gold-400/40' : 'text-gray-400 hover:text-gray-200'
   }`;
 
-export default function GoldHistoryChart({ daily, weekly, events, eventsHeading, eventsIntro }: Props) {
+export default function GoldHistoryChart({
+  daily, weekly, events, eventsHeading, eventsIntro,
+  seriesDefs = SERIES, axisDecimals = 0, minSpan = 1, trackPrefix = 'hintahistoria',
+}: Props) {
   const [range, setRange] = useState<Range>('Max');
   const [series, setSeries] = useState<Series>('spot');
   const [mode, setMode] = useState<Mode>('explore');
@@ -89,7 +103,7 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
   const once = (key: string, data?: Record<string, string | number>) => {
     if (tracked.current[key]) return;
     tracked.current[key] = true;
-    track(key, data);
+    track(key.replace(/^hintahistoria/, trackPrefix), data);
   };
 
   useEffect(() => {
@@ -105,7 +119,7 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
   const CW = VW - P.l - P.r;
   const CH = VH - P.t - P.b;
 
-  const seriesCfg = SERIES.find(s => s.key === series)!;
+  const seriesCfg = seriesDefs.find(s => s.key === series) ?? seriesDefs[0];
   const rangeCfg = RANGES.find(r => r.key === range)!;
 
   // Aikaväli: 1 v päivädatasta, pidemmät viikkodatasta
@@ -126,7 +140,7 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
     if (!filtered.length) return { pts: [] as { x: number; y: number; date: string; price: number }[], minP: 0, maxP: 0, step: 1 };
     const prices = filtered.map(d => d.price);
     const lo = Math.min(...prices), hi = Math.max(...prices);
-    const step = niceStep(Math.max(hi - lo, 1), 5);
+    const step = niceStep(Math.max(hi - lo, minSpan), 5);
     const minP = Math.max(0, Math.floor(lo / step) * step);
     const maxP = Math.ceil(hi / step) * step + (hi % step === 0 ? step : 0);
     const n = filtered.length;
@@ -137,7 +151,10 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
       price: d.price,
     }));
     return { pts, minP, maxP, step };
-  }, [filtered, CW, CH]);
+  }, [filtered, CW, CH, minSpan]);
+
+  // Akselin desimaalit asteikon välin mukaan (1 → 0, 0,5 → 1, 0,25 → 2), enintään axisDecimals
+  const tickDecimals = Math.min(axisDecimals, (Number(step.toPrecision(6)).toString().split('.')[1] ?? '').length);
 
   const path = useMemo(() => linePath(pts), [pts]);
   const area = useMemo(() => {
@@ -232,7 +249,7 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
     setRange(r);
     setHovIdx(null);
     setMeasure(null);
-    track('hintahistoria-pitka-range', { range: r });
+    track(`${trackPrefix}-pitka-range`, { range: r });
   };
 
   // Tapahtuman valinta listasta: varmistetaan että se näkyy kuvaajassa, vieritetään kuvaajaan
@@ -296,9 +313,9 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
             </fieldset>
             <fieldset className="flex gap-0.5 bg-black/20 border border-white/10 rounded-md p-0.5">
               <legend className="sr-only">Pitoisuus</legend>
-              {SERIES.map(s => (
+              {seriesDefs.map(s => (
                 <button key={s.key} type="button" aria-pressed={series === s.key}
-                  onClick={() => { setSeries(s.key); track('hintahistoria-pitka-pitoisuus', { series: s.key }); }}
+                  onClick={() => { setSeries(s.key); track(`${trackPrefix}-pitka-pitoisuus`, { series: s.key }); }}
                   className={segBtn(series === s.key)}>
                   {s.label}
                 </button>
@@ -334,7 +351,7 @@ export default function GoldHistoryChart({ daily, weekly, events, eventsHeading,
               <g key={i}>
                 <line x1={P.l} y1={t.y} x2={VW - P.r} y2={t.y} stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="2 4" />
                 <text x={P.l - 8} y={t.y} textAnchor="end" dominantBaseline="middle" fill="rgba(255,255,255,0.55)" fontSize="11" fontFamily={SVG_FONT}>
-                  {t.price.toFixed(0)}€
+                  {t.price.toFixed(tickDecimals).replace('.', ',')}€
                 </text>
               </g>
             ))}

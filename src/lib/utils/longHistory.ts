@@ -6,19 +6,28 @@
 
 import archive from '../../../social/data/price-history-archive.json';
 import recent from '../../../social/data/price-history.json';
+import silverArchive from '../../../social/data/silver-price-history-archive.json';
+import silverRecent from '../../../social/data/silver-price-history.json';
 
 export interface PricePoint {
   date: string; // YYYY-MM-DD
-  price: number; // €/g, puhdas kulta (spot)
+  price: number; // €/g, puhdas metalli (spot)
 }
+
+export type Metal = 'gold' | 'silver';
+
+const SOURCES: Record<Metal, PricePoint[][]> = {
+  gold: [archive as PricePoint[], recent as PricePoint[]],
+  silver: [silverArchive as PricePoint[], silverRecent as PricePoint[]],
+};
 
 const isWeekend = (iso: string) => [0, 6].includes(new Date(`${iso}T12:00:00Z`).getUTCDay());
 
 /** Koko historia arkipäivinä, vanhimmasta uusimpaan. Viikonloput pudotetaan
  *  (API:n viikonloppuarvot voivat poiketa, pörssi on kiinni). */
-export function loadLongHistory(): PricePoint[] {
+export function loadLongHistory(metal: Metal = 'gold'): PricePoint[] {
   const map = new Map<string, number>();
-  for (const r of [...(archive as PricePoint[]), ...(recent as PricePoint[])]) {
+  for (const r of SOURCES[metal].flat()) {
     if (!r?.date || !(r.price > 0) || isWeekend(r.date)) continue;
     map.set(r.date, r.price); // tuoreempi tiedosto voittaa päällekkäisyyksissä
   }

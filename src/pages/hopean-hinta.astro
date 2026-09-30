@@ -2,8 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FaqItem from '../components/FaqItem.astro';
 import SilverCalculator from '../components/react/SilverCalculator.tsx';
+import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
 import { getSilverPrice } from '../lib/api/metalPriceApi';
 import { calculateSilverValue, SILVER_PURITIES, type SilverPurityCode } from '../lib/calculations/silverCalculator';
+import { loadLongHistory } from '../lib/utils/longHistory';
+import { fillMissingDays } from '../lib/utils/priceHistory';
 
 // Hopea tulee samasta API-kutsusta kuin kulta (ks. metalPriceApi.ts) — ei omaa kutsua.
 const silverPrice = await getSilverPrice();
@@ -58,6 +61,42 @@ const ex925 = spot > 0 ? calculateSilverValue(20, '925', spot) : null;
 
 const fmt = (n: number) => n.toFixed(2).replace('.', ',');
 const fmtBig = (n: number) => new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }).format(n);
+const fmtDateFi = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d}.${m}.${y}`;
+};
+
+// ── 12 kk kuvaaja + kuukausitaulukko (sama linja kuin /kullan-hinta/) ──
+// Vain viimeiset 12 kk: pitkä historia on /hopean-hintahistoria/-sivulla. Viikonloput
+// täytetään edellisellä hinnalla, jotta graafi ei hyppää perjantaista maanantaihin.
+const chartHistory = fillMissingDays(loadLongHistory('silver')).slice(-366);
+const chartSeries = [
+  { key: 'spot', label: 'Spot', title: 'Hopean spot-hinta €/g', factor: 1 },
+  { key: '925', label: '925', title: '925-hopean pörssiarvo €/g', factor: SILVER_PURITIES['925'].decimal },
+  { key: '830', label: '830', title: '830-hopean pörssiarvo €/g', factor: SILVER_PURITIES['830'].decimal },
+];
+
+const MONTH_NAMES = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu',
+  'heinäkuu', 'elokuu', 'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu'];
+const monthMap = new Map<string, number[]>();
+for (const d of chartHistory) {
+  const key = d.date.slice(0, 7);
+  (monthMap.get(key) ?? monthMap.set(key, []).get(key)!).push(d.price);
+}
+const monthRows = [...monthMap.entries()]
+  .sort(([a], [b]) => b.localeCompare(a)) // uusin ensin
+  .map(([key, prices]) => {
+    const [y, m] = key.split('-').map(Number);
+    return {
+      key,
+      label: `${MONTH_NAMES[m - 1].charAt(0).toUpperCase() + MONTH_NAMES[m - 1].slice(1)} ${y}`,
+      avg: prices.reduce((s, p) => s + p, 0) / prices.length,
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+    };
+  });
+// Kuluva kuukausi merkitään keskeneräiseksi. Suomen aikavyöhyke — build ajetaan UTC:ssä.
+const currentMonthKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' }).slice(0, 7);
 
 const dateModified = new Date().toISOString();
 
@@ -169,6 +208,7 @@ const schemaData = {
           <a href="#830" class="hover:text-gold-400 transition-colors underline underline-offset-2">830- ja 813-hopea</a>
           <a href="#925" class="hover:text-gold-400 transition-colors underline underline-offset-2">925-hopea</a>
           <a href="#kilohinta" class="hover:text-gold-400 transition-colors underline underline-offset-2">Kilohinta</a>
+          <a href="#kuvaaja" class="hover:text-gold-400 transition-colors underline underline-offset-2">Kuvaaja</a>
           <a href="#alpakka" class="hover:text-gold-400 transition-colors underline underline-offset-2">Onko se hopeaa?</a>
         </p>
       </div>
@@ -187,6 +227,38 @@ const schemaData = {
       </div>
     </div>
   </div>
+
+  {/* ── 12 kk kuvaaja ── */}
+  <section id="kuvaaja" class="bg-ink-950 border-t border-white/5 py-14 md:py-16 px-4 scroll-mt-24">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">Hopean hinta viimeisen vuoden ajalta</h2>
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl leading-relaxed mb-6">
+        Hopean spot-hinta euroina grammalta päivä päivältä. Valitse aikaväli, vaihda pitoisuutta
+        tai mittaa muutos kahden päivän välillä.
+      </p>
+      {/* min-h varaa tilan islandille → ei layout-hyppäystä hydraatiossa */}
+      <div class="min-h-[560px] md:min-h-[480px]">
+        <GoldPriceChart
+          client:visible
+          data={chartHistory}
+          seriesDefs={chartSeries}
+          axisDecimals={2}
+          minPad={0.02}
+          metalGenitive="Hopean"
+          trackPrefix="hopea-hintahistoria"
+        />
+      </div>
+      <p class="text-gray-400 text-xs mt-6 leading-relaxed">
+        Hopean spot-hinta euroina per gramma (maailmanmarkkinahinta). Lähde: MetalPrice API ·
+        Hintahistoria tallennetaan pörssipäivinä klo 18 · Historiallinen kehitys ei ennusta tulevaa hintaa.
+      </p>
+      <p class="mt-3">
+        <a href="/hopean-hintahistoria/" class="inline-flex items-center gap-1.5 text-gold-400 font-bold hover:underline text-sm">
+          Hopean hintakehitys vuodesta 2011 →
+        </a>
+      </p>
+    </div>
+  </section>
 
   <section class="bg-white py-16 px-4">
     <div class="max-w-3xl mx-auto">
@@ -335,6 +407,73 @@ const schemaData = {
         Jos ostaja ilmoittaa hinnan kilolta, jaa se tuhannella saadaksesi grammahinnan.
       </p>
 
+      {/* ── Kuukausittain ── */}
+      <h2 id="kuukausittain" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Hopean hinta kuukausittain</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        Taulukossa on hopean spot-hinnan keskiarvo sekä korkein ja matalin noteeraus kuukausittain
+        viimeisen vuoden ajalta ({fmtDateFi(chartHistory[0].date)} – {fmtDateFi(chartHistory[chartHistory.length - 1].date)}).
+      </p>
+      <p class="text-sm text-gray-500 leading-relaxed mb-8">
+        Pidemmän aikavälin vuosi- ja kuukausitilastot vuodesta 2011 löydät sivulta
+        <a href="/hopean-hintahistoria/" class="text-gold-600 font-bold hover:underline">hopean hintakehitys ja hintahistoria</a>.
+        Luvut ovat euroissa grammalta; dollarimääräiset noteeraukset voivat kehittyä eri tahtiin
+        EUR/USD-valuuttakurssin muutosten vuoksi.
+      </p>
+
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-3 mb-14">
+        {monthRows.map(row => (
+          <div class="p-4 rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <p class="font-bold text-gray-900 mb-2">
+              {row.label}
+              {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+            </p>
+            <div class="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <span class="block text-xs text-gray-500">Keskihinta €/g</span>
+                <span class="font-bold tabular-nums text-gray-900">{fmt(row.avg)}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-gray-500">Korkein €/g</span>
+                <span class="tabular-nums text-gray-700">{fmt(row.max)}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-gray-500">Matalin €/g</span>
+                <span class="tabular-nums text-gray-700">{fmt(row.min)}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block mb-14 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <caption class="sr-only">Hopean spot-hinta kuukausittain euroissa per gramma</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-4 px-5 font-semibold">Kuukausi</th>
+              <th class="py-4 px-5 font-semibold text-right">Keskihinta €/g</th>
+              <th class="py-4 px-5 font-semibold text-right">Korkein €/g</th>
+              <th class="py-4 px-5 font-semibold text-right">Matalin €/g</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {monthRows.map(row => (
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-gray-900">
+                  {row.label}
+                  {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+                </td>
+                <td class="py-3.5 px-5 text-right tabular-nums font-bold">{fmt(row.avg)}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.max)}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.min)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       {/* ── Leimat ── */}
       <h2 id="leimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Näin tunnistat hopean leimat</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-5">
@@ -437,6 +576,7 @@ const schemaData = {
       </div>
 
       <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <a href="/hopean-hintahistoria/" class="text-gold-600 font-bold hover:underline">Hopean hintakehitys vuodesta 2011 →</a>
         <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">Kullan hinta tänään →</a>
         <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Vuosileimahaku ja leimat →</a>
         <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
