@@ -125,7 +125,7 @@ const faqItems = [
   },
   {
     q: 'Miksi hopean ostaja maksaa pörssiarvoa vähemmän?',
-    a: 'Pörssiarvo on puhtaan hopean tukkuhinta maailmanmarkkinoilla. Kun myyt hopeaa raaka-aineena eli sulatettavaksi, ostajan hinnasta vähennetään sulatus- ja jalostuskulut sekä ostajan kate. Keräilykolikoista ja design-esineistä voidaan maksaa enemmän kuin niiden hopea-arvo. Koska hopean arvo grammaa kohden on pieni, käsittelykulujen osuus hinnasta on suurempi kuin kullassa. Kultalaskuri.fi:n hopealaskuri näyttää reilun vähimmäistason, jota hopeasta kannattaa vähintään tavoitella.',
+    a: 'Pörssiarvo on puhtaan hopean tukkuhinta maailmanmarkkinoilla. Kun myyt hopeaa raaka-aineena eli sulatettavaksi, ostajan hinnasta vähennetään sulatus- ja jalostuskulut sekä ostajan kate. Keräilykolikoista ja design-esineistä voidaan maksaa enemmän kuin niiden hopea-arvo. Kultalaskuri.fi:n hopealaskuri näyttää reilun vähimmäistason, jota hopeasta kannattaa vähintään tavoitella.',
   },
   {
     q: 'Miksi hopean hinta muuttuu päivittäin?',
@@ -534,6 +534,11 @@ const schemaData = {
         maksetaan usein enemmän kuin romuhopeasta, joten niitä ei kannata myydä sulatettavana
         hopeana ilman vertailua.
       </p>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        Verohallinnon ohjeen mukaan arvonlisäverottomuus koskee vain sijoituskultaa — hopeaharkot
+        ja -kolikot eivät kuulu sen piiriin
+        (<a href="https://www.vero.fi/syventavat-vero-ohjeet/ohje-hakusivu/47810/sijoituskullan-ja-muiden-kultavalmisteiden-arvonlis%C3%A4verotus/" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">vero.fi</a>).
+      </p>
       <p class="text-gray-600 leading-relaxed mb-14">
         Vanhoissa suomalaisissa kolikoissa hopeaa on vähemmän: esimerkiksi vuosien 1964–1968
         yhden markan kolikoissa on 35 % hopeaa. Juhlarahojen pitoisuus vaihtelee rahan ja
@@ -549,13 +554,18 @@ const schemaData = {
         Hopean <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hinta</a>
         on puhtaan hopean tukkuhinta kansainvälisillä markkinoilla. Se noteerataan dollareissa
         troy-unssia kohden ja muunnetaan euroiksi valuuttakurssilla. Hopean kysynnästä selvästi
-        suurempi osa on teollista kuin kullalla, ja sen hinta heiluu tyypillisesti kultaa
-        voimakkaammin.
+        suurempi osa on teollista kuin kullalla: vuonna 2024 teollisuus vastasi noin 59 %:sta
+        hopean kysynnästä (<a href="https://silverinstitute.org/silver-industrial-demand-reached-a-record-680-5-moz-in-2024/" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Silver Institute</a>),
+        kun teknologian osuus kullan kysynnästä oli noin 7 %
+        (<a href="https://www.gold.org/news-and-events/press-releases/global-gold-demand-hits-new-high-prices-soar-2024" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">World Gold Council</a>).
+        Hopean hinta heiluu tyypillisesti kultaa voimakkaammin
+        (<a href="/hopean-hintahistoria/#ukk" class="text-gold-600 font-bold hover:underline">vertailu hintahistoriassa</a>).
       </p>
       <p class="text-gray-600 leading-relaxed mb-12 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
         <strong>Huomaa:</strong> kun hopeaa myydään raaka-aineena, siitä maksettava hinta on
-        spot-hintaa matalampi, koska ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa. Koska hopean arvo
-        grammaa kohden on pieni, käsittelykulujen osuus on suurempi kuin kullassa.
+        spot-hintaa matalampi, koska ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa.
+        {/* Poistettu 30.9.2026 lähteetön väite "käsittelykulujen osuus on suurempi kuin kullassa".
+            Ostajien väitettä ALV:n vaikutuksesta ei voitu varmentaa (ks. kolikko-osion ALV-fakta). */}
         <a href="#laskuri" class="text-gold-600 font-bold hover:underline">Hopealaskuri</a> näyttää
         reilun vähimmäistason, jota kannattaa tavoitella.
       </p>
