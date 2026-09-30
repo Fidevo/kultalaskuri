@@ -32,7 +32,9 @@ export default function GoldValueOverTime({ years, nowSpot, nowLabel }: Props) {
     const then = calculateGoldValue(grams, purity, yearRow.avg);
     const now = calculateGoldValue(grams, purity, nowSpot);
     if (!then || !now) return null;
-    const pct = ((now.spotValue - then.spotValue) / then.spotValue) * 100;
+    // Paino ja pitoisuus supistuvat pois: muutos = spot-hintojen suhde. Pyöristetyistä
+    // euroista laskettuna hyvin pieni paino (esim. 0,001 g) antaisi 0 / 0 = NaN.
+    const pct = (nowSpot / yearRow.avg - 1) * 100;
     return { then: then.spotValue, now: now.spotValue, pct, pure: now.pureGoldContent };
   }, [grams, purity, yearRow, nowSpot]);
 

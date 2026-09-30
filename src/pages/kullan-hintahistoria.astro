@@ -4,7 +4,7 @@ import FaqItem from '../components/FaqItem.astro';
 import GoldHistoryChart from '../components/react/GoldHistoryChart.tsx';
 import GoldValueOverTime from '../components/react/GoldValueOverTime.tsx';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
-import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore } from '../lib/utils/longHistory';
+import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore, gapMonths } from '../lib/utils/longHistory';
 import { GOLD_EVENTS, eventMetric } from '../lib/goldEvents';
 
 // ── Data (build-aikana) ──
@@ -29,6 +29,11 @@ const years = yearStats(rows, currentYear);
 const yearsDesc = [...years].reverse();
 const completedYears = years.filter(y => !y.ongoing);
 const heatmap = monthlyReturns(rows, todayHki.slice(0, 7));
+// Lämpökartasta puuttuvat kuukaudet (poistettu virhejakso kuun vaihteessa, ks. menetelmä)
+const gapMonthLabels = [...gapMonths(rows)].sort().map(k => {
+  const [y, m] = k.split('-').map(Number);
+  return `${['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'][m - 1]}kuu ${y}`;
+});
 
 // "Nyt": sama hintalähde kuin muualla sivustolla (build-aikainen spot)
 const goldPrice = await getGoldPrice();
@@ -327,6 +332,8 @@ const schemaData = {
       <p class="text-gray-600 leading-relaxed mb-6 max-w-3xl">
         Jokainen ruutu kertoo, kuinka monta prosenttia euromääräinen hinta muuttui kuukauden aikana
         (kuukauden viimeinen noteeraus edellisen kuukauden viimeiseen). Vihreä on nousua, punainen laskua.
+        {gapMonthLabels.length > 0 && <> Tyhjinä näkyvät kuukaudet ({gapMonthLabels.join(', ')}), joiden
+        muutosta ei voi laskea, koska kuun vaihteen noteeraukset puuttuvat (ks. <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä</a>).</>}
       </p>
 
       <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-2 sm:p-4">
@@ -368,7 +375,7 @@ const schemaData = {
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-gray-100"></span> alle 1 %</span>
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-50 border border-red-100"></span> −1…−3 %</span>
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-200"></span> −3…−6 %</span>
-        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-700"></span> yli −6 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-700"></span> alle −6 %</span>
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] ring-1 ring-inset ring-gold-500 bg-white"></span> kuluva kuukausi</span>
       </div>
     </div>

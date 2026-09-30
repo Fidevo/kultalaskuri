@@ -97,13 +97,46 @@ export interface MonthCell {
   ongoing: boolean;
 }
 
-/** Kuukausimuutokset lämpökarttaan: vuosi → 12 solua. */
+/** Havaintoväli, jota pidemmät aukot ovat poistettuja virhejaksoja (ei viikonloppu +
+ *  arkipyhä, joka on enintään 4 kalenteripäivää: pe → ti). */
+export const MAX_GAP_DAYS = 4;
+export const daysBetweenIso = (a: string, b: string) =>
+  Math.round((new Date(`${b}T12:00:00Z`).getTime() - new Date(`${a}T12:00:00Z`).getTime()) / 86400000);
+
+/** Peräkkäiset havaintoparit ilman poistettujen jaksojen yli ulottuvia pareja —
+ *  muuten esim. 19.6.–1.7.2013 laskettaisiin yhdeksi "päivämuutokseksi". */
+export function consecutivePairs(rows: PricePoint[]): [PricePoint, PricePoint][] {
+  const out: [PricePoint, PricePoint][] = [];
+  for (let i = 1; i < rows.length; i++) {
+    if (daysBetweenIso(rows[i - 1].date, rows[i].date) <= MAX_GAP_DAYS) out.push([rows[i - 1], rows[i]]);
+  }
+  return out;
+}
+
+/** Kuukaudet, joiden kuukausimuutosta ei voi laskea luotettavasti: poistettu jakso osuu
+ *  kuukauden vaihteeseen, jolloin kuukauden "viimeinen" havainto on kaukana kuun lopusta
+ *  ja seuraavan kuukauden muutos sisältäisi edellisen kuukauden liikettä. */
+export function gapMonths(rows: PricePoint[]): Set<string> {
+  const out = new Set<string>();
+  for (let i = 1; i < rows.length; i++) {
+    const a = rows[i - 1].date, b = rows[i].date;
+    if (daysBetweenIso(a, b) > MAX_GAP_DAYS && a.slice(0, 7) !== b.slice(0, 7)) {
+      out.add(a.slice(0, 7));
+      out.add(b.slice(0, 7));
+    }
+  }
+  return out;
+}
+
+/** Kuukausimuutokset lämpökarttaan: vuosi → 12 solua. Aukkokuukaudet (gapMonths) jäävät tyhjiksi. */
 export function monthlyReturns(rows: PricePoint[], currentMonthKey: string): { year: number; cells: MonthCell[] }[] {
   const monthLast = new Map<string, number>();
   for (const r of rows) monthLast.set(r.date.slice(0, 7), r.price);
   const keys = [...monthLast.keys()].sort();
+  const skip = gapMonths(rows);
   const pctByKey = new Map<string, number>();
   for (let i = 1; i < keys.length; i++) {
+    if (skip.has(keys[i])) continue;
     const prev = monthLast.get(keys[i - 1])!;
     pctByKey.set(keys[i], ((monthLast.get(keys[i])! - prev) / prev) * 100);
   }

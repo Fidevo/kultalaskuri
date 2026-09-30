@@ -4,7 +4,7 @@ import FaqItem from '../components/FaqItem.astro';
 import GoldHistoryChart from '../components/react/GoldHistoryChart.tsx';
 import SilverValueOverTime from '../components/react/SilverValueOverTime.tsx';
 import { getSilverPrice } from '../lib/api/metalPriceApi';
-import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore } from '../lib/utils/longHistory';
+import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore, consecutivePairs, gapMonths } from '../lib/utils/longHistory';
 import { eventMetric } from '../lib/goldEvents';
 import { SILVER_EVENTS } from '../lib/silverEvents';
 import { SILVER_PURITIES } from '../lib/calculations/silverCalculator';
@@ -55,15 +55,18 @@ const tenYearsAgoIso = `${lastYear - 10}${last.date.slice(4)}`;
 const tenYearsAgo = rows[indexOnOrBefore(rows, tenYearsAgoIso)];
 const change10y = ((last.price - tenYearsAgo.price) / tenYearsAgo.price) * 100;
 
-// Heiluntavertailu kultaan samoilta pörssipäiviltä: päivämuutosten keskihajontojen suhde.
-// Lasketaan datasta, jotta väite "hopea heiluu kultaa enemmän" perustuu tähän aineistoon.
+// Heiluntavertailu kultaan samoilta havaintopäiviltä: päivämuutosten (log) keskihajontojen
+// suhde eli volatiliteettisuhde — EI keskimääräisten muutosten suhde. Poistettujen jaksojen
+// yli ulottuvat parit jätetään pois (consecutivePairs). Lasketaan datasta, jotta väite
+// "hopea heiluu kultaa enemmän" perustuu tähän aineistoon.
 const goldByDate = new Map(loadLongHistory('gold').map(r => [r.date, r.price]));
+const pairs = consecutivePairs(rows);
 const volRatio = (() => {
   const s: number[] = [], g: number[] = [];
-  for (let i = 1; i < rows.length; i++) {
-    const g0 = goldByDate.get(rows[i - 1].date), g1 = goldByDate.get(rows[i].date);
+  for (const [a, b] of pairs) {
+    const g0 = goldByDate.get(a.date), g1 = goldByDate.get(b.date);
     if (!g0 || !g1) continue;
-    s.push(Math.log(rows[i].price / rows[i - 1].price));
+    s.push(Math.log(b.price / a.price));
     g.push(Math.log(g1 / g0));
   }
   const sd = (a: number[]) => { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / a.length); };
@@ -119,11 +122,18 @@ const lastFull = completedYears[completedYears.length - 1];
 const tenBack = completedYears.find(y => y.year === lastFull.year - 10);
 const worstYear = completedYears.reduce((m, y) => (y.changePct < m.changePct ? y : m));
 const bestYear = completedYears.reduce((m, y) => (y.changePct > m.changePct ? y : m));
-const pastRows = rows.filter(r => Number(r.date.slice(0, 4)) <= lastFull.year);
-const worstDay = pastRows.slice(1).reduce((m, r, i) => {
-  const pct = ((r.price - pastRows[i].price) / pastRows[i].price) * 100;
-  return pct < m.pct ? { date: r.date, pct } : m;
-}, { date: '', pct: 0 });
+// Suurin lasku kahden peräkkäisen havainnon välillä KOKO aineistossa (myös kuluva vuosi —
+// kyse on kiinteästä historiallisesta tapahtumasta, ei päivittyvästä hinnasta). Ei väitetä
+// "yhden päivän" pudotukseksi: perjantain liike voi kirjautua maanantain havaintoon.
+const worstMove = pairs.reduce((m, [a, b]) => {
+  const pct = ((b.price - a.price) / a.price) * 100;
+  return pct < m.pct ? { from: a.date, to: b.date, pct } : m;
+}, { from: '', to: '', pct: 0 });
+// Lämpökartasta puuttuvat kuukaudet (poistettu jakso kuun vaihteessa)
+const gapMonthLabels = [...gapMonths(rows)].sort().map(k => {
+  const [y, m] = k.split('-').map(Number);
+  return `${['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'][m - 1]}kuu ${y}`;
+});
 
 const faqItems = [
   ...(tenBack ? [{
@@ -133,11 +143,11 @@ const faqItems = [
   }] : []),
   {
     question: 'Milloin hopean hinta laski eniten?',
-    answer: `Päättyneistä kalenterivuosista heikoin oli ${worstYear.year}, jolloin euromääräinen hinta laski ${fmtPct(worstYear.changePct, 0).replace('−', '')}. Suurin yksittäisen päivän pudotus aineistossa osui päivälle ${fmtDateFi(worstDay.date)} (${fmtPct(worstDay.pct)}). Vahvin vuosi oli ${bestYear.year} (${fmtPct(bestYear.changePct, 0)}). Taustat löytyvät sivun käännekohdista.`,
+    answer: `Päättyneistä kalenterivuosista heikoin oli ${worstYear.year}, jolloin euromääräinen hinta laski ${fmtPct(worstYear.changePct, 0).replace('−', '')}. Suurin lasku kahden peräkkäisen hintahavainnon välillä koko aineistossa oli ${fmtPct(worstMove.pct)} (${fmtDateFi(worstMove.from)} → ${fmtDateFi(worstMove.to)}). Vahvin vuosi oli ${bestYear.year} (${fmtPct(bestYear.changePct, 0)}). Taustat löytyvät sivun käännekohdista.`,
   },
   {
     question: 'Heiluuko hopean hinta enemmän kuin kullan?',
-    answer: `Kyllä. Tämän sivun aineistossa hopean päivittäiset hintamuutokset ovat olleet keskimäärin noin ${volRatio.toFixed(1).replace('.', ',')}-kertaisia kullan päivämuutoksiin verrattuna samoina pörssipäivinä. Hopean kysynnästä selvästi suurempi osa on teollista kuin kullalla, joten hinta reagoi myös talouden suhdanteisiin. Kullan vastaava historia on <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">kullan hintakehityssivulla</a>.`,
+    answer: `Kyllä. Tämän sivun aineistossa hopean päivittäisten hintamuutosten vaihtelu (keskihajonta eli volatiliteetti) on ollut noin ${volRatio.toFixed(1).replace('.', ',')}-kertainen kultaan verrattuna samoina havaintopäivinä. Hopean kysynnästä selvästi suurempi osa on teollista kuin kullalla, joten hinta reagoi myös talouden suhdanteisiin. Kullan vastaava historia on <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">kullan hintakehityssivulla</a>.`,
   },
   {
     question: 'Miksi hopean hinta euroissa kehittyy eri tavalla kuin dollareissa?',
@@ -145,7 +155,7 @@ const faqItems = [
   },
   {
     question: 'Mistä hopean hintahistorian tiedot ovat peräisin?',
-    answer: `Hinnat perustuvat MetalPrice API -palvelun päivittäisiin noteerauksiin kesäkuusta 2011 alkaen. Dollarimääräinen unssihinta muunnetaan euroiksi grammalta saman päivän valuuttakurssilla. Aineistossa ovat pörssipäivät; pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen. Lue lisää kohdasta <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä ja lähteet</a>.`,
+    answer: `Hinnat perustuvat MetalPrice API -palvelun päivittäisiin noteerauksiin kesäkuusta 2011 alkaen. Dollarimääräinen unssihinta muunnetaan euroiksi grammalta saman päivän valuuttakurssilla. Aineistossa ovat arkipäivien hintahavainnot; pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen. Lue lisää kohdasta <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä ja lähteet</a>.`,
   },
   {
     question: 'Ennustaako hopean hintahistoria tulevaa hintaa?',
@@ -186,7 +196,7 @@ const schemaData = {
     {
       "@type": "Dataset",
       "name": "Hopean hintahistoria euroina grammalta",
-      "description": `Hopean spot-hinnan (puhdas hopea) päivittäinen historia euroina grammalta pörssipäiviltä ${fmtDateFi(first.date)} alkaen. Vuosittaiset keski-, ala- ja ylähinnat sekä kuukausimuutokset. Lähde: MetalPrice API; muunnos dollaria unssilta → euroa grammalta päivän valuuttakurssilla.`,
+      "description": `Hopean spot-hinnan (puhdas hopea) päivittäinen historia euroina grammalta arkipäiviltä ${fmtDateFi(first.date)} alkaen. Vuosittaiset keski-, ala- ja ylähinnat sekä kuukausimuutokset. Lähde: MetalPrice API; muunnos dollaria unssilta → euroa grammalta päivän valuuttakurssilla.`,
       "url": pageUrl,
       "temporalCoverage": `${first.date}/${last.date}`,
       "variableMeasured": "Hopean hinta euroina grammalta (€/g)",
@@ -242,7 +252,7 @@ const schemaData = {
         <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(first.date)}</p>
       </div>
       <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Korkein päätös</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Korkein havainto</p>
         <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-gold-400">{fmt(ath.price)} <span class="text-sm text-gold-500">€/g</span></p>
         <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(ath.date)}</p>
       </div>
@@ -252,7 +262,7 @@ const schemaData = {
         <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(tenYearsAgo.date)} → {fmtDateFi(last.date)}</p>
       </div>
       <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Pörssipäiviä</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Hintahavaintoja</p>
         <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-white">{fmtInt(rows.length)}</p>
         <p class="text-[11px] text-gray-400 mt-1.5">päivittäistä noteerausta</p>
       </div>
@@ -283,7 +293,7 @@ const schemaData = {
 
       <p class="text-gray-400 text-xs mt-8 leading-relaxed">
         Hopean spot-hinta euroina per gramma (maailmanmarkkinahinta, puhdas hopea). Lähde: MetalPrice API ·
-        {fmtInt(rows.length)} pörssipäivää {fmtDateFi(first.date)}–{fmtDateFi(last.date)} · Historiallinen kehitys ei ennusta tulevaa hintaa.
+        {fmtInt(rows.length)} päivittäistä havaintoa {fmtDateFi(first.date)}–{fmtDateFi(last.date)} · Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
     </div>
   </section>
@@ -294,7 +304,7 @@ const schemaData = {
       <div class="kicker-light">Vuositilastot</div>
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">Hopean hinta vuosittain</h2>
       <p class="text-gray-600 leading-relaxed mb-8">
-        Vuoden keskihinta sekä matalin ja korkein päätöskurssi euroina grammalta. Muutos on laskettu
+        Vuoden keskihinta sekä matalin ja korkein päivittäinen hintahavainto euroina grammalta. Muutos on laskettu
         edellisen vuoden viimeisestä noteerauksesta vuoden viimeiseen.
       </p>
 
@@ -338,8 +348,14 @@ const schemaData = {
                   {y.partialStart && <span class="block text-[11px] font-normal text-gray-500">{fmtDateFi(y.first.date)} alkaen</span>}
                 </td>
                 <td class="py-3 px-4 md:px-5 text-right num font-semibold text-gray-900">{fmt(y.avg)} €</td>
-                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">{fmt(y.min.price)} €</td>
-                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">{fmt(y.max.price)} €</td>
+                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">
+                  {fmt(y.min.price)} €
+                  <span class="block text-[11px] text-gray-500">{fmtDateFi(y.min.date)}</span>
+                </td>
+                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">
+                  {fmt(y.max.price)} €
+                  <span class="block text-[11px] text-gray-500">{fmtDateFi(y.max.date)}</span>
+                </td>
                 <td class={`py-3 px-4 md:px-5 text-right num font-semibold ${y.changePct >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{fmtPct(y.changePct)}</td>
               </tr>
             ))}
@@ -347,9 +363,10 @@ const schemaData = {
         </table>
       </div>
       <p class="text-sm text-gray-500 leading-relaxed mt-4">
-        Hinnat euroa grammalta (puhdas hopea). Korkeimman ja matalimman päätöskurssin päivät näet
-        kuvaajasta. Aineiston ensimmäinen vuosi alkaa kesäkuusta, joten sen muutos on laskettu
-        ensimmäisestä noteerauksesta.
+        Hinnat euroa grammalta (puhdas hopea). Matalimman ja korkeimman havainnon päivämäärät
+        näkyvät taulukossa leveällä näytöllä. Yli vuoden aikavälien kuvaaja näyttää viikon viimeisen
+        havainnon, joten viikon keskelle osuva ääriarvo ei välttämättä näy siinä. Aineiston
+        ensimmäinen vuosi alkaa kesäkuusta, joten sen muutos on laskettu ensimmäisestä noteerauksesta.
       </p>
     </div>
   </section>
@@ -363,6 +380,8 @@ const schemaData = {
         Jokainen ruutu kertoo, kuinka monta prosenttia euromääräinen hinta muuttui kuukauden aikana
         (kuukauden viimeinen noteeraus edellisen kuukauden viimeiseen). Vihreä on nousua, punainen laskua.
         Koska hopea heiluu kultaa enemmän, väriasteikon rajat ovat väljemmät kuin kullan sivulla.
+        {gapMonthLabels.length > 0 && <> Tyhjinä näkyvät kuukaudet ({gapMonthLabels.join(', ')}), joiden
+        muutosta ei voi laskea, koska kuun vaihteen noteeraukset puuttuvat (ks. <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä</a>).</>}
       </p>
 
       <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-2 sm:p-4">
@@ -404,7 +423,7 @@ const schemaData = {
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-gray-100"></span> alle 2 %</span>
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-50 border border-red-100"></span> −2…−5 %</span>
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-200"></span> −5…−10 %</span>
-        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-700"></span> yli −10 %</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] bg-red-700"></span> alle −10 %</span>
         <span class="inline-flex items-center gap-1.5"><span class="w-4 h-4 rounded-[3px] ring-1 ring-inset ring-gold-500 bg-white"></span> kuluva kuukausi</span>
       </div>
     </div>
@@ -436,9 +455,10 @@ const schemaData = {
       <ul class="space-y-3 text-gray-700 leading-relaxed">
         <li><strong>Lähde:</strong> MetalPrice API -palvelun päivittäiset noteeraukset {fmtDateFi(first.date)} alkaen.</li>
         <li><strong>Muunnos:</strong> hopean dollarihinta unssilta muunnetaan euroiksi grammalta saman päivän euron dollarikurssilla (1 troy-unssi = 31,1035 g).</li>
-        <li><strong>Pörssipäivät:</strong> viikonloput eivät ole mukana. Pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen; yhden vuoden kuvaaja ja kaikki tilastot on laskettu päivätasolla.</li>
-        <li><strong>Tarkistus:</strong> aineiston euron dollarikurssin vuosikeskiarvot vastaavat Euroopan keskuspankin julkaisemia ja hopean dollarimääräiset vuosikeskiarvot LBMA:n julkaisemia lukuja alle 0,3 %:n tarkkuudella.</li>
-        <li><strong>Poikkeamat:</strong> lähdeaineistossa virheellisiksi todetut päivät 16.–23.4.2013 ja 20.–28.6.2013 on jätetty pois. Yksittäisen päivän noteeraus voi ajoituksen vuoksi osua päivää myöhemmäksi kuin pörssin päätöskurssi.</li>
+        <li><strong>Havainnot:</strong> yksi hintahavainto arkipäivää kohden. Kyse on hintapalvelun useista markkinalähteistä muodostamasta hinnasta, ei minkään yksittäisen pörssin virallisesta päätöskurssista. Viikonloput eivät ole mukana, mutta arkipyhien (esim. joulupäivä) havainnot ovat, vaikka markkinat ovat silloin kiinni. Uusimmat havainnot tallennetaan arkisin iltaisin.</li>
+        <li><strong>Kuvaaja:</strong> pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen havainnon; yhden vuoden kuvaaja ja kaikki tilastot on laskettu päivätasolla.</li>
+        <li><strong>Tarkistus:</strong> aineiston hopean dollarimääräiset vuosikeskiarvot vastaavat LBMA:n julkaisemia vuosikeskiarvoja alle 0,3 %:n tarkkuudella vuosina 2012 ja 2014–2025, ja euron dollarikurssin vuosikeskiarvot Euroopan keskuspankin lukuja enintään 0,1 %:n erolla vuosina 2012–2024. Vuosi 2011 (aineisto alkaa kesäkuusta) ja kuluva vuosi eivät ole vertailukelpoisia; vuoden 2013 vertailuun vaikuttavat alla mainitut poistetut päivät.</li>
+        <li><strong>Poikkeamat:</strong> päivät 16.–23.4.2013 ja 20.–28.6.2013 on jätetty pois. Huhtikuun jaksolla lähdeaineiston hopean hinta pysyi lähes muuttumattomana, vaikka kulta liikkui normaalisti. Kesäkuun jaksolla sekä hopean että kullan lähdearvot jäivät jumiin edeltävälle tasolle (sama jakso on poistettu myös kullan aineistosta). Kumpikin jakso korjautui yhdellä keinotekoisella −7…−11 %:n hypyllä. Poistettujen jaksojen yli ei lasketa päivämuutoksia, ja kesä- ja heinäkuun 2013 kuukausimuutokset jätetään tyhjiksi. Yksittäisen päivän havainto voi ajoituksen vuoksi kuvata edellisen päivän kaupankäyntiä.</li>
         <li><strong>Käännekohdat:</strong> tapahtumien kuvaukset perustuvat kunkin kortin lähdelinkkiin; hintamuutokset on laskettu tämän sivun aineistosta.</li>
       </ul>
     </div>
