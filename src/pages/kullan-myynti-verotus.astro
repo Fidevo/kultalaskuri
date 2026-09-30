@@ -56,7 +56,7 @@ const schemaData = {
           "name": "Miten perintönä saadun kullan verotus toimii?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Perintönä tai lahjana saadun kullan hankintamenona käytetään perintö- tai lahjaverotuksessa vahvistettua arvoa. Jos myyntihinta on tätä arvoa korkeampi, erotus on luovutusvoittoa. Vaihtoehtoisesti voi käyttää hankintameno-olettamaa."
+            "text": "Perintönä tai lahjana saadun kullan hankintamenona käytetään perintö- tai lahjaverotuksessa vahvistettua arvoa. Jos myyntihinta on tätä arvoa korkeampi, erotus on luovutusvoittoa. Poikkeus: jos lahjaksi saatu omaisuus myydään ennen kuin vuosi on kulunut lahjoituksesta, hankintamenona käytetään lahjanantajan hankintamenoa. Vaihtoehtoisesti voi käyttää hankintameno-olettamaa."
           }
         },
         {
@@ -117,7 +117,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
   <section class="bg-white py-16 px-4">
     <div class="max-w-3xl mx-auto">
 
-      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Pääsääntö: korujen myynti on verovapaata 5 000 euroon asti</h2>
+      <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Pääsääntö: korujen myyntivoitot ovat verovapaita 5 000 euroon asti</h2>
       <div class="space-y-4 text-lg text-gray-600 leading-relaxed mb-8">
         <p>
           Omat, kotona käytetyt kultakorut — sormukset, ketjut, rannekorut ja vastaavat —
@@ -141,9 +141,10 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <div class="bg-gold-50/50 border border-gold-200 rounded-2xl p-6 mb-12">
         <h3 class="font-black text-gray-900 mb-2">Lisäksi: pienten luovutusten sääntö</h3>
         <p class="text-gray-600 text-sm leading-relaxed">
-          Jos kaiken verovuonna myymäsi omaisuuden myyntihinnat ovat <strong>yhteensä enintään
+          Jos verovuonna myymäsi omaisuuden myyntihinnat ovat <strong>yhteensä enintään
           1 000 euroa</strong>, luovutusvoitot ovat verovapaita omaisuuslajista riippumatta —
-          myös sijoituskullan osalta.
+          myös sijoituskullan osalta. Summaan ei lasketa tavanomaisen koti-irtaimiston myyntejä
+          eikä muita erikseen verovapaiksi säädettyjä luovutuksia (tuloverolaki 48 § 6 mom.).
         </p>
       </div>
 
@@ -179,7 +180,9 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <p class="text-lg text-gray-600 leading-relaxed mb-12">
         Perintönä tai lahjana saadun kullan hankintamenona käytetään
         <strong>perintö- tai lahjaverotuksessa vahvistettua arvoa</strong>. Jos myyt korut tätä
-        arvoa korkeammalla hinnalla, erotus on luovutusvoittoa — mutta muista, että kotikäytössä
+        arvoa korkeammalla hinnalla, erotus on luovutusvoittoa. Poikkeus: jos myyt lahjaksi saadun
+        omaisuuden ennen kuin vuosi on kulunut lahjoituksesta, hankintamenona käytetään
+        <strong>lahjanantajan hankintamenoa</strong> (tuloverolaki 47 §). Muista myös, että kotikäytössä
         olleet perintökorut kuuluvat nekin koti-irtaimiston 5 000 euron verovapauden piiriin.
         Ennen myyntiä kannattaa myös tarkistaa, onko kyseessä design-koru, jonka arvo ehjänä
         ylittää romukulta-arvon — <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">lue lisää kullan myynnin oppaasta</a>.
@@ -236,7 +239,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <p class="text-xs text-gray-500 mt-4 leading-relaxed">
           Tämä sivu on yleisluontoinen opas, ei veroneuvontaa. Verosäännöt voivat muuttua —
           varmista oma tilanteesi aina vero.fi:stä tai Verohallinnolta.
-          Sivu tarkistettu viimeksi 4.7.2026.
+          Sivu tarkistettu viimeksi 30.9.2026.
         </p>
       </div>
 

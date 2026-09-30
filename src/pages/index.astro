@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
 import priceHistory from '../../social/data/price-history.json';
 import { fillMissingDays } from '../lib/utils/priceHistory';
+import { loadLongHistory } from '../lib/utils/longHistory';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import GoldCalculator from '../components/react/GoldCalculator.tsx';
 import JewelryWeightEstimator from '../components/react/JewelryWeightEstimator.tsx';
@@ -28,7 +29,7 @@ const prevHist = priceHistory[priceHistory.length - 2];
 // Graafiin täytetään viikonloppujen puuttuvat päivät edellisen hinnan toistolla,
 // jotta aikajana ei hyppää perjantaista maanantaihin
 // Etusivun graafiin viimeiset 12 kk (pitkä historia: /kullan-hintahistoria/)
-const chartHistory = fillMissingDays(priceHistory).slice(-366);
+const chartHistory = fillMissingDays(loadLongHistory('gold')).slice(-366);
 const buildDay = new Date().toLocaleDateString('sv-SE', { timeZone: HELSINKI_TZ }); // YYYY-MM-DD Suomen ajassa
 const refHist = lastHist?.date === buildDay ? prevHist : lastHist;
 const dayChangePct = spot > 0 && refHist && refHist.price > 0
@@ -132,7 +133,7 @@ const faqItems = [
   },
   { 
     question: 'Onko kultakoruissa aina leima?', 
-    answer: 'Suomessa myytävissä, yli 1 gramman painoisissa kultatuotteissa tulee lain mukaan olla pitoisuusleima. Hyvin vanhoissa koruissa, ulkomailta tuoduissa esineissä tai itse tehdyissä töissä leima voi kuitenkin puuttua tai se on voinut kulua näkymättömiin.'
+    answer: 'Suomessa myytävissä, vähintään 1 gramman painoisissa kultatuotteissa tulee lain mukaan olla pitoisuusleima. Hyvin vanhoissa koruissa, ulkomailta tuoduissa esineissä tai itse tehdyissä töissä leima voi kuitenkin puuttua tai se on voinut kulua näkymättömiin.'
   },
   { 
     question: 'Mistä tietää onko esine kultaa vai kullattu?', 
@@ -254,6 +255,12 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
           </div>
         )}
       </div>
+      {/* Hopealaskuriin heti laskurin alla: Clarity 28.–30.9.2026 — laskurin alapään (12 %)
+          tavoittaa 41 % mobiilin sivulatauksista, footerin (90 %) vain 0,6 %. */}
+      <p class="mt-5 text-center text-sm text-gray-400">
+        Onko esineesi hopeaa?
+        <a href="/hopean-hinta/#laskuri" class="text-gold-400 font-semibold underline underline-offset-2 decoration-gold-400/40 hover:decoration-gold-400">Laske hopean arvo hopealaskurilla →</a>
+      </p>
     </div>
   </div>
 
@@ -442,7 +449,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
               </li>
               <li class="flex items-start gap-3">
                 <span class="w-6 h-6 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0 mt-0.5">✓</span>
-                <span><strong>Tarkista kulumat:</strong> Aito kulta on samanväristä myös pinnan alta. Jos naarmuista tai reunoista kuultaa läpi harmaa tai punertava metalli, esine on vain kullattu.</span>
+                <span><strong>Tarkista kulumat:</strong> Jos keltaisen pinnan naarmuista tai reunoista kuultaa läpi harmaa tai punertava metalli, esine voi olla kullattu. Tämä on vain vihje — aitokin kultakoru voi olla pinnoitettu (esim. valkokulta rodiumilla), joten varmista leimasta tai mittauksella.</span>
               </li>
             </ul>
 

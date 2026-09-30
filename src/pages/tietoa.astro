@@ -25,7 +25,7 @@ const schemaData = {
       "@id": "https://kultalaskuri.fi/tietoa/",
       "url": "https://kultalaskuri.fi/tietoa/",
       "name": "Tietoa palvelusta – Kultalaskuri.fi",
-      "description": "Kultalaskuri.fi on ilmainen ja puolueeton suomalainen palvelu kullan arvon laskemiseen. Lue miten hinta lasketaan, mistä data tulee ja miksi emme osta kultaa.",
+      "description": "Kultalaskuri.fi on ilmainen ja puolueeton suomalainen palvelu kullan ja hopean arvon laskemiseen. Lue miten hinta lasketaan, mistä data tulee ja miksi emme osta kultaa tai hopeaa.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" },
@@ -51,7 +51,7 @@ const schemaData = {
 
 <BaseLayout
   title="Tietoa palvelusta – näin laskuri toimii | Kultalaskuri.fi"
-  description="Kultalaskuri.fi on ilmainen ja puolueeton suomalainen palvelu kullan arvon laskemiseen. Lue miten hinta lasketaan, mistä data tulee ja miksi emme osta kultaa."
+  description="Kultalaskuri.fi on ilmainen ja puolueeton suomalainen palvelu kullan ja hopean arvon laskemiseen. Lue miten hinta lasketaan, mistä data tulee ja miksi emme osta kultaa tai hopeaa."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -72,7 +72,7 @@ const schemaData = {
       </h1>
       <p class="text-sm md:text-base text-gray-400 leading-relaxed max-w-2xl mx-auto">
         Kultalaskuri.fi on ilmainen, suomalainen ja puolueeton työkalu, jolla selvität
-        kultakorujen ja romukullan arvon päivän pörssikurssilla — ennen kuin astut kullanostajan liikkeeseen.
+        kultakorujen, romukullan ja hopeaesineiden arvon päivän pörssikurssilla — ennen kuin myyt ne kullan tai hopean ostajalle.
       </p>
     </div>
   </div>
@@ -83,12 +83,12 @@ const schemaData = {
       <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Riippumaton hinta-arvio</h2>
       <div class="space-y-4 text-lg text-gray-600 leading-relaxed mb-12">
         <p>
-          <strong>Kultalaskuri.fi ei itse osta kultaa.</strong> Laskurin näyttämä arvio lasketaan
+          <strong>Kultalaskuri.fi ei itse osta kultaa eikä hopeaa.</strong> Laskurin näyttämä arvio lasketaan
           suoraan kansainvälisestä markkinahinnasta, joten se ei riipu yksittäisen ostajan
           hinnoittelusta.
         </p>
         <p>
-          Palvelun tarkoitus on yksinkertainen: että kukaan ei myisi kultaansa tietämättä
+          Palvelun tarkoitus on yksinkertainen: että kukaan ei myisi kultaansa tai hopeaansa tietämättä
           sen todellista arvoa. Kun tiedät reilun vähimmäistason, osaat vertailla tarjouksia
           ja neuvotella.
         </p>
@@ -97,7 +97,7 @@ const schemaData = {
       <h2 class="text-3xl font-black text-gray-900 mb-6 tracking-tight">Mistä hintatieto tulee?</h2>
       <div class="space-y-4 text-lg text-gray-600 leading-relaxed mb-8">
         <p>
-          Kullan spot-hinta haetaan kansainvälisestä <strong>MetalPrice API</strong> -hintapalvelusta,
+          Kullan ja hopean spot-hinnat haetaan kansainvälisestä <strong>MetalPrice API</strong> -hintapalvelusta samalla haulla,
           ja se päivittyy sivustolle <strong>automaattisesti useita kertoja päivässä</strong>.
           Hintahistoria (kuvaaja) tallennetaan kerran päivässä klo 18. Hinta noteerataan
           maailmanmarkkinoilla dollareissa troy-unssia kohden; muunnamme sen euroiksi grammalta,
@@ -105,7 +105,7 @@ const schemaData = {
         </p>
         <p>
           Näytetty päivämäärä kertoo aina, milloin hinta on viimeksi päivitetty. Seuraamme myös
-          hinnan kehitystä — katso <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a>.
+          hinnan kehitystä — katso <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">kullan hintakehitys</a> ja <a href="/hopean-hintahistoria/" class="text-gold-600 font-bold hover:underline">hopean hintakehitys</a>.
         </p>
       </div>
 
@@ -127,6 +127,12 @@ const schemaData = {
           </li>
         </ol>
       </div>
+      <p class="text-gray-600 leading-relaxed mb-6">
+        <a href="/hopean-hinta/#laskuri" class="text-gold-600 font-bold hover:underline">Hopealaskuri</a>
+        laskee hopeaesineen arvon samalla periaatteella: puhtaan hopean määrä × hopean spot-hinta on
+        pörssiarvo, josta vähennetään tyypilliset kulut. Hopean tavoitehinnan vähennys on oma, ja se
+        perustuu suomalaisten hopean ostajien julkisiin hintoihin.
+      </p>
       <p class="text-gray-600 leading-relaxed mb-12">
         Laskurin antama arvo on <strong>suuntaa-antava vähimmäistaso</strong>, ei sitova tarjous.
         Lopullinen ostohinta riippuu ostajan käytännöistä ja esineen tarkasta pitoisuudesta.

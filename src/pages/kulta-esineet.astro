@@ -190,8 +190,9 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </p>
         <p class="text-xs text-gray-500 mt-3">
           Valkokulta on kultaa siinä missä keltakultakin — pinnan rodiumkerros on häviävän kevyt eikä
-          vaikuta arvoon. <strong>Kullattu</strong> esine (merkinnät GP, GF, HGE) on sen sijaan vain
-          pinnoitettua muuta metallia, eikä sillä ole romukullan arvoa.
+          vaikuta arvoon. <strong>Kullattu</strong> esine (merkinnät GP, GF, HGE) on sen sijaan muuta
+          metallia, jonka pinnassa on kultakerros. Kultaa on vain murto-osa painosta (GF-kerros on
+          paksumpi kuin ohut GP- tai HGE-pinnoite), joten arvoa ei voi laskea kultakorun tavoin.
         </p>
       </div>
 
@@ -330,7 +331,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <p class="text-gray-600 leading-relaxed mb-16">
         Harkot ovat <a href="/sanasto/#sijoituskulta" class="text-gold-600 font-bold hover:underline">sijoituskultaa</a>:
         myyntihinta on lähellä pörssikurssia, tyypillisesti hieman sen alle ostajan katteen verran.
-        Mahdollinen luovutusvoitto on veronalaista ensimmäisestä eurosta alkaen. Säilytä ostokuitti
+        Mahdollinen luovutusvoitto on veronalaista ensimmäisestä eurosta alkaen, ellei verovuoden
+        myyntien yhteissumma jää enintään 1 000 euroon (ks. <a href="/kullan-myynti-verotus/" class="text-gold-600 font-bold hover:underline">verotus</a>). Säilytä ostokuitti
         ja aitoustodistus, jos sellainen on.
       </p>
 

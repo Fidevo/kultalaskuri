@@ -26,7 +26,7 @@ const foreignMarks = [
   { mark: '875', karat: '21K', pct: '87,5', use: 'Erittäin suosittu Lähi-idässä ja Pohjois-Afrikassa (esim. Saudi-Arabia, Egypti)' },
   { mark: '750', karat: '18K', pct: '75,0', use: 'Arvokorut, luksuskellot, arvostetut vihkisormukset', highlight: true },
   { mark: '585', karat: '14K', pct: '58,5', use: 'Suomalaiset standardikorut, kestävät käyttöesineet', highlight: true },
-  { mark: '417', karat: '10K', pct: '41,7', use: 'Pohjois-Amerikan (USA, Kanada) alin kultastandardi, edulliset korut' },
+  { mark: '417', karat: '10K', pct: '41,7', use: 'Pohjois-Amerikassa (USA, Kanada) käytetty pitoisuus, edulliset korut' },
   { mark: '375', karat: '9K',  pct: '37,5', use: 'Yleinen Iso-Britanniassa, edulliset käyttökorut' },
   { mark: '333', karat: '8K',  pct: '33,3', use: 'Edulliset korut, yleinen Saksassa ja Keski-Euroopassa' },
 ];
@@ -266,7 +266,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Muut merkinnät (333, 417, 875, 965) ja karaattivastineet: <a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">ulkomaiset leimat</a>.
         Kirjain + numero (esim. <strong>A9 = 2002</strong>, <strong>A10 = 2026</strong>) on vuosileima, joka kertoo valmistusvuoden:
         <a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">vuosileimataulukot</a>.
-        Kirjaimet GP, GF, GE ja HGE tarkoittavat <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">kullattua esinettä</a>, ei aitoa kultaa.
+        Kirjaimet GP, GF, GE ja HGE tarkoittavat <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">kullattua esinettä</a>, ei umpikultaa.
       </p>
 
       {/* Sisällysluettelo — nopea navigointi pitkällä opassivulla */}
@@ -294,7 +294,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <ul class="space-y-3 mb-8 text-gray-600">
         <li class="flex items-start gap-3">
           <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
-          <span><strong>Pitoisuusleima</strong> (585, 750, 375, 916, 999): kultapitoisuus tuhannesosina. Ainoa merkintä, joka vaikuttaa kullan arvoon. <a href="#pikavastaus" class="text-gold-600 font-bold hover:underline">Taulukko yllä</a>.</span>
+          <span><strong>Pitoisuusleima</strong> (585, 750, 375, 916, 999): kultapitoisuus tuhannesosina. Tämän perusteella lasketaan esineen kullan metalliarvo. <a href="#pikavastaus" class="text-gold-600 font-bold hover:underline">Taulukko yllä</a>.</span>
         </li>
         <li class="flex items-start gap-3">
           <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
@@ -314,7 +314,11 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </li>
         <li class="flex items-start gap-3">
           <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
-          <span><strong>Kullatun esineen merkinnät</strong> (GP, GF, GE, HGE, "Doublé"): esine on vain pinnoitettu kullalla. <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Näin tunnistat kullatun</a>.</span>
+          <span><strong>Kullatun esineen merkinnät</strong> (GP, GF, GE, HGE, "Doublé"): esine on muuta metallia, jonka pinnassa on kultakerros — ei umpikultaa. <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Näin tunnistat kullatun</a>.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
+          <span><strong>Hopean pitoisuusleimat</strong> (esim. 925, 830, 813): nämä ovat hopean, eivät kullan pitoisuusmerkintöjä. <a href="/hopean-hinta/#leimat" class="text-gold-600 font-bold hover:underline">Hopean leimat ja hinta</a>.</span>
         </li>
       </ul>
 
@@ -348,9 +352,10 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           Loppuosa seoksesta tekee metallista kovempaa ja paremmin käyttöä kestävää. Siksi 585-kulta on yleinen erityisesti käyttökoruissa ja sormuksissa.
         </p>
         <p class="text-gray-600 leading-relaxed mb-4">
-          Korun myyntiarvo lasketaan aina puhtaan kullan osuudesta:
+          Korun sisältämän kullan pörssiarvo lasketaan puhtaan kullan osuudesta:
           <a href="/kullan-hinta/#14k" class="text-gold-600 font-bold hover:underline">14K-kullan hinta grammalta</a>
-          on 58,5 % puhtaan kullan päivän pörssikurssista.
+          on 58,5 % puhtaan kullan päivän pörssikurssista. Kullanostajan maksama hinta on tätä
+          pörssiarvoa alempi, ja tunnettu design-koru voi olla ehjänä arvokkaampi kuin sen kulta.
         </p>
         <a href="/#laskuri" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
           Laske 585-kullan arvo päivän kurssilla <span>&rarr;</span>
@@ -423,8 +428,9 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <h3 class="text-lg font-bold text-gray-900 mb-2">Nimileima</h3>
           <p class="text-sm text-gray-600 leading-relaxed">
             Valmistajan tai maahantuojan rekisteröity tunnus, esimerkiksi kirjainyhdistelmä.
-            Suomessa nimileimat rekisteröi Tukes, ja jokainen leima on julkisessa
-            nimileimarekisterissä. Nimileiman avulla voit selvittää, kuka korun on valmistanut —
+            Suomessa nimileimat rekisteröi Tukes, ja sen julkisesta nimileimarekisteristä
+            löytyvät viimeisen 50 vuoden leimat. Tätä vanhemmat leimat löytyvät
+            <a href="https://www.leimat.fi/fi/nimileimat" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Leimat.fi-palvelusta</a>. Nimileiman avulla voit selvittää, kuka korun on valmistanut —
             esimerkiksi Kalevala Korun tai Lapponian leima voi tarkoittaa, että koru on ehjänä
             arvokkaampi kuin sulatettuna.
           </p>
@@ -543,7 +549,8 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <p class="text-sm text-gray-500 leading-relaxed mb-16 p-4 bg-gray-50 rounded-xl border border-gray-100">
         Vuosileima on vapaaehtoinen merkintä, joten sen puuttuminen ei kerro esineen aitoudesta
-        mitään. Nimileimojen haltijat voi tarkistaa Tukesin julkisesta nimileimarekisteristä.
+        mitään. Nimileimojen haltijat voi tarkistaa Tukesin julkisesta nimileimarekisteristä (viimeiset
+        50 vuotta) ja sitä vanhemmat Leimat.fi-palvelusta.
       </p>
 
       <hr class="border-gray-100 mb-16" />
@@ -627,7 +634,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 font-black text-xl">!</div>
           <div>
             <strong class="text-red-900 block mb-2 text-lg">Tunnista kullatut esineet: GP, GF, GE, HGE</strong>
-            <span class="text-red-800 text-base leading-relaxed">Nämä lyhenteet (esim. Gold Plated) kertovat, että kyseessä on vain ohuella kultakerroksella pinnoitettu esine, ei aito kultakoru. Tällaisilla esineillä ei valitettavasti ole markkinoilla varsinaista romukullan arvoa.</span>
+            <span class="text-red-800 text-base leading-relaxed">Nämä lyhenteet kertovat, että kyseessä on kullalla pinnoitettu tai päällystetty esine, ei umpikultainen koru. GP-, GE- ja HGE-pinnoite on ohut, eikä tällaisilla esineillä ole käytännössä romukullan arvoa. GF (Gold Filled) -kerros on paksumpi, mutta kultaa on silti vain murto-osa painosta, joten arvoa ei voi laskea kultakorun tavoin.</span>
           </div>
         </div>
 
@@ -643,7 +650,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <div class="w-10 h-10 rounded-full bg-white text-gold-700 flex items-center justify-center shrink-0 font-black text-lg border border-gold-200">4</div>
           <div>
             <strong class="text-gray-900 block mb-2 text-lg">Tarkista kulumat ja väri</strong>
-            <span class="text-gray-600 text-base leading-relaxed">Aito kulta on samanväristä myös pinnan alta. Tutki eniten kuluvat kohdat — sormuksen alapinta, ketjun lenkit, reunat. Jos naarmuista kuultaa läpi harmaata, hopeanväristä tai punertavaa metallia, esine on todennäköisesti vain kullattu.</span>
+            <span class="text-gray-600 text-base leading-relaxed">Tutki eniten kuluvat kohdat — sormuksen alapinta, ketjun lenkit, reunat. Jos keltaisen pinnan alta kuultaa läpi harmaata, hopeanväristä tai punertavaa metallia, esine voi olla kullattu. Värimuutos on kuitenkin vain vihje: aitokin kultakoru voi olla pinnoitettu, esimerkiksi valkokulta rodiumilla, joten varmista pitoisuus leimasta tai mittauksella.</span>
           </div>
         </div>
 

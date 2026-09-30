@@ -1,0 +1,603 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqItem from '../components/FaqItem.astro';
+import SilverCalculator from '../components/react/SilverCalculator.tsx';
+import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
+import { getSilverPrice } from '../lib/api/metalPriceApi';
+import { calculateSilverValue, SILVER_PURITIES, type SilverPurityCode } from '../lib/calculations/silverCalculator';
+import { loadLongHistory } from '../lib/utils/longHistory';
+import { fillMissingDays } from '../lib/utils/priceHistory';
+
+// Hopea tulee samasta API-kutsusta kuin kulta (ks. metalPriceApi.ts) — ei omaa kutsua.
+const silverPrice = await getSilverPrice();
+const spot = silverPrice?.priceEurGram || 0;
+
+const HELSINKI_TZ = 'Europe/Helsinki';
+
+// Näkyvä päivitysaika — sama logiikka kuin /kullan-hinta/-sivulla. Fallback-
+// datalla (hintahistoria) ei ole oikeaa hakukellonaikaa, joten kellonaikaa ei näytetä.
+const updatedAtDate = silverPrice?.updatedAt ? new Date(silverPrice.updatedAt) : new Date();
+const updatedDate = updatedAtDate.toLocaleDateString('fi-FI', {
+  day: 'numeric', month: 'numeric', year: 'numeric', timeZone: HELSINKI_TZ,
+});
+const timeStr = updatedAtDate.toLocaleTimeString('fi-FI', {
+  hour: '2-digit', minute: '2-digit', timeZone: HELSINKI_TZ,
+});
+const updatedTime = silverPrice?.source === 'history' ? null : timeStr;
+
+// Pörssiarvo grammalta = pitoisuus × spot (calculateSilverValue on ainoa sallittu
+// laskentapolku). Taulukoissa EI näytetä tavoitehintaa (sääntö 4, sama linja kuin
+// /kullan-hinta/): tavoitehinnan näyttää vain laskuri.
+const spotPerGram = (code: SilverPurityCode) => (spot > 0 ? (calculateSilverValue(1, code, spot)?.spotValue ?? 0) : 0);
+// Kilohinta lasketaan 1000 grammasta eikä grammahinnasta × 1000, jottei
+// grammahinnan pyöristys kerrannu.
+const spotPerKiloOf = (code: SilverPurityCode) => (spot > 0 ? (calculateSilverValue(1000, code, spot)?.spotValue ?? 0) : 0);
+
+const PURITY_ROWS: { code: SilverPurityCode; note: string; highlight?: boolean }[] = [
+  { code: '999', note: 'Hopeaharkot, sijoituskolikot' },
+  { code: '925', note: 'Sterling-hopea, korut', highlight: true },
+  { code: '900', note: 'Vanhat hopearahat' },
+  { code: '830', note: 'Suomalaiset aterimet ja astiat', highlight: true },
+  { code: '813', note: 'Vanha suomalainen (13-luotinen)', highlight: true },
+  { code: '800', note: 'Keskieurooppalaiset aterimet' },
+  { code: '500', note: 'Osa vanhoista juhlarahoista' },
+  { code: '350', note: '1 markka 1964–1968' },
+];
+const purityRows = PURITY_ROWS.map(r => ({
+  ...r,
+  pct: (SILVER_PURITIES[r.code].decimal * 100).toFixed(1).replace('.', ',').replace(',0', ''),
+  perGram: spotPerGram(r.code),
+  perKilo: spotPerKiloOf(r.code),
+}));
+
+// Yksikkömuunnokset — näkyvä UI, ei schema/meta (sääntö 3).
+const TROY_OUNCE_G = 31.1035;
+const spotPerOunce = spot * TROY_OUNCE_G;
+const spotPerKilo = spot * 1000;
+
+// Esimerkit pitoisuusosioihin (pörssiarvo, ei tavoitehintaa)
+const ex830 = spot > 0 ? calculateSilverValue(250, '830', spot) : null;
+const ex925 = spot > 0 ? calculateSilverValue(20, '925', spot) : null;
+
+const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+const fmtBig = (n: number) => new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }).format(n);
+const fmtDateFi = (iso: string) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d}.${m}.${y}`;
+};
+
+// ── 12 kk kuvaaja + kuukausitaulukko (sama linja kuin /kullan-hinta/) ──
+// Vain viimeiset 12 kk: pitkä historia on /hopean-hintahistoria/-sivulla. Viikonloput
+// täytetään edellisellä hinnalla, jotta graafi ei hyppää perjantaista maanantaihin.
+const chartHistory = fillMissingDays(loadLongHistory('silver')).slice(-366);
+const chartSeries = [
+  { key: 'spot', label: 'Spot', title: 'Hopean spot-hinta €/g', factor: 1 },
+  { key: '925', label: '925', title: '925-hopean pörssiarvo €/g', factor: SILVER_PURITIES['925'].decimal },
+  { key: '830', label: '830', title: '830-hopean pörssiarvo €/g', factor: SILVER_PURITIES['830'].decimal },
+];
+
+const MONTH_NAMES = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu',
+  'heinäkuu', 'elokuu', 'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu'];
+const monthMap = new Map<string, number[]>();
+for (const d of chartHistory) {
+  const key = d.date.slice(0, 7);
+  (monthMap.get(key) ?? monthMap.set(key, []).get(key)!).push(d.price);
+}
+const monthRows = [...monthMap.entries()]
+  .sort(([a], [b]) => b.localeCompare(a)) // uusin ensin
+  .map(([key, prices]) => {
+    const [y, m] = key.split('-').map(Number);
+    return {
+      key,
+      label: `${MONTH_NAMES[m - 1].charAt(0).toUpperCase() + MONTH_NAMES[m - 1].slice(1)} ${y}`,
+      avg: prices.reduce((s, p) => s + p, 0) / prices.length,
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+    };
+  });
+// Kuluva kuukausi merkitään keskeneräiseksi. Suomen aikavyöhyke — build ajetaan UTC:ssä.
+const currentMonthKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' }).slice(0, 7);
+// Vanhin kuukausi on yleensä vajaa (12 kk:n ikkuna alkaa kesken kuukautta) — merkitään näkyviin.
+const partialFirstKey = chartHistory[0].date.endsWith('-01') ? null : chartHistory[0].date.slice(0, 7);
+
+const dateModified = new Date().toISOString();
+
+// UKK: sama data sekä näkyvään osioon että FAQPage-schemaan. Vastauksissa EI
+// täsmä-€/g-hintaa (sääntö 3) eikä kerrointa (sääntö 4).
+const faqItems = [
+  {
+    q: 'Mikä on hopean hinta tänään?',
+    a: 'Hopean spot-hinta eli maailmanmarkkinahinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena euroina grammalta ja kilolta. Kun hopeaesine myydään raaka-aineena, siitä maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 830 tai 925) ja hopean ostajan katteesta.',
+  },
+  {
+    q: 'Paljonko 830-hopea maksaa grammalta?',
+    a: '830-hopeassa on 83 % puhdasta hopeaa, joten sen pörssiarvo grammalta on 83 % puhtaan hopean kurssista. Päivän kurssin mukainen arvo näkyy tämän sivun pitoisuustaulukossa. 830 on yleisin pitoisuus suomalaisissa hopea-aterimissa ja -astioissa. Raaka-aineena myytävästä hopeasta hopean ostajan maksama hinta on pörssiarvoa matalampi — reilun tavoitetason näyttää hopealaskuri.',
+  },
+  {
+    q: 'Paljonko 925-hopea eli sterling-hopea maksaa grammalta?',
+    a: '925-hopeassa eli sterling-hopeassa on 92,5 % puhdasta hopeaa, joten sen pörssiarvo grammalta on 92,5 % puhtaan hopean kurssista. Päivän kurssin mukainen arvo näkyy tämän sivun pitoisuustaulukossa. Raaka-aineena myytävästä hopeasta hopean ostajan maksama hinta on pörssiarvoa matalampi.',
+  },
+  {
+    q: 'Mitä hopea maksaa kilolta?',
+    a: 'Hopean kilohinta on grammahinta kerrottuna tuhannella. Monet hopean ostajat ilmoittavat hintansa kilohintana, koska hopeaa myydään usein isompina erinä, kuten aterinsarjoina. Päivän kilohinnat puhtaalle hopealle ja eri pitoisuuksille näkyvät tämän sivun taulukossa.',
+  },
+  {
+    q: 'Onko alpakka hopeaa?',
+    a: 'Ei ole. Alpakka eli uushopea on kuparin, nikkelin ja sinkin seos, jossa ei ole lainkaan hopeaa. Alpakka-esineet on usein hopeoitu ohuella hopeakerroksella, mutta sen määrä on niin pieni, ettei esineellä ole merkittävää arvoa hopeana. Hopeaesineessä on yleensä pitoisuusleima, esimerkiksi 830, 813 tai 925 — leima voi kuitenkin puuttua esimerkiksi kevyistä tai hyvin vanhoista hopeaesineistä, joten leimaamattoman esineen pitoisuus kannattaa selvittää ostajalta.',
+  },
+  {
+    q: 'Miksi hopean ostaja maksaa pörssiarvoa vähemmän?',
+    a: 'Pörssiarvo on puhtaan hopean tukkuhinta maailmanmarkkinoilla. Kun myyt hopeaa raaka-aineena eli sulatettavaksi, ostajan hinnasta vähennetään sulatus- ja jalostuskulut sekä ostajan kate. Keräilykolikoista ja design-esineistä voidaan maksaa enemmän kuin niiden hopea-arvo. Kultalaskuri.fi:n hopealaskuri näyttää reilun vähimmäistason, jota hopeasta kannattaa vähintään tavoitella.',
+  },
+  {
+    q: 'Miksi hopean hinta muuttuu päivittäin?',
+    a: 'Hopean hinta määräytyy kansainvälisillä markkinoilla kysynnän ja tarjonnan mukaan. Hopean kysynnästä selvästi suurempi osa on teollista kuin kullalla — hopeaa käytetään esimerkiksi elektroniikassa ja aurinkopaneeleissa — joten hinta reagoi myös talouden suhdanteisiin. Euromääräiseen hintaan vaikuttaa lisäksi EUR/USD-valuuttakurssi. Hopean hinta heiluu tyypillisesti kullan hintaa voimakkaammin.',
+  },
+];
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://kultalaskuri.fi/#website",
+      "url": "https://kultalaskuri.fi",
+      "name": "Kultalaskuri.fi",
+      "inLanguage": "fi-FI"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Kultalaskuri.fi", "item": "https://kultalaskuri.fi" },
+        { "@type": "ListItem", "position": 2, "name": "Hopean hinta", "item": "https://kultalaskuri.fi/hopean-hinta/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://kultalaskuri.fi/hopean-hinta/",
+      "url": "https://kultalaskuri.fi/hopean-hinta/",
+      "name": "Hopean hinta tänään – hopealaskuri, gramma- ja kilohinta",
+      "description": "Hopean hinta tänään euroina grammalta ja kilolta sekä hopealaskuri, jolla lasket 830-, 813- ja 925-hopean arvon painon mukaan. Päivittyy arkisin.",
+      "inLanguage": "fi-FI",
+      "dateModified": dateModified,
+      "isPartOf": { "@id": "https://kultalaskuri.fi/#website" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": faqItems.map(item => ({
+        "@type": "Question",
+        "name": item.q,
+        "acceptedAnswer": { "@type": "Answer", "text": item.a }
+      }))
+    }
+  ]
+};
+---
+
+<BaseLayout
+  title="Hopean hinta tänään €/g – laskuri, gramma- ja kilohinta | Kultalaskuri.fi"
+  description="Hopean hinta tänään euroina grammalta ja kilolta sekä hopealaskuri: laske 830-, 813- ja 925-hopean arvo painon mukaan. Päivittyy arkisin."
+  schema={JSON.stringify(schemaData)}
+>
+
+  <div class="relative hero-surface pt-28 pb-12 md:pb-16 px-4 overflow-hidden">
+    <div class="max-w-5xl mx-auto relative z-10">
+
+      <nav aria-label="Murupolku" class="mb-6">
+        <ol class="flex items-center gap-2 text-xs text-gray-400">
+          <li><a href="/" class="hover:text-gold-400 transition-colors">Etusivu</a></li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page" class="text-gray-300">Hopean hinta</li>
+        </ol>
+      </nav>
+
+      <div class="text-center mb-8 md:mb-10">
+        <div class="kicker-dark">
+          Kurssi päivitetty {updatedDate}{updatedTime && ` klo ${updatedTime}`}
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
+          Hopean hinta tänään
+          <span class="block text-gold-400 pb-1.5">laske hopeasi arvo</span>
+        </h1>
+        <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+          Puhtaan hopean spot-hinta (maailmanmarkkinahinta) on nyt
+          <strong class="text-white num whitespace-nowrap">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong> eli
+          <strong class="text-white num whitespace-nowrap">{spot > 0 ? `${fmtBig(spotPerKilo)} €/kg` : '–'}</strong>.
+          Syötä hopeaesineen paino ja leima, niin näet reilun tavoitehinnan päivän kurssilla.
+        </p>
+        <p class="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-gray-400">
+          <a href="#pitoisuudet" class="hover:text-gold-400 transition-colors underline underline-offset-2">Hinta pitoisuuksittain</a>
+          <a href="#830" class="hover:text-gold-400 transition-colors underline underline-offset-2">830- ja 813-hopea</a>
+          <a href="#925" class="hover:text-gold-400 transition-colors underline underline-offset-2">925-hopea</a>
+          <a href="#kilohinta" class="hover:text-gold-400 transition-colors underline underline-offset-2">Kilohinta</a>
+          <a href="#kuvaaja" class="hover:text-gold-400 transition-colors underline underline-offset-2">Kuvaaja</a>
+          <a href="#alpakka" class="hover:text-gold-400 transition-colors underline underline-offset-2">Onko se hopeaa?</a>
+        </p>
+      </div>
+    </div>
+
+    {/* Laskuri heroon — above the fold kuten etusivulla */}
+    <div id="laskuri" class="max-w-5xl mx-auto relative z-10 scroll-mt-24">
+      <div class="bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 overflow-hidden">
+        {spot > 0 ? (
+          <SilverCalculator client:load spotPriceEurPerGram={spot} />
+        ) : (
+          <div class="text-center p-12">
+            <p class="text-red-500">Hintatietoja ei saatavilla.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {/* ── 12 kk kuvaaja ── */}
+  <section id="kuvaaja" class="bg-ink-950 border-t border-white/5 py-14 md:py-16 px-4 scroll-mt-24">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">Hopean hinta viimeisen vuoden ajalta</h2>
+      <p class="text-sm md:text-base text-gray-400 max-w-2xl leading-relaxed mb-6">
+        Hopean spot-hinta euroina grammalta päivä päivältä. Valitse aikaväli, vaihda pitoisuutta
+        tai mittaa muutos kahden päivän välillä.
+      </p>
+      {/* min-h varaa tilan islandille → ei layout-hyppäystä hydraatiossa */}
+      <div class="min-h-[560px] md:min-h-[480px]">
+        <GoldPriceChart
+          client:visible
+          data={chartHistory}
+          seriesDefs={chartSeries}
+          axisDecimals={2}
+          minPad={0.02}
+          metalGenitive="Hopean"
+          trackPrefix="hopea-hintahistoria"
+        />
+      </div>
+      <p class="text-gray-400 text-xs mt-6 leading-relaxed">
+        Hopean spot-hinta euroina per gramma (maailmanmarkkinahinta). Lähde: MetalPrice API ·
+        Hintahistoria tallennetaan pörssipäivinä klo 18 · Historiallinen kehitys ei ennusta tulevaa hintaa.
+      </p>
+      <p class="mt-3">
+        <a href="/hopean-hintahistoria/" class="inline-flex items-center gap-1.5 text-gold-400 font-bold hover:underline text-sm">
+          Hopean hintakehitys vuodesta 2011 →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-white py-16 px-4">
+    <div class="max-w-3xl mx-auto">
+
+      {/* ── Hinta pitoisuuksittain ── */}
+      <div class="kicker-light">Päivän kurssilla</div>
+      <h2 id="pitoisuudet" class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight scroll-mt-24">Hopean hinta pitoisuuksittain</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-3">
+        Hopeaesineen arvo riippuu pitoisuudesta, joka on leimattu esineeseen tuhannesosina:
+        esimerkiksi 830-hopeassa on 83 % ja 925-hopeassa 92,5 % puhdasta hopeaa. Taulukossa on
+        jokaisen pitoisuuden <strong>pörssiarvo</strong> grammalta ja kilolta päivän kurssilla
+        eli puhtaan hopean kurssi ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna pitoisuudella.
+      </p>
+      <p class="text-sm text-gray-500 leading-relaxed mb-6">
+        Kun hopeaa myydään raaka-aineena, hopean ostajan maksama hinta on pörssiarvoa matalampi,
+        koska ostaja vähentää sulatus- ja jalostuskulut sekä katteensa. Reilun tavoitetason omalle hopeallesi näyttää
+        <a href="#laskuri" class="text-gold-600 font-bold hover:underline">hopealaskuri</a>.
+      </p>
+
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-2.5 mb-4">
+        {purityRows.map(row => (
+          <a href={`/hopean-hinta/?paino=100&pitoisuus=${row.code}#laskuri`} class={`flex items-center gap-4 p-3.5 rounded-2xl border ${row.highlight ? 'border-gold-200 bg-gold-50/40' : 'border-gray-200 bg-white'} shadow-sm hover:border-gold-300 transition-colors`}>
+            <div class={`w-14 h-14 rounded-full flex flex-col items-center justify-center shrink-0 border ${row.highlight ? 'bg-white border-gold-200 text-gold-700' : 'bg-gray-50 border-gray-200 text-gray-900'}`}>
+              <span class="font-black text-sm leading-none">{row.code}</span>
+              <span class="text-[10px] text-gray-500 leading-none mt-0.5">{row.pct} %</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-gray-500 leading-snug">{row.note}</p>
+              <p class="text-xs text-gray-500 tabular-nums mt-0.5">{fmtBig(row.perKilo)} €/kg</p>
+            </div>
+            <p class="text-base font-black text-gray-900 tabular-nums shrink-0">{fmt(row.perGram)} <span class="text-xs font-medium text-gray-500">€/g</span></p>
+          </a>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block mb-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <caption class="sr-only">Hopean pörssiarvo euroina grammalta ja kilolta pitoisuuksittain päivän kurssilla</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-3.5 px-5 font-semibold">Leima</th>
+              <th class="py-3.5 px-5 font-semibold text-right">Hopeaa</th>
+              <th class="py-3.5 px-5 font-semibold">Tyypillinen käyttö</th>
+              <th class="py-3.5 px-5 font-semibold text-right">€/g</th>
+              <th class="py-3.5 px-5 font-semibold text-right">€/kg</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {purityRows.map(row => (
+              <tr class={`transition-colors ${row.highlight ? 'bg-gold-50/40 hover:bg-gold-50/70' : 'hover:bg-gray-50'}`}>
+                <td class="py-3 px-5 font-black text-gray-900">{row.code}</td>
+                <td class="py-3 px-5 text-right tabular-nums">{row.pct} %</td>
+                <td class="py-3 px-5 text-gray-600">{row.note}</td>
+                <td class={`py-3 px-5 text-right tabular-nums ${row.highlight ? 'font-black' : 'font-bold'} text-gray-900`}>{fmt(row.perGram)}</td>
+                <td class="py-3 px-5 text-right tabular-nums text-gray-600">{fmtBig(row.perKilo)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mb-14">
+        Hintalähde: MetalPrice API (hopean kansainvälinen spot-kurssi muunnettuna euroiksi).
+        Pörssiarvot päivittyvät arkisin kurssin mukana. Et tiedä esineesi pitoisuutta?
+        <a href="#leimat" class="text-gold-600 font-bold hover:underline">Näin tunnistat hopean leimat</a>.
+      </p>
+
+      {/* ── 830 ja 813 ── */}
+      <h2 id="830" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">830- ja 813-hopean hinta</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        Suomalaiset hopea-aterimet, kahvikannut ja muut talousesineet on useimmiten valmistettu
+        830-hopeasta (83 % hopeaa). Vanhemmissa esineissä näkyy usein pitoisuus 813 eli niin
+        sanottu 13-luotinen hopea (81,3 % hopeaa). Ero hinnassa on pieni, mutta pitoisuus
+        kannattaa silti tarkistaa leimasta.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+        <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">830 pörssiarvo tänään</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(spotPerGram('830'))} <span class="text-base font-bold text-gray-500">€/g</span></p>
+          <p class="text-xs text-gray-500 mt-1 tabular-nums">813: {fmt(spotPerGram('813'))} €/g</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Esimerkki: 250 g (830)</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{ex830 ? fmt(ex830.spotValue) : '–'} <span class="text-base font-bold text-gray-500">€</span></p>
+          <p class="text-xs text-gray-500 mt-1">Pörssiarvo · puhdasta hopeaa {ex830 ? fmt(ex830.pureSilverContent) : '–'} g</p>
+        </div>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-14">
+        Hopea-aterimia myydään usein koko sarjana, joten punnitse erä kerralla — mutta
+        <strong>jätä veitset pois</strong>. Hopeaveitsissä terä on yleensä terästä ja kahva
+        täytetty, eikä kahvan hopeaosan painoa saa selville kotivaa'alla. Kysy veitsien arvo
+        ostajalta erikseen.
+        <a href="/hopean-hinta/?paino=250&pitoisuus=830#laskuri" class="text-gold-600 font-bold hover:underline">Laske 830-hopeasi tavoitehinta →</a>
+      </p>
+
+      {/* ── 925 ── */}
+      <h2 id="925" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">925-hopean hinta (sterling-hopea)</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        925-hopea eli sterling-hopea sisältää 92,5 % puhdasta hopeaa. Sitä käytetään
+        erityisesti koruissa sekä monissa ulkomaisissa hopeaesineissä. Koska pitoisuus on
+        korkeampi, sterling-hopean grammahinta on hieman 830-hopeaa korkeampi.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+        <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">925 pörssiarvo tänään</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(spotPerGram('925'))} <span class="text-base font-bold text-gray-500">€/g</span></p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Esimerkki: 20 g ketju (925)</p>
+          <p class="text-3xl font-black text-gray-900 tabular-nums">{ex925 ? fmt(ex925.spotValue) : '–'} <span class="text-base font-bold text-gray-500">€</span></p>
+          <p class="text-xs text-gray-500 mt-1">Pörssiarvo · puhdasta hopeaa {ex925 ? fmt(ex925.pureSilverContent) : '–'} g</p>
+        </div>
+      </div>
+      <p class="text-gray-600 leading-relaxed mb-14">
+        Hopeakorujen arvo raaka-aineena jää usein pieneksi, koska korut painavat vähän. Jos
+        korussa on kiviä tai se on tunnetun suunnittelijan työ, sen arvo voi olla korkeampi
+        käytettynä koruna kuin sulatettavana hopeana.
+        <a href="/hopean-hinta/?paino=20&pitoisuus=925#laskuri" class="text-gold-600 font-bold hover:underline">Laske 925-hopean tavoitehinta →</a>
+      </p>
+
+      {/* ── Kilohinta ja unssi ── */}
+      <h2 id="kilohinta" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Hopean kilohinta ja unssihinta</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Hopeaa myydään usein isompina erinä, joten monet ostajat ilmoittavat hinnan kilolta.
+        Kansainvälinen kurssi noteerataan puolestaan dollareissa troy-unssia kohden. Alla sama
+        päivän spot-kurssi puhtaalle hopealle eri yksiköissä euroina.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Gramma</p>
+          <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmt(spot) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Troy-unssi (31,1 g)</p>
+          <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmt(spotPerOunce) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
+        </div>
+        <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Kilo</p>
+          <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmtBig(spotPerKilo) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
+        </div>
+      </div>
+      <p class="text-sm text-gray-500 leading-relaxed mb-14">
+        Troy-unssi on 31,1035 grammaa. Luvut ovat puhtaan hopean spot-kurssi — hopeaesineen
+        hopeasisällön pörssiarvo kilolta saadaan kertomalla se pitoisuudella (ks. <a href="#pitoisuudet" class="text-gold-600 font-bold hover:underline">taulukko</a>).
+        Jos ostaja ilmoittaa hinnan kilolta, jaa se tuhannella saadaksesi grammahinnan.
+      </p>
+
+      {/* ── Kuukausittain ── */}
+      <h2 id="kuukausittain" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Hopean hinta kuukausittain</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        Taulukossa on hopean spot-hinnan keskiarvo sekä korkein ja matalin noteeraus kuukausittain
+        viimeisen vuoden ajalta ({fmtDateFi(chartHistory[0].date)} – {fmtDateFi(chartHistory[chartHistory.length - 1].date)}).
+      </p>
+      <p class="text-sm text-gray-500 leading-relaxed mb-8">
+        Pidemmän aikavälin vuosi- ja kuukausitilastot vuodesta 2011 löydät sivulta
+        <a href="/hopean-hintahistoria/" class="text-gold-600 font-bold hover:underline">hopean hintakehitys ja hintahistoria</a>.
+        Luvut ovat euroissa grammalta; dollarimääräiset noteeraukset voivat kehittyä eri tahtiin
+        EUR/USD-valuuttakurssin muutosten vuoksi.
+      </p>
+
+      {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
+      <div class="md:hidden space-y-3 mb-14">
+        {monthRows.map(row => (
+          <div class="p-4 rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <p class="font-bold text-gray-900 mb-2">
+              {row.label}
+              {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+              {row.key === partialFirstKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(alkaen {fmtDateFi(chartHistory[0].date)})</span>}
+            </p>
+            <div class="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <span class="block text-xs text-gray-500">Keskihinta €/g</span>
+                <span class="font-bold tabular-nums text-gray-900">{fmt(row.avg)}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-gray-500">Korkein €/g</span>
+                <span class="tabular-nums text-gray-700">{fmt(row.max)}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-gray-500">Matalin €/g</span>
+                <span class="tabular-nums text-gray-700">{fmt(row.min)}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* DESKTOP: taulukko */}
+      <div class="hidden md:block mb-14 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <caption class="sr-only">Hopean spot-hinta kuukausittain euroissa per gramma</caption>
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-300 text-[11px] uppercase tracking-[0.12em] text-gray-600">
+              <th class="py-4 px-5 font-semibold">Kuukausi</th>
+              <th class="py-4 px-5 font-semibold text-right">Keskihinta €/g</th>
+              <th class="py-4 px-5 font-semibold text-right">Korkein €/g</th>
+              <th class="py-4 px-5 font-semibold text-right">Matalin €/g</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 divide-y divide-gray-100 bg-white">
+            {monthRows.map(row => (
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-gray-900">
+                  {row.label}
+                  {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+                  {row.key === partialFirstKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(alkaen {fmtDateFi(chartHistory[0].date)})</span>}
+                </td>
+                <td class="py-3.5 px-5 text-right tabular-nums font-bold">{fmt(row.avg)}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.max)}</td>
+                <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.min)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Leimat ── */}
+      <h2 id="leimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Näin tunnistat hopean leimat</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-5">
+        Hopeaesineessä on yleensä pitoisuusleima, joka kertoo hopean osuuden tuhannesosina.
+        Aterimissa leima on yleensä varren takapuolella, astioissa pohjassa ja koruissa lukon
+        lähellä. Suomessa valmistetuissa esineissä pitoisuuden perässä on usein H-kirjain,
+        esimerkiksi 830H tai 813H. Leima voi kuitenkin puuttua esimerkiksi kevyistä tai hyvin
+        vanhoista esineistä, joten leimaamaton esine ei automaattisesti ole epäaito.
+      </p>
+      <ul class="space-y-3 mb-5">
+        <li class="flex gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
+          <span class="font-black text-gray-900 w-12 shrink-0 tabular-nums">925</span>
+          <span class="text-gray-600 text-sm leading-relaxed">Sterling-hopea. Myös merkinnät <em>Sterling</em> ja <em>STER</em> tarkoittavat samaa.</span>
+        </li>
+        <li class="flex gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
+          <span class="font-black text-gray-900 w-12 shrink-0 tabular-nums">830</span>
+          <span class="text-gray-600 text-sm leading-relaxed">Suomalaisten hopea-aterimien ja -astioiden tavallisin pitoisuus.</span>
+        </li>
+        <li class="flex gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
+          <span class="font-black text-gray-900 w-12 shrink-0 tabular-nums">813</span>
+          <span class="text-gray-600 text-sm leading-relaxed">13-luotinen hopea (13/16 = 81,25 %), yleinen vanhemmissa suomalaisissa esineissä.</span>
+        </li>
+        <li class="flex gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
+          <span class="font-black text-gray-900 w-12 shrink-0 tabular-nums">800</span>
+          <span class="text-gray-600 text-sm leading-relaxed">Tavallinen keskieurooppalaisissa, esimerkiksi saksalaisissa aterimissa.</span>
+        </li>
+      </ul>
+      <p class="text-gray-600 leading-relaxed mb-14">
+        Suomalaisissa hopeaesineissä on pitoisuusleiman lisäksi usein vuosileima, josta näkee
+        valmistusvuoden. Vuosileima toimii samalla kirjainjärjestelmällä kuin kultaesineissä:
+        <a href="/kullan-leimat/#vuosileima" class="text-gold-600 font-bold hover:underline">katso vuosileimahaku</a>.
+      </p>
+
+      {/* ── Alpakka ── */}
+      <h2 id="alpakka" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Alpakka ja uushopea eivät ole hopeaa</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        Alpakka eli uushopea näyttää hopealta, mutta se on kuparin, nikkelin ja sinkin seos —
+        siinä ei ole lainkaan hopeaa. Alpakka-aterimet on usein hopeoitu, eli niiden pinnassa on
+        ohut hopeakerros. Hopean määrä on kuitenkin niin pieni, ettei esineellä ole merkittävää
+        arvoa hopeana.
+      </p>
+      <div class="p-5 rounded-2xl border-l-[3px] border border-amber-200 border-l-amber-600 bg-amber-50 text-amber-900 mb-14">
+        <p class="font-bold mb-2">Merkit, jotka viittaavat hopeoituun tai alpakkaan:</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm leading-relaxed">
+          <li>leimassa lukee <em>Alpakka</em>, <em>Nysilver</em>, <em>EPNS</em> tai <em>Silver plated</em></li>
+          <li>kuluneista kohdista pilkottaa kellertävä tai harmahtava pohjametalli</li>
+        </ul>
+        <p class="text-sm leading-relaxed mt-3">
+          Pelkkä puuttuva pitoisuusleima ei todista, ettei esine olisi hopeaa — mutta ilman
+          leimaa pitoisuus kannattaa selvittää ostajalta ennen kuin lasket arvoa.
+        </p>
+      </div>
+
+      {/* ── Kolikot ja harkot ── */}
+      <h2 id="kolikot" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Hopeakolikot ja -harkot</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-4">
+        Hopeaharkot ja sijoituskolikot ovat yleensä 999-hopeaa. Tunnetun valmistajan harkoista
+        maksetaan usein enemmän kuin romuhopeasta, joten niitä ei kannata myydä sulatettavana
+        hopeana ilman vertailua.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        Verohallinnon ohjeen mukaan arvonlisäverottomuus koskee vain sijoituskultaa — hopeaharkot
+        ja -kolikot eivät kuulu sen piiriin
+        (<a href="https://www.vero.fi/syventavat-vero-ohjeet/ohje-hakusivu/47810/sijoituskullan-ja-muiden-kultavalmisteiden-arvonlis%C3%A4verotus/" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">vero.fi</a>).
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-14">
+        Vanhoissa suomalaisissa kolikoissa hopeaa on vähemmän: esimerkiksi vuosien 1964–1968
+        yhden markan kolikoissa on 35 % hopeaa. Juhlarahojen pitoisuus vaihtelee rahan ja
+        vuoden mukaan — monessa se on 50 %, mutta ei kaikissa — joten tarkista oman rahasi
+        pitoisuus ennen laskemista.
+        Harvinaisilla vuosikerroilla ja hyväkuntoisilla kolikoilla voi olla hopea-arvoa
+        suurempi keräilyarvo — tarkista se ennen kuin myyt kolikoita painon mukaan.
+      </p>
+
+      {/* ── Miksi ostaja maksaa vähemmän ── */}
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Mistä hopean hinta muodostuu?</h2>
+      <p class="text-lg text-gray-600 leading-relaxed mb-6">
+        Hopean <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hinta</a>
+        on puhtaan hopean tukkuhinta kansainvälisillä markkinoilla. Se noteerataan dollareissa
+        troy-unssia kohden ja muunnetaan euroiksi valuuttakurssilla. Hopean kysynnästä selvästi
+        suurempi osa on teollista kuin kullalla: vuonna 2024 teollisuus vastasi noin 59 %:sta
+        hopean kysynnästä (<a href="https://silverinstitute.org/silver-industrial-demand-reached-a-record-680-5-moz-in-2024/" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Silver Institute</a>),
+        kun teknologian osuus kullan kysynnästä oli noin 7 %
+        (<a href="https://www.gold.org/news-and-events/press-releases/global-gold-demand-hits-new-high-prices-soar-2024" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">World Gold Council</a>).
+        Hopean hinta heiluu tyypillisesti kultaa voimakkaammin
+        (<a href="/hopean-hintahistoria/#ukk" class="text-gold-600 font-bold hover:underline">vertailu hintahistoriassa</a>).
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-12 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+        <strong>Huomaa:</strong> kun hopeaa myydään raaka-aineena, siitä maksettava hinta on
+        spot-hintaa matalampi, koska ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa.
+        {/* Poistettu 30.9.2026 lähteetön väite "käsittelykulujen osuus on suurempi kuin kullassa".
+            Ostajien väitettä ALV:n vaikutuksesta ei voitu varmentaa (ks. kolikko-osion ALV-fakta). */}
+        <a href="#laskuri" class="text-gold-600 font-bold hover:underline">Hopealaskuri</a> näyttää
+        reilun vähimmäistason, jota kannattaa tavoitella.
+      </p>
+
+      <div class="relative overflow-hidden hero-surface rounded-2xl p-8 md:p-10 text-center ring-1 ring-gold-400/20 mb-16">
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Paljonko sinun hopeasi on arvoltaan?</h2>
+        <p class="text-gray-400 mb-6 max-w-xl mx-auto">Syötä paino ja pitoisuus, niin näet reilun tavoitehinnan päivän kurssilla.</p>
+        <a href="#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm">
+          Laske hopeasi arvo →
+        </a>
+      </div>
+
+      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Usein kysyttyä hopean hinnasta</h2>
+      <div id="ukk" class="grid grid-cols-1 gap-4 mb-12">
+        {faqItems.map(item => (
+          <FaqItem question={item.q} answer={item.a} />
+        ))}
+      </div>
+
+      <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <a href="/hopean-hintahistoria/" class="text-gold-600 font-bold hover:underline">Hopean hintakehitys vuodesta 2011 →</a>
+        <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">Kullan hinta tänään →</a>
+        <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Vuosileimahaku ja leimat →</a>
+        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+        <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>

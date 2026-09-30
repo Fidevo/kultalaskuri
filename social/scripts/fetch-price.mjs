@@ -8,8 +8,10 @@ export async function fetchGoldPrice() {
   if (!apiKey) throw new Error('METALPRICE_API_KEY puuttuu');
 
   // EU-palvelin: matalampi latenssi (metalpriceapi.com/documentation#api_servers)
+  // Hopea (XAG) samassa kutsussa — yksi kutsu kuluttaa yhden pyynnön kiintiöstä
+  // metallien määrästä riippumatta (testattu 28.9.2026).
   const res = await fetch(
-    `https://api-eu.metalpriceapi.com/v1/latest?api_key=${apiKey}&base=USD&currencies=XAU,EUR`
+    `https://api-eu.metalpriceapi.com/v1/latest?api_key=${apiKey}&base=USD&currencies=XAU,XAG,EUR`
   );
 
   if (!res.ok) throw new Error(`API HTTP ${res.status}`);
@@ -22,9 +24,16 @@ export async function fetchGoldPrice() {
   const priceUsdOz = 1 / data.rates.XAU;
   const priceEurGram = (priceUsdOz * data.rates.EUR) / TROY_OUNCE_IN_GRAMS;
 
+  // Hopea valinnainen: puuttuva XAG ei kaada kullan tallennusta.
+  // Neljä desimaalia, koska hopean grammahinta on alle parin euron.
+  const silverEurGram = data.rates.XAG > 0
+    ? Number((((1 / data.rates.XAG) * data.rates.EUR) / TROY_OUNCE_IN_GRAMS).toFixed(4))
+    : null;
+
   return {
     priceEurGram: Number(priceEurGram.toFixed(2)),
     priceUsdOz: Number(priceUsdOz.toFixed(2)),
+    silverEurGram,
     timestamp: new Date().toISOString(),
   };
 }

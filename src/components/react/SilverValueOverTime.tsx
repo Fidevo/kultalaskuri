@@ -1,26 +1,27 @@
 import React, { useId, useMemo, useState } from 'react';
-import { calculateGoldValue, formatEur, GOLD_PURITIES, type PurityCode } from '../../lib/calculations/goldCalculator';
+import { formatEur } from '../../lib/calculations/goldCalculator';
+import { calculateSilverValue, SILVER_PURITIES, type SilverPurityCode } from '../../lib/calculations/silverCalculator';
 import { track } from './chartUtils';
 
-// "Kultasi arvo ajassa": saman kultaesineen PÖRSSIARVO valittuna vuonna (vuoden
-// keskimääräinen spot) ja nyt. Vain pörssiarvo — tavoitehintaa ei näytetä tällä
-// sivulla, koska spot ja tavoitehinta rinnakkain tekisivät kertoimen johdettavaksi
-// (sääntö 4, sama linja kuin /kullan-hinta/). Laskenta calculateGoldValue()-funktiolla.
+// "Hopeasi arvo ajassa" — GoldValueOverTimen hopeaversio (/hopean-hintahistoria/).
+// Saman hopeaesineen PÖRSSIARVO valittuna vuonna (vuoden keskimääräinen spot) ja nyt.
+// Vain pörssiarvo — ei tavoitehintaa (sääntö 4). Laskenta calculateSilverValue()-funktiolla.
 
 interface Props {
   years: { year: number; avg: number; partial: boolean }[]; // vanhin → uusin, ei kuluvaa vuotta
   nowSpot: number; // €/g
-  nowLabel: string; // esim. "22.9.2026"
+  nowLabel: string; // esim. "30.9.2026"
 }
 
-const PURITIES: PurityCode[] = ['14K', '18K', '24K', '9K'];
+const PURITIES: SilverPurityCode[] = ['925', '830', '813', '999'];
+const fmtGrams = (n: number) => new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 2 }).format(n);
 
-export default function GoldValueOverTime({ years, nowSpot, nowLabel }: Props) {
+export default function SilverValueOverTime({ years, nowSpot, nowLabel }: Props) {
   const weightId = useId();
   const yearId = useId();
   const defaultYear = years.find(y => y.year === years.at(-1)!.year - 9)?.year ?? years[0].year;
-  const [weight, setWeight] = useState('10');
-  const [purity, setPurity] = useState<PurityCode>('14K');
+  const [weight, setWeight] = useState('250');
+  const [purity, setPurity] = useState<SilverPurityCode>('925');
   const [year, setYear] = useState<number>(defaultYear);
   const [tracked, setTracked] = useState(false);
 
@@ -29,19 +30,19 @@ export default function GoldValueOverTime({ years, nowSpot, nowLabel }: Props) {
 
   const result = useMemo(() => {
     if (!(grams > 0) || !yearRow) return null;
-    const then = calculateGoldValue(grams, purity, yearRow.avg);
-    const now = calculateGoldValue(grams, purity, nowSpot);
+    const then = calculateSilverValue(grams, purity, yearRow.avg);
+    const now = calculateSilverValue(grams, purity, nowSpot);
     if (!then || !now) return null;
     // Paino ja pitoisuus supistuvat pois: muutos = spot-hintojen suhde. Pyöristetyistä
     // euroista laskettuna hyvin pieni paino (esim. 0,001 g) antaisi 0 / 0 = NaN.
     const pct = (nowSpot / yearRow.avg - 1) * 100;
-    return { then: then.spotValue, now: now.spotValue, pct, pure: now.pureGoldContent };
+    return { then: then.spotValue, now: now.spotValue, pct, pure: now.pureSilverContent };
   }, [grams, purity, yearRow, nowSpot]);
 
   const touch = () => {
     if (tracked) return;
     setTracked(true);
-    track('hintahistoria-arvo-ajassa');
+    track('hopea-hintahistoria-arvo-ajassa');
   };
 
   return (
@@ -77,7 +78,7 @@ export default function GoldValueOverTime({ years, nowSpot, nowLabel }: Props) {
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2">{GOLD_PURITIES[purity].label} · {GOLD_PURITIES[purity].description}</p>
+            <p className="text-xs text-gray-500 mt-2">{SILVER_PURITIES[purity].label} · {SILVER_PURITIES[purity].description}</p>
           </fieldset>
 
           <div>
@@ -115,12 +116,13 @@ export default function GoldValueOverTime({ years, nowSpot, nowLabel }: Props) {
                 <span className={`font-semibold ${result.pct >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                   {result.pct >= 0 ? '▲' : '▼'} {Math.abs(result.pct).toFixed(0)} %
                 </span>
-                <span className="text-gray-600"> — {weight.replace('.', ',')} g {purity}, puhdasta kultaa {result.pure.toFixed(2).replace('.', ',')} g</span>
+                <span className="text-gray-600"> — {weight.replace('.', ',')} g {purity}-hopeaa, puhdasta hopeaa {fmtGrams(result.pure)} g</span>
               </p>
               <p className="text-xs text-gray-500 leading-relaxed mt-3 pl-3 border-l-2 border-gold-400/60">
-                Luvut ovat pörssiarvoja eli puhtaan kullan arvo maailmanmarkkinahinnalla. Kun kultaa myydään raaka-aineena, kullanostajan
-                maksama hinta on tätä matalampi — oman esineesi tavoitehinnan näet{' '}
-                <a href="/#laskuri" className="text-gold-700 font-semibold underline underline-offset-2">laskurista</a>.
+                Luvut ovat pörssiarvoja eli puhtaan hopean arvo maailmanmarkkinahinnalla. Raaka-aineena
+                myytävästä hopeasta hopean ostajan maksama hinta on tätä matalampi — oman esineesi
+                tavoitehinnan näet{' '}
+                <a href="/hopean-hinta/#laskuri" className="text-gold-700 font-semibold underline underline-offset-2">hopealaskurista</a>.
                 Historiallinen kehitys ei ennusta tulevaa hintaa.
               </p>
             </>

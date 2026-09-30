@@ -1,6 +1,7 @@
 // src/lib/api/metalPriceApi.ts
 
 import priceHistory from '../../../social/data/price-history.json';
+import silverHistory from '../../../social/data/silver-price-history.json';
 
 const API_KEY = import.meta.env.METALPRICE_API_KEY;
 const TROY_OUNCE_IN_GRAMS = 31.1034768;
@@ -27,7 +28,15 @@ let pending: Promise<GoldPriceResult | null> | null = null;
 
 interface MetalPriceResponse {
   success: boolean;
-  rates: { XAU?: number; EUR?: number };
+  rates: { XAU?: number; XAG?: number; EUR?: number };
+}
+
+export interface SilverPriceResult {
+  priceEurGram: number;
+  priceUsdOz: number;
+  updatedAt: Date;
+  /** Kuten GoldPriceResult.source. */
+  source: 'api' | 'history';
 }
 
 export interface GoldPriceResult {
@@ -38,6 +47,15 @@ export interface GoldPriceResult {
   fromCache: boolean;
   /** 'api' = tuore hintapalveluhaku, 'history' = päiväkohtainen fallback-havainto (ei kellonaikaa). */
   source: 'api' | 'history';
+  /** Hopea haetaan SAMASSA API-kutsussa kuin kulta (XAU,XAG,EUR) — ei koskaan
+   *  omaa kutsua, jottei API-kiintiön kulutus tuplaannu. null = ei saatavilla. */
+  silver: SilverPriceResult | null;
+}
+
+/** Hopean spot-hinta. Käyttää kullan kanssa jaettua hakua ja välimuistia. */
+export async function getSilverPrice(): Promise<SilverPriceResult | null> {
+  const prices = await getGoldPrice();
+  return prices?.silver ?? getSilverFallback();
 }
 
 export async function getGoldPrice(): Promise<GoldPriceResult | null> {
@@ -90,7 +108,7 @@ async function fetchPrice(): Promise<GoldPriceResult | null> {
   try {
     // EU-palvelin: matalampi latenssi Suomesta (metalpriceapi.com/documentation#api_servers)
     const response = await fetch(
-      `https://api-eu.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=USD&currencies=XAU,EUR`,
+      `https://api-eu.metalpriceapi.com/v1/latest?api_key=${API_KEY}&base=USD&currencies=XAU,XAG,EUR`,
       { signal: controller.signal }
     );
 
@@ -110,13 +128,28 @@ async function fetchPrice(): Promise<GoldPriceResult | null> {
       throw new Error('Laskettu hinta ei ole kelvollinen');
     }
 
+    // Hopea on valinnainen: puuttuva XAG ei saa kaataa kullan hintaa, vaan
+    // hopea putoaa omaan historiafallbackiinsa.
+    const xag = data.rates?.XAG;
+    const silverUsdOz = xag && Number.isFinite(xag) && xag > 0 ? 1 / xag : 0;
+    const silverEurGram = (silverUsdOz * eur) / TROY_OUNCE_IN_GRAMS;
+
+    const updatedAt = new Date();
     const result: GoldPriceResult = {
       priceEurGram: Number(priceEurGram.toFixed(4)),
       priceUsdOz: Number(priceUsdOz.toFixed(2)),
       usdEurRate: Number(eur.toFixed(4)),
-      updatedAt: new Date(),
+      updatedAt,
       fromCache: false,
       source: 'api',
+      silver: silverEurGram > 0
+        ? {
+            priceEurGram: Number(silverEurGram.toFixed(4)),
+            priceUsdOz: Number(silverUsdOz.toFixed(2)),
+            updatedAt,
+            source: 'api',
+          }
+        : getSilverFallback(),
     };
 
     // Päivitä cache
@@ -159,6 +192,7 @@ function getFallbackPrice(): GoldPriceResult {
       updatedAt: new Date(),
       fromCache: true,
       source: 'history',
+      silver: getSilverFallback(),
     };
   }
 
@@ -168,6 +202,22 @@ function getFallbackPrice(): GoldPriceResult {
     usdEurRate: 0,
     updatedAt: dateAnchor(validLast.date),
     fromCache: true,
+    source: 'history',
+    silver: getSilverFallback(),
+  };
+}
+
+// Hopean hätävara: silver-price-history.json:n tuorein kelvollinen piste
+// (sama periaate kuin kullan fallbackissa yllä).
+function getSilverFallback(): SilverPriceResult | null {
+  const validLast = [...silverHistory].reverse().find(
+    (point) => point && Number.isFinite(point.price) && point.price > 0 && /^\d{4}-\d{2}-\d{2}$/.test(point.date)
+  );
+  if (!validLast) return null;
+  return {
+    priceEurGram: validLast.price,
+    priceUsdOz: 0,
+    updatedAt: dateAnchor(validLast.date),
     source: 'history',
   };
 }
