@@ -2,9 +2,14 @@
 const pathname = Astro.url.pathname;
 const normalizedPath = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
 
+// Päänavi 6 kohtaa (päätetty 30.9.2026 Umamin nav-click-datalla 1.–30.9.2026: Oppaat 29
+// klikkiä ≈ Kultaleimat 35, joten Oppaat pysyy; Hopean hinta lisätty). "Kultalaskuri" eikä
+// "Laskuri": hopeasivulla pelkkä "Laskuri" ei kerro, kumman metallin laskuri avautuu.
+// Kuusi linkkiä mahtuu vasta 1024 px:stä → työpöytänavi lg-taukopisteestä (mitattu).
 const navLinks = [
-  { href: '/#laskuri', label: 'Laskuri', pagePath: '/' },
+  { href: '/#laskuri', label: 'Kultalaskuri', pagePath: '/' },
   { href: '/kullan-hinta/', label: 'Kullan hinta', pagePath: '/kullan-hinta' },
+  { href: '/hopean-hinta/', label: 'Hopean hinta', pagePath: '/hopean-hinta' },
   { href: '/kullan-myynti/', label: 'Kullan myynti', pagePath: '/kullan-myynti' },
   { href: '/kullan-leimat/', label: 'Kultaleimat', pagePath: '/kullan-leimat' },
   { href: '/oppaat/', label: 'Oppaat', pagePath: '/oppaat' },
@@ -13,6 +18,7 @@ const navLinks = [
 // Toissijaiset sivut — näkyvät vain mobiilivalikossa (desktop-navi pidetään tiiviinä)
 const secondaryLinks = [
   { href: '/kullan-hintahistoria/', label: 'Kullan hintakehitys', pagePath: '/kullan-hintahistoria' },
+  { href: '/hopean-hintahistoria/', label: 'Hopean hintakehitys', pagePath: '/hopean-hintahistoria' },
   { href: '/kullan-myyntipaikat/', label: 'Missä myydä kultaa', pagePath: '/kullan-myyntipaikat' },
   { href: '/kulta-esineet/', label: 'Kulta eri esineissä', pagePath: '/kulta-esineet' },
   { href: '/kullan-myynti-verotus/', label: 'Myynnin verotus', pagePath: '/kullan-myynti-verotus' },
@@ -44,7 +50,7 @@ const secondaryLinks = [
         </span>
       </a>
 
-      <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+      <nav class="hidden lg:flex items-center gap-1 xl:gap-2">
         {navLinks.map((link) => {
           // Tarkistetaan onko linkki sama kuin nykyinen sivu
           const isActive = normalizedPath === link.pagePath;
@@ -64,7 +70,7 @@ const secondaryLinks = [
         })}
       </nav>
 
-      <div class="flex items-center gap-4 md:hidden">
+      <div class="flex items-center gap-4 lg:hidden">
         <button
           id="mobile-menu-btn"
           type="button"
@@ -84,7 +90,7 @@ const secondaryLinks = [
   {/* Natiivi <dialog>: selain hoitaa fokuksen siirron, taustan inertiksi teon
       ja Escape-sulkemisen automaattisesti showModal()-kutsun myötä. Tab-kierto
       varmistetaan alla erikseen, koska tuki tälle vaihtelee vielä selaimittain. */}
-  <dialog id="mobile-menu" aria-labelledby="mobile-menu-title" class="mobile-navigation md:hidden">
+  <dialog id="mobile-menu" aria-labelledby="mobile-menu-title" class="mobile-navigation lg:hidden">
     <div class="flex items-center justify-between gap-3 pb-5 border-b border-white/10">
       <span id="mobile-menu-title" class="font-serif text-xl font-semibold tracking-[-0.01em]">
         <span class="text-gold-400">Kulta</span><span class="text-white">laskuri</span><span class="text-gold-400">.fi</span>
@@ -200,7 +206,8 @@ const secondaryLinks = [
   });
 
   // Jos näyttö kasvaa työpöytäkokoon kesken auki olevan valikon, suljetaan se
-  window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
+  // Sama raja kuin työpöytänavin lg-taukopiste (1024 px)
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
     if (e.matches && isOpen) closeMenu();
   });
 </script>

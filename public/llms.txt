@@ -1,19 +1,20 @@
 # Kultalaskuri.fi
 
-> Kultalaskuri.fi on ilmainen, suomalainen ja riippumaton palvelu kullan arvon
-> laskemiseen. Käyttäjä syöttää kultaesineen painon ja pitoisuuden ja näkee
+> Kultalaskuri.fi on ilmainen, suomalainen ja riippumaton palvelu kullan ja hopean
+> arvon laskemiseen. Käyttäjä syöttää esineen painon ja pitoisuuden ja näkee
 > arvion reilusta myyntihinnasta päivän pörssikurssilla. Palvelu ei osta kultaa
-> eikä ole sidoksissa yksittäiseen kullanostajaan.
+> tai hopeaa eikä ole sidoksissa yksittäiseen ostajaan.
 
 ## Tietoa palvelusta
 
-- Kohderyhmä: kuluttajat, jotka harkitsevat kultakorujen tai romukullan myyntiä
-  ja haluavat tietää esineen arvon ennen kullanostajalle menoa.
-- Laskenta: puhtaan kullan määrä (paino × pitoisuus) × päivän spot-hinta =
+- Kohderyhmä: kuluttajat, jotka harkitsevat kultakorujen, romukullan tai
+  hopeaesineiden myyntiä ja haluavat tietää esineen arvon ennen ostajalle menoa.
+- Laskenta: puhtaan metallin määrä (paino × pitoisuus) × päivän spot-hinta =
   pörssiarvo. Pörssiarvosta vähennetään tyypilliset sulatus-, jalostus- ja
   katekulut, jolloin saadaan reilu tavoitehinta — vähimmäistaso, jota myynnissä
-  kannattaa tavoitella.
-- Datalähde: kullan spot-hinta haetaan MetalPrice API -palvelusta ja päivittyy
+  kannattaa tavoitella. Hopealla vähennys on oma, suomalaisten hopean ostajien
+  julkisiin hintoihin perustuva.
+- Datalähde: kullan ja hopean spot-hinnat haetaan MetalPrice API -palvelusta ja päivittyy
   automaattisesti useita kertoja arkipäivisin. Täsmällinen €/g-hinta vaihtelee
   päivittäin; päivittyvä luku näkyy aina sivuston laskurissa ja hintakorteissa,
   ei tässä tiedostossa.
@@ -23,8 +24,8 @@
 
 - [Kultalaskuri – laske kullan arvo](https://kultalaskuri.fi/): laskuri, päivittyvät
   24K/18K/14K-tavoitehinnat ja korupainon arviointi ilman vaakaa.
-- [Kullan myynnin oppaat](https://kultalaskuri.fi/oppaat/): kaikkien opassivujen
-  hakemisto kolmessa ryhmässä (tunnista ja arvioi · myyntipäätös · verotus ja termit).
+- [Kullan ja hopean oppaat](https://kultalaskuri.fi/oppaat/): kaikkien opassivujen
+  hakemisto neljässä ryhmässä (tunnista ja arvioi · hopea · myyntipäätös · verotus ja termit).
 - [Kullan myynti](https://kultalaskuri.fi/kullan-myynti/): opas kullan myyntiin —
   paljonko kullasta saa, näin vertaat kullanostajien tarjouksia tavoitehintaan,
   yleisimmät virheet.
@@ -41,6 +42,14 @@
   hinta euroina grammalta kesäkuusta 2011 alkaen — vuosittaiset keski-, ala- ja ylähinnat,
   kuukausimuutokset, pitoisuuskohtainen pörssiarvo (14K/18K) sekä käännekohdat
   (esim. eurokriisi 2011, romahdus 2013, Brexit 2016, koronakriisi 2020) lähteineen.
+- [Hopean hinta ja hopealaskuri](https://kultalaskuri.fi/hopean-hinta/): hopean
+  päivän kurssi euroina grammalta ja kilolta, pörssiarvo pitoisuuksittain (999, 925,
+  900, 830, 813, 800, 500, 350), hopealaskuri, hopean pitoisuusleimat (esim. 830H,
+  813H, 925) sekä alpakan eli uushopean tunnistaminen (ei hopeaa).
+- [Hopean hintakehitys ja hintahistoria](https://kultalaskuri.fi/hopean-hintahistoria/):
+  hopean hinta euroina grammalta kesäkuusta 2011 alkaen — vuositilastot,
+  kuukausimuutokset ja käännekohdat lähteineen (esim. syyskuu 2011, koronakriisi
+  2020, 50 dollarin ylitys lokakuussa 2025).
 - [Kullan leimat ja merkinnät](https://kultalaskuri.fi/kullan-leimat/): pitoisuusleimat
   (585, 750, 375, 999), kullan kemiallinen merkki Au, nimileimat, vuosileimat
   (esim. A9 = 2002, A10 = 2026), karaattitaulukko ja ulkomaiset merkinnät.
@@ -54,12 +63,12 @@
 - [Sanasto](https://kultalaskuri.fi/sanasto/): kullan myyntiin ja pitoisuuksiin
   liittyvät termit selitettyinä.
 - [Tietoa palvelusta](https://kultalaskuri.fi/tietoa/): miten laskuri toimii,
-  mistä hintatieto tulee, miksi palvelu ei osta kultaa.
+  mistä hintatieto tulee, miksi palvelu ei osta kultaa tai hopeaa.
 
 ## Huomioita
 
 - Laskurin antama arvo on suuntaa-antava vähimmäistaso, ei sitova tarjous.
-  Lopullinen ostohinta riippuu kullanostajan käytännöistä.
+  Lopullinen ostohinta riippuu kullan tai hopean ostajan käytännöistä.
 - Kultakolikoista maksetaan yleensä keräilypreemio, joten niitä ei arvoteta
   pelkkänä romukultana.
 - Design- ja merkkikoruilla (esim. Kalevala, Lapponia) voi olla romukulta-arvoa

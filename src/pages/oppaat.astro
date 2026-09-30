@@ -3,7 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const dateModified = new Date().toISOString();
 
-// Oppaat kolmessa ryhmässä myyntiprosessin mukaan: ensin ymmärrys siitä mitä
+// Oppaat neljässä ryhmässä: kullan tunnistus ja arvo, hopea (30.9.2026), myyntipäätös, verotus
+// ja termit. Alkuperäinen järjestys myyntiprosessin mukaan: ensin ymmärrys siitä mitä
 // itsellä on, sitten myyntipäätös, lopuksi verotus ja termit.
 const groups = [
   {
@@ -15,6 +16,17 @@ const groups = [
       { href: '/kulta-esineet/', name: 'Paljonko kultaa eri esineissä on', desc: 'Kultaosuus esinetyypeittäin — sormukset, ketjut, kultakellot, hammaskulta, kolikot ja harkot.' },
       { href: '/kullan-hinta/', name: 'Kullan hinta tänään', desc: 'Päivän kurssi euroina grammalta, 14K- ja 18K-kullan grammahinnat, unssi- ja kilohinta sekä mistä kullan hinta muodostuu.' },
       { href: '/kullan-hintahistoria/', name: 'Kullan hintakehitys ja hintahistoria', desc: 'Hinta euroina vuodesta 2011: vuositilastot, kuukausimuutokset ja käännekohdat, jotka selittävät suurimmat heilahdukset.' },
+    ],
+  },
+  {
+    // Hopeasivut omana ryhmänään (30.9.2026). Kullan myynti-, myyntipaikka- ja verotusoppaita
+    // EI nimetä yleisiksi — ne käsittelevät kultaa.
+    id: 'hopea',
+    title: 'Hopea: hinta ja arvo',
+    intro: 'Hopean päivän hinta, hopeaesineen arvo pitoisuuden mukaan ja hopean hintahistoria.',
+    guides: [
+      { href: '/hopean-hinta/', name: 'Hopean hinta ja hopealaskuri', desc: 'Päivän kurssi euroina grammalta ja kilolta, pitoisuudet 999–350, hopealaskuri, hopean leimat ja alpakan tunnistaminen.' },
+      { href: '/hopean-hintahistoria/', name: 'Hopean hintakehitys ja hintahistoria', desc: 'Hinta euroina vuodesta 2011: vuositilastot, kuukausimuutokset ja käännekohdat lähteineen.' },
     ],
   },
   {
@@ -60,8 +72,8 @@ const schemaData = {
       "@type": "CollectionPage",
       "@id": "https://kultalaskuri.fi/oppaat/",
       "url": "https://kultalaskuri.fi/oppaat/",
-      "name": "Kullan myynnin oppaat",
-      "description": "Kootut oppaat kullan myyntiin: arvon selvittäminen, leimat, esinetyypit, myyntikanavat, verotus ja termit. Riippumatonta tietoa ennen kullan myyntiä.",
+      "name": "Kullan ja hopean oppaat",
+      "description": "Kootut oppaat kullan ja hopean arvoon ja kullan myyntiin: leimat, esinetyypit, hinnat, hintahistoria, myyntikanavat, verotus ja termit.",
       "inLanguage": "fi-FI",
       "dateModified": dateModified,
       "isPartOf": { "@id": "https://kultalaskuri.fi/#website" },
@@ -80,8 +92,8 @@ const schemaData = {
 ---
 
 <BaseLayout
-  title="Kullan myynnin oppaat | Kultalaskuri.fi"
-  description="Kootut oppaat kullan myyntiin: arvon selvittäminen, leimat, esinetyypit, myyntikanavat, verotus ja termit. Riippumatonta tietoa ennen kullan myyntiä."
+  title="Kullan ja hopean oppaat | Kultalaskuri.fi"
+  description="Kootut oppaat kullan ja hopean arvoon ja kullan myyntiin: leimat, esinetyypit, hinnat, hintahistoria, myyntikanavat, verotus ja termit."
   schema={JSON.stringify(schemaData)}
 >
 
@@ -101,14 +113,15 @@ const schemaData = {
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
-        Kullan myynnin
+        Kullan ja hopean
         <span class="block text-gold-400 mt-1 pb-1.5">
           oppaat
         </span>
       </h1>
       <p class="text-sm md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
-        Riippumatonta tietoa kullan myyntiin — arvon selvittämisestä leimoihin, myyntikanaviin ja
-        verotukseen. Kaikki oppaat perustuvat varmistettuun tietoon, eivät yksittäisen ostajan lupauksiin.
+        Riippumatonta tietoa kulta- ja hopeaesineiden arvosta sekä kullan myynnistä — leimoista ja
+        hinnoista myyntikanaviin ja verotukseen. Oppaat perustuvat varmistettuun tietoon, eivät
+        yksittäisen ostajan lupauksiin.
       </p>
     </div>
   </div>
@@ -120,9 +133,11 @@ const schemaData = {
         <h2 class="text-lg font-bold text-gray-900 mb-2">Mistä aloittaa</h2>
         <p class="text-gray-600 text-sm leading-relaxed">
           Jos olet myymässä kultaa, luontevin järjestys on: tarkista leima ja mitä esineessä on kultaa,
-          <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">laske arvo laskurilla</a>,
+          <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">laske arvo kultalaskurilla</a>,
           valitse myyntikanava ja vertaa tarjouksia tavoitehintaan. Suuremmissa erissä tarkista lopuksi
-          verotus.
+          verotus. Hopeaesineen arvon näet
+          <a href="/hopean-hinta/#laskuri" class="text-gold-600 font-bold hover:underline">hopealaskurista</a>
+          — tarkista ensin pitoisuusleima (esim. 925, 830 tai 813).
         </p>
       </div>
 
@@ -148,14 +163,19 @@ const schemaData = {
       ))}
 
       <div class="relative overflow-hidden hero-surface rounded-2xl p-8 md:p-10 text-center ring-1 ring-gold-400/20 mt-16">
-        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Selvitä kultasi arvo</h2>
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-3">Selvitä esineesi arvo</h2>
         <p class="text-gray-400 mb-6 max-w-xl mx-auto">
           Syötä paino ja pitoisuus, niin näet reilun tavoitehinnan päivän kurssilla — se on jokaisen
           oppaan lähtökohta.
         </p>
-        <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm">
-          Laske kultasi arvo →
-        </a>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a href="/#laskuri" class="inline-flex items-center justify-center gap-2 bg-gold-400 text-ink-950 px-8 py-4 rounded-lg font-semibold border border-gold-300/60 hover:bg-gold-300 transition-colors duration-200 shadow-sm">
+            Laske kultasi arvo →
+          </a>
+          <a href="/hopean-hinta/#laskuri" class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-white border border-white/20 hover:border-gold-400/60 transition-colors duration-200">
+            Laske hopeasi arvo →
+          </a>
+        </div>
       </div>
 
     </div>
