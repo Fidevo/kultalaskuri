@@ -713,7 +713,7 @@ export default function SilverCalculator({ spotPriceEurPerGram }: Props) {
                   <span className="flex-shrink-0 w-7 h-7 mt-0.5 rounded-md bg-ink-950 text-gold-400 text-xs font-semibold flex items-center justify-center num">2</span>
                   <div>
                     <strong className="text-sm font-bold text-gray-900">Valitse pitoisuus</strong>
-                    <p className="text-xs text-gray-500 mt-0.5">Etsi leima — suomalaisissa esineissä yleensä 830 tai 813</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Etsi leima — koruissa yleensä 925, suomalaisessa pöytähopeassa 830 tai 813</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">

@@ -66,15 +66,15 @@ const dateModified = new Date().toISOString();
 const faqItems = [
   {
     q: 'Mikä on hopean hinta tänään?',
-    a: 'Hopean spot-hinta eli maailmanmarkkinahinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena euroina grammalta ja kilolta. Hopeaesineestä maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 830 tai 925) ja hopean ostajan katteesta.',
+    a: 'Hopean spot-hinta eli maailmanmarkkinahinta vaihtelee päivittäin ja näkyy tämän sivun yläosassa päivän kurssin mukaisena euroina grammalta ja kilolta. Kun hopeaesine myydään raaka-aineena, siitä maksettava hinta on spot-hintaa matalampi: se riippuu pitoisuudesta (esim. 830 tai 925) ja hopean ostajan katteesta.',
   },
   {
     q: 'Paljonko 830-hopea maksaa grammalta?',
-    a: '830-hopeassa on 83 % puhdasta hopeaa, joten sen pörssiarvo grammalta on 83 % puhtaan hopean kurssista. Päivän kurssin mukainen arvo näkyy tämän sivun pitoisuustaulukossa. 830 on yleisin pitoisuus suomalaisissa hopea-aterimissa ja -astioissa. Hopean ostajan maksama hinta on pörssiarvoa matalampi — reilun tavoitetason näyttää hopealaskuri.',
+    a: '830-hopeassa on 83 % puhdasta hopeaa, joten sen pörssiarvo grammalta on 83 % puhtaan hopean kurssista. Päivän kurssin mukainen arvo näkyy tämän sivun pitoisuustaulukossa. 830 on yleisin pitoisuus suomalaisissa hopea-aterimissa ja -astioissa. Raaka-aineena myytävästä hopeasta hopean ostajan maksama hinta on pörssiarvoa matalampi — reilun tavoitetason näyttää hopealaskuri.',
   },
   {
     q: 'Paljonko 925-hopea eli sterling-hopea maksaa grammalta?',
-    a: '925-hopeassa eli sterling-hopeassa on 92,5 % puhdasta hopeaa, joten sen pörssiarvo grammalta on 92,5 % puhtaan hopean kurssista. Päivän kurssin mukainen arvo näkyy tämän sivun pitoisuustaulukossa. Hopean ostajan maksama hinta on pörssiarvoa matalampi.',
+    a: '925-hopeassa eli sterling-hopeassa on 92,5 % puhdasta hopeaa, joten sen pörssiarvo grammalta on 92,5 % puhtaan hopean kurssista. Päivän kurssin mukainen arvo näkyy tämän sivun pitoisuustaulukossa. Raaka-aineena myytävästä hopeasta hopean ostajan maksama hinta on pörssiarvoa matalampi.',
   },
   {
     q: 'Mitä hopea maksaa kilolta?',
@@ -201,8 +201,8 @@ const schemaData = {
         eli puhtaan hopean kurssi ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna pitoisuudella.
       </p>
       <p class="text-sm text-gray-500 leading-relaxed mb-6">
-        Hopean ostajan maksama hinta on pörssiarvoa matalampi, koska ostaja vähentää sulatus- ja
-        jalostuskulut sekä katteensa. Reilun tavoitetason omalle hopeallesi näyttää
+        Kun hopeaa myydään raaka-aineena, hopean ostajan maksama hinta on pörssiarvoa matalampi,
+        koska ostaja vähentää sulatus- ja jalostuskulut sekä katteensa. Reilun tavoitetason omalle hopeallesi näyttää
         <a href="#laskuri" class="text-gold-600 font-bold hover:underline">hopealaskuri</a>.
       </p>
 
@@ -250,6 +250,7 @@ const schemaData = {
         </table>
       </div>
       <p class="text-sm text-gray-500 leading-relaxed mb-14">
+        Hintalähde: MetalPrice API (hopean kansainvälinen spot-kurssi muunnettuna euroiksi).
         Pörssiarvot päivittyvät arkisin kurssin mukana. Et tiedä esineesi pitoisuutta?
         <a href="#leimat" class="text-gold-600 font-bold hover:underline">Näin tunnistat hopean leimat</a>.
       </p>
@@ -330,7 +331,7 @@ const schemaData = {
       </div>
       <p class="text-sm text-gray-500 leading-relaxed mb-14">
         Troy-unssi on 31,1035 grammaa. Luvut ovat puhtaan hopean spot-kurssi — hopeaesineen
-        kilohinta saadaan kertomalla se pitoisuudella (ks. <a href="#pitoisuudet" class="text-gold-600 font-bold hover:underline">taulukko</a>).
+        hopeasisällön pörssiarvo kilolta saadaan kertomalla se pitoisuudella (ks. <a href="#pitoisuudet" class="text-gold-600 font-bold hover:underline">taulukko</a>).
         Jos ostaja ilmoittaa hinnan kilolta, jaa se tuhannella saadaksesi grammahinnan.
       </p>
 
