@@ -118,8 +118,8 @@ export default function GoldValueOverTime({ years, nowSpot, nowLabel }: Props) {
                 <span className="text-gray-600"> — {weight.replace('.', ',')} g {purity}, puhdasta kultaa {result.pure.toFixed(2).replace('.', ',')} g</span>
               </p>
               <p className="text-xs text-gray-500 leading-relaxed mt-3 pl-3 border-l-2 border-gold-400/60">
-                Luvut ovat pörssiarvoja eli puhtaan kullan arvo maailmanmarkkinahinnalla. Kullanostajan
-                maksama hinta on aina tätä matalampi — oman esineesi tavoitehinnan näet{' '}
+                Luvut ovat pörssiarvoja eli puhtaan kullan arvo maailmanmarkkinahinnalla. Kun kultaa myydään raaka-aineena, kullanostajan
+                maksama hinta on tätä matalampi — oman esineesi tavoitehinnan näet{' '}
                 <a href="/#laskuri" className="text-gold-700 font-semibold underline underline-offset-2">laskurista</a>.
                 Historiallinen kehitys ei ennusta tulevaa hintaa.
               </p>

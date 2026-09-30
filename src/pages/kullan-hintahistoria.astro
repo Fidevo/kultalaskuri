@@ -4,7 +4,7 @@ import FaqItem from '../components/FaqItem.astro';
 import GoldHistoryChart from '../components/react/GoldHistoryChart.tsx';
 import GoldValueOverTime from '../components/react/GoldValueOverTime.tsx';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
-import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore, gapMonths } from '../lib/utils/longHistory';
+import { loadLongHistory, weekly, yearStats, monthlyReturns, indexOnOrBefore, gapMonths, consecutivePairs } from '../lib/utils/longHistory';
 import { GOLD_EVENTS, eventMetric } from '../lib/goldEvents';
 
 // ── Data (build-aikana) ──
@@ -96,11 +96,14 @@ const lastFull = completedYears[completedYears.length - 1];
 const tenBack = completedYears.find(y => y.year === lastFull.year - 10);
 const worstYear = completedYears.reduce((m, y) => (y.changePct < m.changePct ? y : m));
 const bestYear = completedYears.reduce((m, y) => (y.changePct > m.changePct ? y : m));
-const pastRows = rows.filter(r => Number(r.date.slice(0, 4)) <= lastFull.year);
-const worstDay = pastRows.slice(1).reduce((m, r, i) => {
-  const pct = ((r.price - pastRows[i].price) / pastRows[i].price) * 100;
-  return pct < m.pct ? { date: r.date, pct } : m;
-}, { date: '', pct: 0 });
+// Suurin lasku kahden peräkkäisen havainnon välillä KOKO aineistossa (myös kuluva vuosi —
+// kiinteä historiallinen tapahtuma, ei päivittyvä hinta). Poistetun jakson yli ulottuvat
+// parit pois (consecutivePairs). Ei väitetä "yhden päivän" pudotukseksi: perjantain liike
+// voi kirjautua maanantain havaintoon.
+const worstMove = consecutivePairs(rows).reduce((m, [a, b]) => {
+  const pct = ((b.price - a.price) / a.price) * 100;
+  return pct < m.pct ? { from: a.date, to: b.date, pct } : m;
+}, { from: '', to: '', pct: 0 });
 
 const faqItems = [
   ...(tenBack ? [{
@@ -110,7 +113,7 @@ const faqItems = [
   }] : []),
   {
     question: 'Milloin kullan hinta laski eniten?',
-    answer: `Päättyneistä kalenterivuosista heikoin oli ${worstYear.year}, jolloin euromääräinen hinta laski ${fmtPct(worstYear.changePct, 0).replace('−', '')}. Suurin yksittäisen päivän pudotus aineistossa osui päivälle ${fmtDateFi(worstDay.date)} (${fmtPct(worstDay.pct)}). Vahvin vuosi oli ${bestYear.year} (${fmtPct(bestYear.changePct, 0)}). Taustat löytyvät sivun käännekohdista.`,
+    answer: `Päättyneistä kalenterivuosista heikoin oli ${worstYear.year}, jolloin euromääräinen hinta laski ${fmtPct(worstYear.changePct, 0).replace('−', '')}. Suurin lasku kahden peräkkäisen hintahavainnon välillä koko aineistossa oli ${fmtPct(worstMove.pct)} (${fmtDateFi(worstMove.from)} → ${fmtDateFi(worstMove.to)}). Vahvin vuosi oli ${bestYear.year} (${fmtPct(bestYear.changePct, 0)}). Taustat löytyvät sivun käännekohdista.`,
   },
   {
     question: 'Miksi kullan hinta euroissa kehittyy eri tavalla kuin dollareissa?',
@@ -118,7 +121,7 @@ const faqItems = [
   },
   {
     question: 'Mistä kullan hintahistorian tiedot ovat peräisin?',
-    answer: `Hinnat perustuvat MetalPrice API -palvelun päivittäisiin noteerauksiin kesäkuusta 2011 alkaen. Dollarimääräinen unssihinta muunnetaan euroiksi grammalta saman päivän valuuttakurssilla. Aineistossa ovat pörssipäivät; pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen. Lue lisää kohdasta <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä ja lähteet</a>.`,
+    answer: `Hinnat perustuvat MetalPrice API -palvelun päivittäisiin noteerauksiin kesäkuusta 2011 alkaen. Dollarimääräinen unssihinta muunnetaan euroiksi grammalta saman päivän valuuttakurssilla. Aineistossa ovat arkipäivien hintahavainnot; pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen. Lue lisää kohdasta <a href="#menetelma" class="text-gold-600 font-bold hover:underline">menetelmä ja lähteet</a>.`,
   },
   {
     question: 'Ennustaako kullan hintahistoria tulevaa hintaa?',
@@ -159,7 +162,7 @@ const schemaData = {
     {
       "@type": "Dataset",
       "name": "Kullan hintahistoria euroina grammalta",
-      "description": `Kullan spot-hinnan (puhdas kulta) päivittäinen historia euroina grammalta pörssipäiviltä ${fmtDateFi(first.date)} alkaen. Vuosittaiset keski-, ala- ja ylähinnat sekä kuukausimuutokset. Lähde: MetalPrice API; muunnos dollaria unssilta → euroa grammalta päivän valuuttakurssilla.`,
+      "description": `Kullan spot-hinnan (puhdas kulta) päivittäinen historia euroina grammalta arkipäiviltä ${fmtDateFi(first.date)} alkaen. Vuosittaiset keski-, ala- ja ylähinnat sekä kuukausimuutokset. Lähde: MetalPrice API; muunnos dollaria unssilta → euroa grammalta päivän valuuttakurssilla.`,
       "url": pageUrl,
       "temporalCoverage": `${first.date}/${last.date}`,
       "variableMeasured": "Kullan hinta euroina grammalta (€/g)",
@@ -216,7 +219,7 @@ const schemaData = {
         <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(first.date)}</p>
       </div>
       <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Korkein päätös</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Korkein havainto</p>
         <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-gold-400">{fmt(ath.price)} <span class="text-sm text-gold-500">€/g</span></p>
         <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(ath.date)}</p>
       </div>
@@ -226,7 +229,7 @@ const schemaData = {
         <p class="num text-[11px] text-gray-400 mt-1.5">{fmtDateFi(tenYearsAgo.date)} → {fmtDateFi(last.date)}</p>
       </div>
       <div class="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Pörssipäiviä</p>
+        <p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Hintahavaintoja</p>
         <p class="num text-[22px] font-semibold tracking-[-0.02em] leading-none text-white">{fmtInt(rows.length)}</p>
         <p class="text-[11px] text-gray-400 mt-1.5">päivittäistä noteerausta</p>
       </div>
@@ -253,7 +256,7 @@ const schemaData = {
 
       <p class="text-gray-400 text-xs mt-8 leading-relaxed">
         Kullan spot-hinta euroina per gramma (maailmanmarkkinahinta, puhdas kulta). Lähde: MetalPrice API ·
-        {fmtInt(rows.length)} pörssipäivää {fmtDateFi(first.date)}–{fmtDateFi(last.date)} · Historiallinen kehitys ei ennusta tulevaa hintaa.
+        {fmtInt(rows.length)} päivittäistä havaintoa {fmtDateFi(first.date)}–{fmtDateFi(last.date)} · Historiallinen kehitys ei ennusta tulevaa hintaa.
       </p>
     </div>
   </section>
@@ -264,7 +267,7 @@ const schemaData = {
       <div class="kicker-light">Vuositilastot</div>
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">Kullan hinta vuosittain</h2>
       <p class="text-gray-600 leading-relaxed mb-8">
-        Vuoden keskihinta sekä matalin ja korkein päätöskurssi euroina grammalta. Muutos on laskettu
+        Vuoden keskihinta sekä matalin ja korkein päivittäinen hintahavainto euroina grammalta. Muutos on laskettu
         edellisen vuoden viimeisestä noteerauksesta vuoden viimeiseen.
       </p>
 
@@ -308,8 +311,14 @@ const schemaData = {
                   {y.partialStart && <span class="block text-[11px] font-normal text-gray-500">{fmtDateFi(y.first.date)} alkaen</span>}
                 </td>
                 <td class="py-3 px-4 md:px-5 text-right num font-semibold text-gray-900">{fmt(y.avg)} €</td>
-                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">{fmt(y.min.price)} €</td>
-                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">{fmt(y.max.price)} €</td>
+                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">
+                  {fmt(y.min.price)} €
+                  <span class="block text-[11px] text-gray-500">{fmtDateFi(y.min.date)}</span>
+                </td>
+                <td class="hidden md:table-cell py-3 px-5 text-right num text-gray-600">
+                  {fmt(y.max.price)} €
+                  <span class="block text-[11px] text-gray-500">{fmtDateFi(y.max.date)}</span>
+                </td>
                 <td class={`py-3 px-4 md:px-5 text-right num font-semibold ${y.changePct >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{fmtPct(y.changePct)}</td>
               </tr>
             ))}
@@ -317,8 +326,10 @@ const schemaData = {
         </table>
       </div>
       <p class="text-sm text-gray-500 leading-relaxed mt-4">
-        Hinnat euroa grammalta (puhdas kulta). Korkeimman ja matalimman päätöskurssin päivät näet
-        kuvaajasta. Aineiston ensimmäinen vuosi alkaa kesäkuusta, joten sen muutos on laskettu
+        Hinnat euroa grammalta (puhdas kulta). Matalimman ja korkeimman havainnon päivämäärät
+        näkyvät taulukossa leveällä näytöllä. Yli vuoden aikavälien kuvaaja näyttää viikon viimeisen
+        havainnon, joten viikon keskelle osuva ääriarvo ei välttämättä näy siinä. Aineiston
+        ensimmäinen vuosi alkaa kesäkuusta, joten sen muutos on laskettu
         ensimmäisestä noteerauksesta.
       </p>
     </div>
@@ -405,11 +416,12 @@ const schemaData = {
       <div class="kicker-light">Läpinäkyvyys</div>
       <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight">Menetelmä ja lähteet</h2>
       <ul class="space-y-3 text-gray-700 leading-relaxed">
-        <li><strong>Lähde:</strong> MetalPrice API -palvelun päivittäiset noteeraukset {fmtDateFi(first.date)} alkaen (vanhempaa kultadataa palvelussa ei ole).</li>
+        <li><strong>Lähde:</strong> MetalPrice API -palvelun päivittäiset noteeraukset {fmtDateFi(first.date)} alkaen (palvelun kultahistoria alkaa tästä päivästä; testattu 9/2026).</li>
         <li><strong>Muunnos:</strong> kullan dollarihinta unssilta muunnetaan euroiksi grammalta saman päivän euron dollarikurssilla (1 troy-unssi = 31,1035 g).</li>
-        <li><strong>Pörssipäivät:</strong> viikonloput eivät ole mukana. Pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen noteerauksen; yhden vuoden kuvaaja ja kaikki tilastot on laskettu päivätasolla.</li>
-        <li><strong>Tarkistus:</strong> aineiston euron dollarikurssin vuosikeskiarvot vastaavat Euroopan keskuspankin julkaisemia ja kullan dollarimääräiset vuosikeskiarvot LBMA:n julkaisemia lukuja alle 0,3 %:n tarkkuudella.</li>
-        <li><strong>Poikkeamat:</strong> lähdeaineistossa virheellisiksi todetut päivät 20.–28.6.2013 on jätetty pois. Yksittäisen päivän noteeraus voi ajoituksen vuoksi osua päivää myöhemmäksi kuin pörssin päätöskurssi.</li>
+        <li><strong>Havainnot:</strong> yksi hintahavainto arkipäivää kohden. Kyse on hintapalvelun useista markkinalähteistä muodostamasta hinnasta, ei minkään yksittäisen pörssin virallisesta päätöskurssista. Viikonloput eivät ole mukana, mutta arkipyhien (esim. uudenvuodenpäivä) havainnot ovat, vaikka markkinat ovat silloin kiinni. Uusimmat havainnot tallennetaan arkisin iltaisin.</li>
+        <li><strong>Kuvaaja:</strong> pitkien aikavälien kuvaaja näyttää kunkin viikon viimeisen havainnon; yhden vuoden kuvaaja ja kaikki tilastot on laskettu päivätasolla.</li>
+        <li><strong>Tarkistus:</strong> aineiston kullan dollarimääräiset vuosikeskiarvot vastaavat LBMA:n julkaisemia vuosikeskiarvoja alle 0,3 %:n tarkkuudella vuosina 2012–2024, ja euron dollarikurssin vuosikeskiarvot Euroopan keskuspankin lukuja enintään 0,1 %:n erolla. Vuosi 2011 (aineisto alkaa kesäkuusta) ja kuluva vuosi eivät ole vertailukelpoisia.</li>
+        <li><strong>Poikkeamat:</strong> päivät 20.–28.6.2013 on jätetty pois: lähdeaineiston kullan hinta jäi niinä päivinä jumiin edeltävälle tasolle ja korjautui 1.7.2013 yhdellä keinotekoisella hypyllä. Poistetun jakson yli ei lasketa päivämuutoksia, ja kesä- ja heinäkuun 2013 kuukausimuutokset jätetään tyhjiksi. Yksittäisen päivän havainto voi ajoituksen vuoksi kuvata edellisen päivän kaupankäyntiä.</li>
         <li><strong>Käännekohdat:</strong> tapahtumien kuvaukset perustuvat kunkin kortin lähdelinkkiin; hintamuutokset on laskettu tämän sivun aineistosta.</li>
       </ul>
     </div>
