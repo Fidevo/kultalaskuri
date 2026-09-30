@@ -267,7 +267,7 @@ export default function GoldPriceChart({
       {/* ── Stats row ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Edellinen päätös</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-2">Viimeisin noteeraus</p>
           <p className="text-[22px] font-semibold tracking-[-0.02em] leading-none num text-white">
             {stats.last.price.toFixed(2).replace('.', ',')} <span className="text-sm font-semibold text-gray-400">€/g</span>
           </p>
@@ -367,7 +367,7 @@ export default function GoldPriceChart({
 
         {/* Ruudunlukijayhteenveto — SVG:n sisältö ei ole saavutettavissa */}
         <p className="sr-only">
-          {metalGenitive} edellisen pörssipäivän päätöskurssi on {stats.last.price.toFixed(2).replace('.', ',')} euroa grammalta
+          {metalGenitive} viimeisin tallennettu noteeraus on {stats.last.price.toFixed(2).replace('.', ',')} euroa grammalta
           ({fmtDateFull(stats.last.date)} klo 18). Sivun yläosassa näkyy tämän hetken kurssi.
           Muutos 30 päivässä: {isUp ? 'nousua' : 'laskua'}{' '}
           {Math.abs(stats.chg).toFixed(1).replace('.', ',')} prosenttia.

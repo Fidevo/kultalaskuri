@@ -97,6 +97,8 @@ const monthRows = [...monthMap.entries()]
   });
 // Kuluva kuukausi merkitään keskeneräiseksi. Suomen aikavyöhyke — build ajetaan UTC:ssä.
 const currentMonthKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' }).slice(0, 7);
+// Vanhin kuukausi on yleensä vajaa (12 kk:n ikkuna alkaa kesken kuukautta) — merkitään näkyviin.
+const partialFirstKey = chartHistory[0].date.endsWith('-01') ? null : chartHistory[0].date.slice(0, 7);
 
 const dateModified = new Date().toISOString();
 
@@ -427,6 +429,7 @@ const schemaData = {
             <p class="font-bold text-gray-900 mb-2">
               {row.label}
               {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+              {row.key === partialFirstKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(alkaen {fmtDateFi(chartHistory[0].date)})</span>}
             </p>
             <div class="grid grid-cols-3 gap-2 text-sm">
               <div>
@@ -464,6 +467,7 @@ const schemaData = {
                 <td class="py-3.5 px-5 font-bold text-gray-900">
                   {row.label}
                   {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+                  {row.key === partialFirstKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(alkaen {fmtDateFi(chartHistory[0].date)})</span>}
                 </td>
                 <td class="py-3.5 px-5 text-right tabular-nums font-bold">{fmt(row.avg)}</td>
                 <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.max)}</td>

@@ -2,8 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FaqItem from '../components/FaqItem.astro';
 import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
-import priceHistory from '../../social/data/price-history.json';
 import { fillMissingDays } from '../lib/utils/priceHistory';
+import { loadLongHistory } from '../lib/utils/longHistory';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import { calculateGoldValue, GOLD_PURITIES, type PurityCode } from '../lib/calculations/goldCalculator';
 
@@ -60,9 +60,9 @@ const ex18k = spot > 0 ? calculateGoldValue(4, '18K', spot) : null;
 
 // Viikonloppujen puuttuvat päivät täytetään edellisen hinnan toistolla, jotta
 // graafi ja kuukausikooste eivät hyppää suoraan perjantaista maanantaihin
-// Vain viimeiset 12 kk: pitkä historia on /kullan-hintahistoria/-sivulla, ja price-history.json
-// kasvaa vuosi vuodelta (ei leikata) — ilman rajausta sivun HTML paisuisi.
-const chartHistory = fillMissingDays(priceHistory).slice(-366);
+// Vain viimeiset 12 kk (arkisto + price-history.json yhdistettynä): pitkä historia on
+// /kullan-hintahistoria/-sivulla — ilman rajausta sivun HTML paisuisi.
+const chartHistory = fillMissingDays(loadLongHistory('gold')).slice(-366);
 
 // ── Tilastot hintahistoriasta (build-aikana, ei client-JS:ää) ──
 const last = chartHistory[chartHistory.length - 1];
@@ -117,6 +117,8 @@ const monthRows: MonthRow[] = [...monthMap.entries()]
 // Kuluva kuukausi merkitään keskeneräiseksi (luvut täydentyvät päivittäin).
 // Suomen aikavyöhyke eksplisiittisesti — build ajetaan UTC-palvelimella.
 const currentMonthKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Helsinki' }).slice(0, 7); // YYYY-MM
+// Vanhin kuukausi on yleensä vajaa (12 kk:n ikkuna alkaa kesken kuukautta) — merkitään näkyviin.
+const partialFirstKey = chartHistory[0].date.endsWith('-01') ? null : chartHistory[0].date.slice(0, 7);
 
 const fmt = (n: number) => n.toFixed(2).replace('.', ',');
 // Isot summat (unssi, kilo) ilman desimaaleja ja tuhaterottimella
@@ -457,6 +459,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
             <p class="font-bold text-gray-900 mb-2">
               {row.label}
               {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+              {row.key === partialFirstKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(alkaen {fmtDateFi(chartHistory[0].date)})</span>}
             </p>
             <div class="grid grid-cols-3 gap-2 text-sm">
               <div>
@@ -494,6 +497,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
                 <td class="py-3.5 px-5 font-bold text-gray-900">
                   {row.label}
                   {row.key === currentMonthKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(kesken)</span>}
+                  {row.key === partialFirstKey && <span class="ml-1.5 text-xs font-medium text-gray-500">(alkaen {fmtDateFi(chartHistory[0].date)})</span>}
                 </td>
                 <td class="py-3.5 px-5 text-right tabular-nums font-bold">{fmt(row.avg)}</td>
                 <td class="py-3.5 px-5 text-right tabular-nums text-gray-500">{fmt(row.max)}</td>

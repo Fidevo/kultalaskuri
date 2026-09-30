@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import GoldPriceChart from '../components/react/GoldPriceChart.tsx';
 import priceHistory from '../../social/data/price-history.json';
 import { fillMissingDays } from '../lib/utils/priceHistory';
+import { loadLongHistory } from '../lib/utils/longHistory';
 import { getGoldPrice } from '../lib/api/metalPriceApi';
 import GoldCalculator from '../components/react/GoldCalculator.tsx';
 import JewelryWeightEstimator from '../components/react/JewelryWeightEstimator.tsx';
@@ -28,7 +29,7 @@ const prevHist = priceHistory[priceHistory.length - 2];
 // Graafiin täytetään viikonloppujen puuttuvat päivät edellisen hinnan toistolla,
 // jotta aikajana ei hyppää perjantaista maanantaihin
 // Etusivun graafiin viimeiset 12 kk (pitkä historia: /kullan-hintahistoria/)
-const chartHistory = fillMissingDays(priceHistory).slice(-366);
+const chartHistory = fillMissingDays(loadLongHistory('gold')).slice(-366);
 const buildDay = new Date().toLocaleDateString('sv-SE', { timeZone: HELSINKI_TZ }); // YYYY-MM-DD Suomen ajassa
 const refHist = lastHist?.date === buildDay ? prevHist : lastHist;
 const dayChangePct = spot > 0 && refHist && refHist.price > 0
@@ -132,7 +133,7 @@ const faqItems = [
   },
   { 
     question: 'Onko kultakoruissa aina leima?', 
-    answer: 'Suomessa myytävissä, yli 1 gramman painoisissa kultatuotteissa tulee lain mukaan olla pitoisuusleima. Hyvin vanhoissa koruissa, ulkomailta tuoduissa esineissä tai itse tehdyissä töissä leima voi kuitenkin puuttua tai se on voinut kulua näkymättömiin.'
+    answer: 'Suomessa myytävissä, vähintään 1 gramman painoisissa kultatuotteissa tulee lain mukaan olla pitoisuusleima. Hyvin vanhoissa koruissa, ulkomailta tuoduissa esineissä tai itse tehdyissä töissä leima voi kuitenkin puuttua tai se on voinut kulua näkymättömiin.'
   },
   { 
     question: 'Mistä tietää onko esine kultaa vai kullattu?', 

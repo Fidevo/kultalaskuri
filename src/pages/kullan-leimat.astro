@@ -26,7 +26,7 @@ const foreignMarks = [
   { mark: '875', karat: '21K', pct: '87,5', use: 'Erittäin suosittu Lähi-idässä ja Pohjois-Afrikassa (esim. Saudi-Arabia, Egypti)' },
   { mark: '750', karat: '18K', pct: '75,0', use: 'Arvokorut, luksuskellot, arvostetut vihkisormukset', highlight: true },
   { mark: '585', karat: '14K', pct: '58,5', use: 'Suomalaiset standardikorut, kestävät käyttöesineet', highlight: true },
-  { mark: '417', karat: '10K', pct: '41,7', use: 'Pohjois-Amerikan (USA, Kanada) alin kultastandardi, edulliset korut' },
+  { mark: '417', karat: '10K', pct: '41,7', use: 'Pohjois-Amerikassa (USA, Kanada) käytetty pitoisuus, edulliset korut' },
   { mark: '375', karat: '9K',  pct: '37,5', use: 'Yleinen Iso-Britanniassa, edulliset käyttökorut' },
   { mark: '333', karat: '8K',  pct: '33,3', use: 'Edulliset korut, yleinen Saksassa ja Keski-Euroopassa' },
 ];
@@ -266,7 +266,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Muut merkinnät (333, 417, 875, 965) ja karaattivastineet: <a href="#ulkomaiset-leimat" class="text-gold-600 font-bold hover:underline">ulkomaiset leimat</a>.
         Kirjain + numero (esim. <strong>A9 = 2002</strong>, <strong>A10 = 2026</strong>) on vuosileima, joka kertoo valmistusvuoden:
         <a href="#nimileimat-vuosileimat" class="text-gold-600 font-bold hover:underline">vuosileimataulukot</a>.
-        Kirjaimet GP, GF, GE ja HGE tarkoittavat <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">kullattua esinettä</a>, ei aitoa kultaa.
+        Kirjaimet GP, GF, GE ja HGE tarkoittavat <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">kullattua esinettä</a>, ei umpikultaa.
       </p>
 
       {/* Sisällysluettelo — nopea navigointi pitkällä opassivulla */}
@@ -314,7 +314,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </li>
         <li class="flex items-start gap-3">
           <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
-          <span><strong>Kullatun esineen merkinnät</strong> (GP, GF, GE, HGE, "Doublé"): esine on vain pinnoitettu kullalla. <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Näin tunnistat kullatun</a>.</span>
+          <span><strong>Kullatun esineen merkinnät</strong> (GP, GF, GE, HGE, "Doublé"): esine on muuta metallia, jonka pinnassa on kultakerros — ei umpikultaa. <a href="#tunnista-kotona" class="text-gold-600 font-bold hover:underline">Näin tunnistat kullatun</a>.</span>
         </li>
         <li class="flex items-start gap-3">
           <span class="w-2 h-2 rounded-full bg-gold-400 mt-2 shrink-0"></span>
@@ -631,7 +631,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 font-black text-xl">!</div>
           <div>
             <strong class="text-red-900 block mb-2 text-lg">Tunnista kullatut esineet: GP, GF, GE, HGE</strong>
-            <span class="text-red-800 text-base leading-relaxed">Nämä lyhenteet (esim. Gold Plated) kertovat, että kyseessä on vain ohuella kultakerroksella pinnoitettu esine, ei aito kultakoru. Tällaisilla esineillä ei valitettavasti ole markkinoilla varsinaista romukullan arvoa.</span>
+            <span class="text-red-800 text-base leading-relaxed">Nämä lyhenteet kertovat, että kyseessä on kullalla pinnoitettu tai päällystetty esine, ei umpikultainen koru. GP-, GE- ja HGE-pinnoite on ohut, eikä tällaisilla esineillä ole käytännössä romukullan arvoa. GF (Gold Filled) -kerros on paksumpi, mutta kultaa on silti vain murto-osa painosta, joten arvoa ei voi laskea kultakorun tavoin.</span>
           </div>
         </div>
 

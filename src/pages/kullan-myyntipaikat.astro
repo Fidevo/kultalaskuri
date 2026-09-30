@@ -66,7 +66,7 @@ const schemaData = {
           "name": "Miten varmistan, että kullanostaja on luotettava?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Ammattimaisen jalometallien ostajan tulee kuulua aluehallintoviraston rahanpesun valvontarekisteriin, jonka voi tarkistaa julkisesti osoitteessa raksi.avi.fi. Pyydä aina kirjallinen erittely painosta, pitoisuudesta ja päivän kurssista, ja varmista että esineet punnitaan silmiesi edessä. Henkilöllisyystodistus vaaditaan lain mukaan jokaisessa kaupassa. Vertaa saatua tarjousta laskurin antamaan tavoitehintaan ennen päätöstä."
+            "text": "Pyydä aina kirjallinen erittely painosta, pitoisuudesta ja päivän kurssista, ja varmista että esineet punnitaan silmiesi edessä. Jos ostaja ottaa vastaan tai maksaa käteistä vähintään 10 000 euroa, sen on rahanpesulain mukaan oltava Lupa- ja valvontaviraston julkisessa rahanpesun valvontarekisterissä. Varaa mukaan henkilöllisyystodistus — ostajat pyytävät sitä yleisesti. Vertaa saatua tarjousta laskurin antamaan tavoitehintaan ennen päätöstä."
           }
         },
         {
@@ -202,7 +202,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
         <li><strong>Maksu ja aikataulu:</strong> yleensä tilisiirtona saman käynnin aikana; pienemmät summat voidaan maksaa myös käteisenä.</li>
         <li><strong>Mitä varmista:</strong> että esineet punnitaan silmiesi edessä, ja pyydä kirjallinen erittely painosta, pitoisuudesta ja päivän kurssista. Sinulla on oikeus kieltäytyä tarjouksesta.</li>
-        <li><strong>Henkilöllisyystodistus</strong> on lain mukaan pakollinen jokaisessa kullan ostossa rahanpesun estämiseksi.</li>
+        <li><strong>Henkilöllisyystodistus:</strong> ostajat pyytävät sitä yleisesti, joten ota se mukaan. Rahanpesulaki velvoittaa tunnistamaan asiakkaan esimerkiksi silloin, kun kaupassa liikkuu käteistä vähintään 10 000 euroa.</li>
       </ul>
       <p class="text-gray-600 leading-relaxed mb-16">
         Hinnat vaihtelevat ostajittain, joten pyydä tarjous useammasta paikasta ja vertaa niitä
@@ -273,7 +273,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
 
       <h2 id="luotettavuus" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Näin varmistat ostajan</h2>
       <ul class="space-y-3 text-gray-600 leading-relaxed mb-6 list-disc pl-5">
-        <li><strong>Rahanpesun valvontarekisteri:</strong> ammattimaisen jalometallien ostajan tulee kuulua siihen. Rekisterin voi tarkistaa julkisesti osoitteessa <span class="font-semibold">raksi.avi.fi</span>.</li>
+        <li><strong>Rahanpesun valvontarekisteri:</strong> tavarakauppiaan, joka ottaa vastaan tai maksaa käteistä vähintään 10 000 euroa, on kuuluttava Lupa- ja valvontaviraston julkiseen rekisteriin. Rekisterin löydät <a href="https://lvv.fi/raha-omaisuus-ja-kiinteistonvalitys/rahanpesun-valvontarekisteri" rel="noopener" target="_blank" class="text-gold-600 font-bold hover:underline">Lupa- ja valvontaviraston sivulta</a>.</li>
         <li><strong>Kirjallinen erittely:</strong> paino, pitoisuus, päivän kurssi ja tarjottu summa eriteltyinä.</li>
         <li><strong>Läpinäkyvä punnitus ja testaus</strong> asiakkaan nähden.</li>
         <li><strong>Vertaa tavoitehintaan:</strong> tuo mukaan tuloste tai kuva <a href="/#laskuri" class="text-gold-600 font-bold hover:underline">laskurin</a> antamasta tasosta.</li>
