@@ -37,7 +37,7 @@ const PURITY_ROWS: { code: SilverPurityCode; note: string; highlight?: boolean }
   { code: '830', note: 'Suomalaiset aterimet ja astiat', highlight: true },
   { code: '813', note: 'Vanha suomalainen (13-luotinen)', highlight: true },
   { code: '800', note: 'Keskieurooppalaiset aterimet' },
-  { code: '500', note: 'Vanhat suomalaiset juhlarahat' },
+  { code: '500', note: 'Osa vanhoista juhlarahoista' },
   { code: '350', note: '1 markka 1964–1968' },
 ];
 const purityRows = PURITY_ROWS.map(r => ({
@@ -82,15 +82,15 @@ const faqItems = [
   },
   {
     q: 'Onko alpakka hopeaa?',
-    a: 'Ei ole. Alpakka eli uushopea on kuparin, nikkelin ja sinkin seos, jossa ei ole lainkaan hopeaa. Alpakka-esineet on usein hopeoitu ohuella hopeakerroksella, mutta sen määrä on niin pieni, ettei esineellä ole merkittävää arvoa hopeana. Aidossa hopeaesineessä on pitoisuusleima, esimerkiksi 830, 813 tai 925.',
+    a: 'Ei ole. Alpakka eli uushopea on kuparin, nikkelin ja sinkin seos, jossa ei ole lainkaan hopeaa. Alpakka-esineet on usein hopeoitu ohuella hopeakerroksella, mutta sen määrä on niin pieni, ettei esineellä ole merkittävää arvoa hopeana. Hopeaesineessä on yleensä pitoisuusleima, esimerkiksi 830, 813 tai 925 — leima voi kuitenkin puuttua esimerkiksi kevyistä tai hyvin vanhoista hopeaesineistä, joten leimaamattoman esineen pitoisuus kannattaa selvittää ostajalta.',
   },
   {
     q: 'Miksi hopean ostaja maksaa pörssiarvoa vähemmän?',
-    a: 'Pörssiarvo on puhtaan hopean tukkuhinta maailmanmarkkinoilla. Kun myyt hopeaesineitä, ostajan hinnasta vähennetään sulatus- ja jalostuskulut sekä ostajan kate. Koska hopean arvo grammaa kohden on pieni, käsittelykulujen osuus hinnasta on suurempi kuin kullassa. Kultalaskuri.fi:n hopealaskuri näyttää reilun vähimmäistason, jota hopeasta kannattaa vähintään tavoitella.',
+    a: 'Pörssiarvo on puhtaan hopean tukkuhinta maailmanmarkkinoilla. Kun myyt hopeaa raaka-aineena eli sulatettavaksi, ostajan hinnasta vähennetään sulatus- ja jalostuskulut sekä ostajan kate. Keräilykolikoista ja design-esineistä voidaan maksaa enemmän kuin niiden hopea-arvo. Koska hopean arvo grammaa kohden on pieni, käsittelykulujen osuus hinnasta on suurempi kuin kullassa. Kultalaskuri.fi:n hopealaskuri näyttää reilun vähimmäistason, jota hopeasta kannattaa vähintään tavoitella.',
   },
   {
     q: 'Miksi hopean hinta muuttuu päivittäin?',
-    a: 'Hopean hinta määräytyy kansainvälisillä markkinoilla kysynnän ja tarjonnan mukaan. Hopealla on kullasta poiketen merkittävä teollinen kysyntä, esimerkiksi elektroniikassa ja aurinkopaneeleissa, joten hinta reagoi myös talouden suhdanteisiin. Euromääräiseen hintaan vaikuttaa lisäksi EUR/USD-valuuttakurssi. Hopean hinta heiluu tyypillisesti kullan hintaa voimakkaammin.',
+    a: 'Hopean hinta määräytyy kansainvälisillä markkinoilla kysynnän ja tarjonnan mukaan. Hopean kysynnästä selvästi suurempi osa on teollista kuin kullalla — hopeaa käytetään esimerkiksi elektroniikassa ja aurinkopaneeleissa — joten hinta reagoi myös talouden suhdanteisiin. Euromääräiseen hintaan vaikuttaa lisäksi EUR/USD-valuuttakurssi. Hopean hinta heiluu tyypillisesti kullan hintaa voimakkaammin.',
   },
 ];
 
@@ -156,7 +156,7 @@ const schemaData = {
         </div>
         <h1 class="text-3xl md:text-5xl font-black text-white mb-4 leading-tight tracking-tight">
           Hopean hinta tänään
-          <span class="block text-gold-400 pb-1.5">ja hopealaskuri</span>
+          <span class="block text-gold-400 pb-1.5">laske hopeasi arvo</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
           Puhtaan hopean spot-hinta (maailmanmarkkinahinta) on nyt
@@ -275,9 +275,10 @@ const schemaData = {
         </div>
       </div>
       <p class="text-gray-600 leading-relaxed mb-14">
-        Hopea-aterimia myydään usein koko sarjana, joten punnitse koko erä kerralla. Hopeaveitsissä
-        terä on yleensä terästä ja kahva täytetty, joten veitsiä ei voi laskea koko painollaan
-        hopeaksi — punnitse ne erikseen.
+        Hopea-aterimia myydään usein koko sarjana, joten punnitse erä kerralla — mutta
+        <strong>jätä veitset pois</strong>. Hopeaveitsissä terä on yleensä terästä ja kahva
+        täytetty, eikä kahvan hopeaosan painoa saa selville kotivaa'alla. Kysy veitsien arvo
+        ostajalta erikseen.
         <a href="/hopean-hinta/?paino=250&pitoisuus=830#laskuri" class="text-gold-600 font-bold hover:underline">Laske 830-hopeasi tavoitehinta →</a>
       </p>
 
@@ -336,10 +337,11 @@ const schemaData = {
       {/* ── Leimat ── */}
       <h2 id="leimat" class="text-3xl md:text-4xl font-black text-gray-900 mb-5 tracking-tight scroll-mt-24">Näin tunnistat hopean leimat</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-5">
-        Aidossa hopeaesineessä on pitoisuusleima, joka kertoo hopean osuuden tuhannesosina.
+        Hopeaesineessä on yleensä pitoisuusleima, joka kertoo hopean osuuden tuhannesosina.
         Aterimissa leima on yleensä varren takapuolella, astioissa pohjassa ja koruissa lukon
         lähellä. Suomessa valmistetuissa esineissä pitoisuuden perässä on usein H-kirjain,
-        esimerkiksi 830H tai 813H.
+        esimerkiksi 830H tai 813H. Leima voi kuitenkin puuttua esimerkiksi kevyistä tai hyvin
+        vanhoista esineistä, joten leimaamaton esine ei automaattisesti ole epäaito.
       </p>
       <ul class="space-y-3 mb-5">
         <li class="flex gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
@@ -377,11 +379,11 @@ const schemaData = {
         <p class="font-bold mb-2">Merkit, jotka viittaavat hopeoituun tai alpakkaan:</p>
         <ul class="list-disc pl-5 space-y-1 text-sm leading-relaxed">
           <li>leimassa lukee <em>Alpakka</em>, <em>Nysilver</em>, <em>EPNS</em> tai <em>Silver plated</em></li>
-          <li>esineessä ei ole lainkaan pitoisuusleimaa (esim. 830 tai 925)</li>
           <li>kuluneista kohdista pilkottaa kellertävä tai harmahtava pohjametalli</li>
         </ul>
         <p class="text-sm leading-relaxed mt-3">
-          Laskuri laskee arvon vain aidolle, pitoisuusleimalla merkitylle hopealle.
+          Pelkkä puuttuva pitoisuusleima ei todista, ettei esine olisi hopeaa — mutta ilman
+          leimaa pitoisuus kannattaa selvittää ostajalta ennen kuin lasket arvoa.
         </p>
       </div>
 
@@ -394,7 +396,9 @@ const schemaData = {
       </p>
       <p class="text-gray-600 leading-relaxed mb-14">
         Vanhoissa suomalaisissa kolikoissa hopeaa on vähemmän: esimerkiksi vuosien 1964–1968
-        yhden markan kolikoissa on 35 % hopeaa, ja vanhoissa juhlarahoissa tyypillisesti 50 %.
+        yhden markan kolikoissa on 35 % hopeaa. Juhlarahojen pitoisuus vaihtelee rahan ja
+        vuoden mukaan — monessa se on 50 %, mutta ei kaikissa — joten tarkista oman rahasi
+        pitoisuus ennen laskemista.
         Harvinaisilla vuosikerroilla ja hyväkuntoisilla kolikoilla voi olla hopea-arvoa
         suurempi keräilyarvo — tarkista se ennen kuin myyt kolikoita painon mukaan.
       </p>
@@ -404,13 +408,13 @@ const schemaData = {
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
         Hopean <a href="/sanasto/#spot-hinta" class="text-gold-600 font-bold hover:underline">spot-hinta</a>
         on puhtaan hopean tukkuhinta kansainvälisillä markkinoilla. Se noteerataan dollareissa
-        troy-unssia kohden ja muunnetaan euroiksi valuuttakurssilla. Hopealla on kullasta
-        poiketen merkittävä teollinen kysyntä, joten sen hinta heiluu tyypillisesti kultaa
+        troy-unssia kohden ja muunnetaan euroiksi valuuttakurssilla. Hopean kysynnästä selvästi
+        suurempi osa on teollista kuin kullalla, ja sen hinta heiluu tyypillisesti kultaa
         voimakkaammin.
       </p>
       <p class="text-gray-600 leading-relaxed mb-12 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-        <strong>Huomaa:</strong> hopeaesineestä maksettava hinta on aina spot-hintaa matalampi,
-        koska ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa. Koska hopean arvo
+        <strong>Huomaa:</strong> kun hopeaa myydään raaka-aineena, siitä maksettava hinta on
+        spot-hintaa matalampi, koska ostaja vähentää sulatus- ja jalostuskulut sekä oman katteensa. Koska hopean arvo
         grammaa kohden on pieni, käsittelykulujen osuus on suurempi kuin kullassa.
         <a href="#laskuri" class="text-gold-600 font-bold hover:underline">Hopealaskuri</a> näyttää
         reilun vähimmäistason, jota kannattaa tavoitella.

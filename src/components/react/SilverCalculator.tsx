@@ -35,7 +35,9 @@ interface ListItem {
 }
 
 const STORAGE_KEY = 'kl-hopea-viimeisin';
-const MAIN_PURITIES: SilverPurityCode[] = ['830', '925', '813', '999'];
+// 925 oletuksena (omistajan päätös 30.9.2026: yleisin; myös hakuvolyymi suurin).
+const DEFAULT_PURITY: SilverPurityCode = '925';
+const MAIN_PURITIES: SilverPurityCode[] = ['925', '830', '813', '999'];
 const MORE_PURITIES: SilverPurityCode[] = ['900', '800', '500', '350'];
 const COMMON = new Set<SilverPurityCode>(['830', '925']);
 
@@ -44,7 +46,7 @@ const fmtGrams = (n: number) =>
 
 export default function SilverCalculator({ spotPriceEurPerGram }: Props) {
   const [weight, setWeight] = useState<string>('');
-  const [purity, setPurity] = useState<SilverPurityCode>('830');
+  const [purity, setPurity] = useState<SilverPurityCode>(DEFAULT_PURITY);
   const [result, setResult] = useState<SilverCalculationResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [items, setItems] = useState<ListItem[]>([]);
@@ -140,7 +142,7 @@ export default function SilverCalculator({ spotPriceEurPerGram }: Props) {
     if (w && /^[0-9]+([.,][0-9]+)?$/.test(w)) {
       const w2 = w.replace('.', ',');
       setWeight(w2);
-      scheduleInstantScroll(w2, urlPurity ?? '830');
+      scheduleInstantScroll(w2, urlPurity ?? DEFAULT_PURITY);
     } else {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -265,7 +267,7 @@ export default function SilverCalculator({ spotPriceEurPerGram }: Props) {
             </span>
           </div>
           <p id="silver-weight-hint" className="mt-2 text-xs text-gray-500">
-            1 kg = 1000 g. Hopeaveitsissä terä on yleensä terästä ja kahva täytetty, joten veitsen koko paino ei ole hopeaa.
+            1 kg = 1000 g. Jätä veitset pois: niissä terä on yleensä terästä ja kahva täytetty, joten hopean osuutta ei saa punnitsemalla.
           </p>
         </div>
 
@@ -414,7 +416,7 @@ export default function SilverCalculator({ spotPriceEurPerGram }: Props) {
 
             <div className="mt-auto">
               <p className="text-xs text-gray-500 leading-relaxed mb-4 pl-3 border-l-2 border-gold-400/60">
-                Pörssiarvo on raaka-aineen markkinahinta. Hopean ostajien maksama hinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-700">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
+                Pörssiarvo on raaka-aineen markkinahinta. Kun hopeaa myydään raaka-aineena, hopean ostajien maksama hinta on tätä matalampi, koska siitä vähennetään sulatus-, jalostus- ja katekulut. <strong className="font-semibold text-gray-700">Arvioitu myyntihinta on taso, jota sinun kannattaa vähintään tavoitella.</strong>
               </p>
 
               <button
@@ -555,7 +557,7 @@ export default function SilverCalculator({ spotPriceEurPerGram }: Props) {
                           : 'bg-amber-50 border-amber-200 border-l-amber-600 text-amber-900'
                       }`}>
                         {comparison.bestBand === 'meets' ? (
-                          <p><strong className="font-bold">Paras tarjouksesi on tavoitteessa.</strong> Tällä tasolla myynti kannattaa.</p>
+                          <p><strong className="font-bold">Paras tarjouksesi on tavoitteessa.</strong> Se yltää tasoon, jota hopeasta kannattaa raaka-aineena vähintään tavoitella.</p>
                         ) : (
                           <p>
                             <strong className="font-bold">Paras tarjouksesi jää tavoitteesta {formatEur(Math.abs(comparison.bestDiff as number))}.</strong>{' '}

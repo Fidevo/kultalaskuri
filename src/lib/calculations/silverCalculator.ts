@@ -25,7 +25,7 @@ export const SILVER_PURITIES = {
   '830': { label: '830 (83 %)',   decimal: 0.830, description: 'Suomalaiset hopea-aterimet ja -astiat (leima esim. 830H).', targetPercent: 0.62 },
   '813': { label: '813 (81,3 %)', decimal: 0.813, description: 'Vanha suomalainen pitoisuus, ns. 13-luotinen hopea (leima 813H).', targetPercent: 0.62 },
   '800': { label: '800 (80 %)',   decimal: 0.800, description: 'Keskieurooppalaiset, esim. saksalaiset aterimet.', targetPercent: 0.62 },
-  '500': { label: '500 (50 %)',   decimal: 0.500, description: 'Vanhat suomalaiset juhlarahat. Tarkista ensin mahdollinen keräilyarvo.', targetPercent: 0.60 },
+  '500': { label: '500 (50 %)',   decimal: 0.500, description: 'Osa vanhoista suomalaisista juhlarahoista. Pitoisuus vaihtelee rahan mukaan — tarkista se sekä mahdollinen keräilyarvo ensin.', targetPercent: 0.60 },
   '350': { label: '350 (35 %)',   decimal: 0.350, description: 'Suomen 1 markan kolikot 1964–1968.', targetPercent: 0.60 },
 } as const;
 
