@@ -40,3 +40,11 @@ jobs:
       # jälkeen). Jos pingi jää tulematta, healthchecks.io hälyttää sähköpostilla.
       - name: Ping healthcheck (hinta tallennettu)
         run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECK_PRICE_URL }}" || true
+
+      # API-virhe tai price-guard.mjs:n hylkäämä hinta → hälytys heti, ei vasta
+      # healthchecksin grace-ajan jälkeen.
+      - name: Ping healthcheck (tallennus epäonnistui)
+        if: failure()
+        env:
+          HC_URL: ${{ secrets.HEALTHCHECK_PRICE_URL }}
+        run: curl -fsS -m 10 --retry 3 "${HC_URL%/}/fail" || true

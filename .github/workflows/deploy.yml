@@ -28,13 +28,19 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pages-sha: ${{ steps.pages-sha.outputs.sha || steps.pages-sha-current.outputs.sha }}
+      price-alert: ${{ steps.price-alert.outputs.alert }}
     steps:
       # Action-versiot päivitetty 4.7.2026: GitHub pakottaa 16.6.2026 alkaen
       # actionit Node 24:lle, ja vanhat versiot kaatuivat deploy-vaiheessa.
       - name: Checkout
         uses: actions/checkout@v5
 
+      # continue-on-error: API-katkos tai hintatarkistuksen hylkäämä hinta
+      # (price-guard.mjs) ei saa estää deploya — build käyttää silloin
+      # historiahintaa, ja "Check price alerts" hälyttää healthchecksin kautta.
       - name: Save daily graph price if missing
+        id: save-price
+        continue-on-error: true
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           helsinki_hour="$(TZ=Europe/Helsinki date +%H)"
@@ -81,6 +87,16 @@ jobs:
           # Runner on UTC-ajassa — aikaleimat muotoillaan Suomen ajassa
           TZ: Europe/Helsinki
 
+      # metalPriceApi.ts kirjoittaa .price-guard-tripped-tiedoston, jos API:n
+      # hinta hylättiin epäuskottavana (sivu julkaistiin historiahinnalla).
+      - name: Check price alerts
+        id: price-alert
+        run: |
+          if [ -f .price-guard-tripped ] || [ "${{ steps.save-price.outcome }}" = "failure" ]; then
+            [ -f .price-guard-tripped ] && cat .price-guard-tripped
+            echo "alert=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
@@ -117,5 +133,13 @@ jobs:
       # sähköpostiin — muuten hinta jähmettyisi vanhaksi kenenkään huomaamatta.
       # "|| true" ettei monitoroinnin oma katkos kaada muuten onnistunutta deployta.
       - name: Ping healthcheck (deploy onnistui)
-        if: steps.deployment.outcome == 'success' || steps.deployment-retry.outcome == 'success'
+        if: (steps.deployment.outcome == 'success' || steps.deployment-retry.outcome == 'success') && needs.build.outputs.price-alert != 'true'
         run: curl -fsS -m 10 --retry 3 "${{ secrets.HEALTHCHECK_DEPLOY_URL }}" || true
+
+      # Deploy meni läpi historiahinnalla, mutta API-hinta hylättiin tai
+      # päivän tallennus epäonnistui → /fail-pingi hälyttää heti sähköpostiin.
+      - name: Ping healthcheck (hintahälytys)
+        if: needs.build.outputs.price-alert == 'true'
+        env:
+          HC_URL: ${{ secrets.HEALTHCHECK_DEPLOY_URL }}
+        run: curl -fsS -m 10 --retry 3 "${HC_URL%/}/fail" || true

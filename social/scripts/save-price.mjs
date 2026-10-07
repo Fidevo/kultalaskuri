@@ -2,6 +2,7 @@
 // social/scripts/save-price.mjs — Tallentaa päivän kullan ja hopean hinnan historiaan
 
 import { fetchGoldPrice } from './fetch-price.mjs';
+import { checkPlausible } from './price-guard.mjs';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -51,6 +52,17 @@ async function main() {
 
   // Yksi API-kutsu hakee molemmat metallit.
   const { priceEurGram, silverEurGram } = await fetchGoldPrice();
+
+  // Epäuskottava hinta → ei tallenneta mitään, jottei virhe jää historiaan
+  // (joka on myös buildin varahinta). Exit 1 → healthchecks-hälytys.
+  const problems = [
+    checkPlausible(priceEurGram, history, 'gold'),
+    silverEurGram ? checkPlausible(silverEurGram, silverHistory, 'silver') : { ok: true },
+  ].filter((c) => !c.ok);
+  if (problems.length) {
+    for (const p of problems) console.log(`::error::Hintatarkistus: ${p.reason}`);
+    throw new Error('Epäuskottava hinta — historiaa ei päivitetty');
+  }
 
   // ONLY_MISSING-tilassa jo tallennettua päivää ei ylikirjoiteta.
   if (!(onlyMissing && goldDone)) upsertToday(history, today, priceEurGram, 'Kulta');

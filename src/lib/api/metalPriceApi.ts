@@ -2,6 +2,8 @@
 
 import priceHistory from '../../../social/data/price-history.json';
 import silverHistory from '../../../social/data/silver-price-history.json';
+import { appendFileSync } from 'node:fs';
+import { checkPlausible } from '../../../social/scripts/price-guard.mjs';
 
 const API_KEY = import.meta.env.METALPRICE_API_KEY;
 const TROY_OUNCE_IN_GRAMS = 31.1034768;
@@ -13,6 +15,20 @@ function dateAnchor(isoDate: string): Date {
   return new Date(`${isoDate}T12:00:00Z`);
 }
 const CACHE_DURATION_MS = 45 * 60 * 1000; // 45 min cache (säästää API-quotaa)
+
+// Epäuskottava API-hinta (ks. price-guard.mjs) korvataan historiahinnalla ja
+// kirjataan tähän tiedostoon — deploy.yml lukee sen ja pingaa healthchecksin
+// /fail-osoitteeseen, jolloin hälytys tulee sähköpostiin vaikka build onnistuu.
+const GUARD_MARKER = '.price-guard-tripped';
+
+function reportImplausible(reason: string) {
+  console.log(`::error::Hintatarkistus: ${reason}`);
+  try {
+    appendFileSync(GUARD_MARKER, `${reason}\n`);
+  } catch {
+    // Merkintätiedoston kirjoitus ei saa kaataa buildia
+  }
+}
 
 interface CachedPrice {
   data: GoldPriceResult;
@@ -127,12 +143,21 @@ async function fetchPrice(): Promise<GoldPriceResult | null> {
     if (!Number.isFinite(priceEurGram) || priceEurGram <= 0) {
       throw new Error('Laskettu hinta ei ole kelvollinen');
     }
+    const goldCheck = checkPlausible(priceEurGram, priceHistory, 'gold');
+    if (!goldCheck.ok) {
+      reportImplausible(goldCheck.reason!);
+      throw new Error('Epäuskottava kullan hinta');
+    }
 
     // Hopea on valinnainen: puuttuva XAG ei saa kaataa kullan hintaa, vaan
     // hopea putoaa omaan historiafallbackiinsa.
     const xag = data.rates?.XAG;
     const silverUsdOz = xag && Number.isFinite(xag) && xag > 0 ? 1 / xag : 0;
     const silverEurGram = (silverUsdOz * eur) / TROY_OUNCE_IN_GRAMS;
+    const silverCheck = silverEurGram > 0
+      ? checkPlausible(silverEurGram, silverHistory, 'silver')
+      : { ok: true };
+    if (!silverCheck.ok) reportImplausible(silverCheck.reason!);
 
     const updatedAt = new Date();
     const result: GoldPriceResult = {
@@ -142,7 +167,7 @@ async function fetchPrice(): Promise<GoldPriceResult | null> {
       updatedAt,
       fromCache: false,
       source: 'api',
-      silver: silverEurGram > 0
+      silver: silverEurGram > 0 && silverCheck.ok
         ? {
             priceEurGram: Number(silverEurGram.toFixed(4)),
             priceUsdOz: Number(silverUsdOz.toFixed(2)),
