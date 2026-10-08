@@ -201,8 +201,8 @@ const schemaData = {
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
           Puhtaan hopean spot-hinta (maailmanmarkkinahinta) on nyt
-          <strong class="text-white num whitespace-nowrap">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong> eli
-          <strong class="text-white num whitespace-nowrap">{spot > 0 ? `${fmtBig(spotPerKilo)} €/kg` : '–'}</strong>.
+          <span data-nosnippet><strong class="text-white num whitespace-nowrap">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong></span> eli
+          <span data-nosnippet><strong class="text-white num whitespace-nowrap">{spot > 0 ? `${fmtBig(spotPerKilo)} €/kg` : '–'}</strong></span>.
           Syötä hopeaesineen paino ja leima, niin näet reilun tavoitehinnan päivän kurssilla.
         </p>
         <p class="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-gray-400">
@@ -272,7 +272,7 @@ const schemaData = {
         Hopeaesineen arvo riippuu pitoisuudesta, joka on leimattu esineeseen tuhannesosina:
         esimerkiksi 830-hopeassa on 83 % ja 925-hopeassa 92,5 % puhdasta hopeaa. Taulukossa on
         jokaisen pitoisuuden <strong>pörssiarvo</strong> grammalta ja kilolta päivän kurssilla
-        eli puhtaan hopean kurssi ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna pitoisuudella.
+        eli puhtaan hopean kurssi (<span data-nosnippet>{spot > 0 ? `${fmt(spot)} €/g` : '–'}</span>) kerrottuna pitoisuudella.
       </p>
       <p class="text-sm text-gray-500 leading-relaxed mb-6">
         Kun hopeaa myydään raaka-aineena, hopean ostajan maksama hinta on pörssiarvoa matalampi,
@@ -281,7 +281,7 @@ const schemaData = {
       </p>
 
       {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
-      <div class="md:hidden space-y-2.5 mb-4">
+      <div data-nosnippet class="md:hidden space-y-2.5 mb-4">
         {purityRows.map(row => (
           <a href={`/hopean-hinta/?paino=100&pitoisuus=${row.code}#laskuri`} class={`flex items-center gap-4 p-3.5 rounded-2xl border ${row.highlight ? 'border-gold-200 bg-gold-50/40' : 'border-gray-200 bg-white'} shadow-sm hover:border-gold-300 transition-colors`}>
             <div class={`w-14 h-14 rounded-full flex flex-col items-center justify-center shrink-0 border ${row.highlight ? 'bg-white border-gold-200 text-gold-700' : 'bg-gray-50 border-gray-200 text-gray-900'}`}>
@@ -298,7 +298,7 @@ const schemaData = {
       </div>
 
       {/* DESKTOP: taulukko */}
-      <div class="hidden md:block mb-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div data-nosnippet class="hidden md:block mb-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
           <caption class="sr-only">Hopean pörssiarvo euroina grammalta ja kilolta pitoisuuksittain päivän kurssilla</caption>
           <thead>
@@ -337,7 +337,7 @@ const schemaData = {
         sanottu 13-luotinen hopea (81,3 % hopeaa). Ero hinnassa on pieni, mutta pitoisuus
         kannattaa silti tarkistaa leimasta.
       </p>
-      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+      <div data-nosnippet class="grid sm:grid-cols-2 gap-4 mb-5">
         <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
           <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">830 pörssiarvo tänään</p>
           <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(spotPerGram('830'))} <span class="text-base font-bold text-gray-500">€/g</span></p>
@@ -364,7 +364,7 @@ const schemaData = {
         erityisesti koruissa sekä monissa ulkomaisissa hopeaesineissä. Koska pitoisuus on
         korkeampi, sterling-hopean grammahinta on hieman 830-hopeaa korkeampi.
       </p>
-      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+      <div data-nosnippet class="grid sm:grid-cols-2 gap-4 mb-5">
         <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
           <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">925 pörssiarvo tänään</p>
           <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(spotPerGram('925'))} <span class="text-base font-bold text-gray-500">€/g</span></p>
@@ -389,7 +389,7 @@ const schemaData = {
         Kansainvälinen kurssi noteerataan puolestaan dollareissa troy-unssia kohden. Alla sama
         päivän spot-kurssi puhtaalle hopealle eri yksiköissä euroina.
       </p>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+      <div data-nosnippet class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <div class="rounded-2xl border border-gray-200 bg-white p-5 text-center">
           <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Gramma</p>
           <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmt(spot) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
@@ -594,7 +594,7 @@ const schemaData = {
         <a href="/hopean-hintahistoria/" class="text-gold-600 font-bold hover:underline">Hopean hintakehitys vuodesta 2011 →</a>
         <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">Kullan hinta tänään →</a>
         <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Vuosileimahaku ja leimat →</a>
-        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Mihin kultakorut kannattaa myydä →</a>
         <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
       </div>
 

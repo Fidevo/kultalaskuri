@@ -29,7 +29,7 @@
 - [Kullan myynti](https://kultalaskuri.fi/kullan-myynti/): opas kullan myyntiin —
   paljonko kullasta saa, näin vertaat kullanostajien tarjouksia tavoitehintaan,
   yleisimmät virheet.
-- [Missä kultaa kannattaa myydä](https://kultalaskuri.fi/kullan-myyntipaikat/):
+- [Mihin kultakorut kannattaa myydä](https://kultalaskuri.fi/kullan-myyntipaikat/):
   myyntikanavien vertailu — paikallinen kullanostaja, posti-/verkkopalvelu,
   panttilainaamo, huutokauppa ja yksityismyynti; aikataulu, kulut, riskit ja
   kenelle kukin sopii, sekä ostajan luotettavuuden tarkistus.

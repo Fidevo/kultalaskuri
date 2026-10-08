@@ -181,7 +181,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </nav>
 
       {/* Live-hintabadge */}
-      <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-md bg-white/[0.04] border border-white/10 mb-8">
+      <div data-nosnippet class="inline-flex items-center gap-2.5 px-4 py-2 rounded-md bg-white/[0.04] border border-white/10 mb-8">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
@@ -234,7 +234,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <ol class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
           <li><a href="#paljonko-saa" class="text-gold-600 font-bold hover:underline">Kullanostajien ostohinta</a></li>
           <li><a href="#nain-toimii" class="text-gold-600 font-bold hover:underline">Näin myynti toimii käytännössä</a></li>
-          <li><a href="#missa-myyda" class="text-gold-600 font-bold hover:underline">Missä kulta kannattaa myydä?</a></li>
+          <li><a href="#missa-myyda" class="text-gold-600 font-bold hover:underline">Myyntikanava vaikuttaa hintaan</a></li>
           <li><a href="#vertaa-tarjouksia" class="text-gold-600 font-bold hover:underline">Näin vertaat saamiasi tarjouksia</a></li>
           <li><a href="#myyntitilanne" class="text-gold-600 font-bold hover:underline">Mitä myyntitilanteessa tapahtuu?</a></li>
           <li><a href="#virheet" class="text-gold-600 font-bold hover:underline">Yleisimmät virheet</a></li>
@@ -251,7 +251,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         jota kullanostajilta kannattaa <strong>vähintään</strong> tavoitella. Se ei ole kenenkään ostotarjous —
         hyvällä kilpailutuksella voi saada enemmän, ja tätä halvemmalla ei kannata myydä.
       </p>
-      <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
+      <div data-nosnippet class="bg-gray-50 rounded-2xl p-6 border border-gray-200 mb-8 shadow-sm">
         <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Tavoitehinta tänään · vähimmäistaso</p>
         <ul class="space-y-4 text-gray-700 font-medium">
           <li class="flex justify-between items-center gap-4 border-b border-gray-200 pb-3 hover:bg-gray-100 transition-colors p-2 rounded-lg">
@@ -325,18 +325,19 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         </div>
       </div>
 
-      <h2 id="missa-myyda" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Missä kulta kannattaa myydä?</h2>
+      {/* id="missa-myyda" säilytetty vanhojen linkkien takia. Otsikko EI ole enää kysymys
+          "missä/mihin myydä": se kuuluu /kullan-myyntipaikat/-sivulle, ja sama kysymys kahdella
+          sivulla jakoi hakusignaalin (GSC 9–10/2026: molemmat sijoilla 11–18). */}
+      <h2 id="missa-myyda" class="text-3xl md:text-4xl font-black text-gray-900 mb-6 tracking-tight scroll-mt-24">Myyntikanava vaikuttaa hintaan</h2>
       <p class="text-lg text-gray-600 leading-relaxed mb-6">
-        Tapoja on viisi: paikallinen kullanostaja, posti- tai verkkopalvelu, panttilainaamo, huutokauppa
-        ja yksityismyynti. Valinta riippuu siitä, arvostatko nopeutta, korkeinta hintaa vai
-        mahdollisuutta saada esine takaisin. Umpikultakorut ja romukulta kannattaa myydä kullanostajalle
-        tai verkkopalvelulle; merkki- ja keräilyesineet voivat olla arvokkaampia huutokaupassa tai
-        oikealle yksityisostajalle.
+        Sama esine voi saada hyvin erilaisia tarjouksia eri ostajilta. Umpikultakorut ja romukulta
+        kannattaa myydä kullanostajalle tai verkkopalvelulle; merkki- ja keräilyesineet voivat olla
+        arvokkaampia huutokaupassa tai oikealle yksityisostajalle.
       </p>
 
       <div class="mb-16">
         <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline inline-flex items-center gap-1">
-          Lue vertailu: kullan myyntikanavat, kulut ja riskit <span>&rarr;</span>
+          Mihin kultakorut kannattaa myydä – kanavat vertailussa <span>&rarr;</span>
         </a>
       </div>
 
@@ -478,7 +479,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       <div class="pt-8 border-t border-gray-100">
         <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Lue myös</p>
         <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Mihin kultakorut kannattaa myydä →</a>
           <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Paljonko kultaa eri esineissä on →</a>
           <a href="/kullan-hinta/" class="text-gold-600 font-bold hover:underline">Kullan hinta tänään →</a>
           <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">Kullan hintakehitys →</a>

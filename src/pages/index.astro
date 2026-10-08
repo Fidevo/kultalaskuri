@@ -195,7 +195,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
 
       {/* ISO HINTANÄYTTÖ — ei animaatiota, arvo näkyy heti */}
       <div class="mb-4">
-        <div class="flex items-end justify-center gap-2 md:gap-4">
+        <div data-nosnippet class="flex items-end justify-center gap-2 md:gap-4">
           <span
             class="text-[4rem] leading-none md:text-8xl lg:text-[7.5rem] font-semibold text-white tracking-[-0.035em] num"
           >
@@ -266,7 +266,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
 
   {/* Mobiilihintastrippi — näkyy vain mobiilissa laskurin ja hintakorttien välissä */}
   {spot > 0 && (
-    <div class="md:hidden bg-ink-950 border-t border-white/5 px-4 py-5">
+    <div data-nosnippet class="md:hidden bg-ink-950 border-t border-white/5 px-4 py-5">
       <p class="text-[11px] uppercase tracking-[0.18em] text-gold-400 text-center mb-3 font-semibold">Tavoitehinnat tänään</p>
       <div class="grid grid-cols-3 divide-x divide-white/10 border border-white/10 rounded-lg bg-ink-900/60">
         {priceCards.map(card => (
@@ -301,7 +301,7 @@ const schemaData = generateIndexSchema(faqItems, new Date().toISOString());
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 price-card-grid">
+        <div data-nosnippet class="grid grid-cols-1 md:grid-cols-3 gap-6 price-card-grid">
           {priceCards.map(card => (
             <PriceCard
               karat={card.karat}

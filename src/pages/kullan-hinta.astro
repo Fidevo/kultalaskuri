@@ -260,7 +260,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
           <span class="block text-gold-400 pb-1.5">kurssi ja grammahinta</span>
         </h1>
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-          Kullan spot-hinta (maailmanmarkkinahinta) on nyt <strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong>.
+          Kullan spot-hinta (maailmanmarkkinahinta) on nyt <span data-nosnippet><strong class="text-white">{spot > 0 ? `${fmt(spot)} €/g` : '–'}</strong></span>.
           Alla näet kullan hinnan karaateittain (14K, 18K, 24K), unssi- ja kilohinnan sekä
           viimeisen vuoden kurssin päivä päivältä ja kuukausittain — kaikki euroina. Pidempi
           kehitys vuodesta 2011: <a href="/kullan-hintahistoria/" class="text-gold-400 underline underline-offset-2 decoration-gold-400/40 hover:decoration-gold-400">kullan hintakehitys ja hintahistoria</a>.
@@ -301,7 +301,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Korukullan hinta riippuu pitoisuudesta: 14K-kullassa (leima 585) puhdasta kultaa on 58,5 %
         ja 18K-kullassa (leima 750) 75 %. Taulukossa on jokaisen pitoisuuden <strong>pörssiarvo
         euroina grammalta</strong> päivän kurssilla: puhtaan kullan kurssi
-        ({spot > 0 ? `${fmt(spot)} €/g` : '–'}) kerrottuna kultapitoisuudella. Myös 24 karaatin
+        (<span data-nosnippet>{spot > 0 ? `${fmt(spot)} €/g` : '–'}</span>) kerrottuna kultapitoisuudella. Myös 24 karaatin
         kultatuotteen korkein sallittu pitoisuusleima Suomessa on 999 eli 99,9 % — täyttä 100 %:a
         ei tuotteissa leimata — joten taulukon 24K-rivi on hieman yllä mainittua kurssia matalampi.
       </p>
@@ -313,7 +313,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </p>
 
       {/* MOBIILI: korttilista — ei sivusuuntaista vieritystä */}
-      <div class="md:hidden space-y-2.5 mb-4">
+      <div data-nosnippet class="md:hidden space-y-2.5 mb-4">
         {karatRows.map(row => (
           <a href={`/?paino=1&karaatti=${row.code}#laskuri`} class={`flex items-center gap-4 p-3.5 rounded-2xl border ${row.highlight ? 'border-gold-200 bg-gold-50/40' : 'border-gray-200 bg-white'} shadow-sm hover:border-gold-300 transition-colors`}>
             <div class={`w-14 h-14 rounded-full flex flex-col items-center justify-center shrink-0 border ${row.highlight ? 'bg-white border-gold-200 text-gold-700' : 'bg-gray-50 border-gray-200 text-gray-900'}`}>
@@ -329,7 +329,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
       </div>
 
       {/* DESKTOP: taulukko */}
-      <div class="hidden md:block mb-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div data-nosnippet class="hidden md:block mb-4 rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
           <caption class="sr-only">Kullan pörssiarvo euroina grammalta karaateittain päivän kurssilla</caption>
           <thead>
@@ -367,7 +367,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         rannekorut ovat 585-leimattuja. Seoksesta 58,5 % on puhdasta kultaa, joten 14K-kullan
         pörssiarvo grammalta on 58,5 % puhtaan kullan kurssista.
       </p>
-      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+      <div data-nosnippet class="grid sm:grid-cols-2 gap-4 mb-5">
         <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
           <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">14K pörssiarvo tänään</p>
           <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(s14k)} <span class="text-base font-bold text-gray-500">€/g</span></p>
@@ -392,7 +392,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         75 % on puhdasta kultaa, joten 18K-kullan pörssiarvo grammalta on 75 % kurssista — noin
         neljänneksen enemmän kuin 14K-kullan.
       </p>
-      <div class="grid sm:grid-cols-2 gap-4 mb-5">
+      <div data-nosnippet class="grid sm:grid-cols-2 gap-4 mb-5">
         <div class="rounded-2xl border border-gold-200 bg-gold-50/40 p-5">
           <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">18K pörssiarvo tänään</p>
           <p class="text-3xl font-black text-gray-900 tabular-nums">{fmt(s18k)} <span class="text-base font-bold text-gray-500">€/g</span></p>
@@ -416,7 +416,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         Kansainvälinen kullan kurssi noteerataan dollareissa troy-unssia kohden, ja sijoituskullan
         harkot hinnoitellaan usein kilon mukaan. Alla sama päivän spot-kurssi eri yksiköissä euroina.
       </p>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+      <div data-nosnippet class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <div class="rounded-2xl border border-gray-200 bg-white p-5 text-center">
           <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Gramma</p>
           <p class="text-2xl font-black text-gray-900 tabular-nums">{spot > 0 ? fmt(spot) : '–'} <span class="text-sm font-bold text-gray-500">€</span></p>
@@ -548,7 +548,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <a href="/kullan-hintahistoria/" class="text-gold-600 font-bold hover:underline">Kullan hintakehitys vuodesta 2011 →</a>
         <a href="/hopean-hinta/" class="text-gold-600 font-bold hover:underline">Hopean hinta tänään →</a>
         <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti – näin saat parhaan hinnan →</a>
-        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+        <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Mihin kultakorut kannattaa myydä →</a>
         <a href="/kulta-esineet/" class="text-gold-600 font-bold hover:underline">Paljonko kultaa eri esineissä on →</a>
         <a href="/kullan-leimat/" class="text-gold-600 font-bold hover:underline">Tunnista kullan leimat →</a>
         <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>

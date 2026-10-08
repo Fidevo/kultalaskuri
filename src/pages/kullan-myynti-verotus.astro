@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FaqItem from '../components/FaqItem.astro';
 
 // Päivitä tämä päivämäärä (ja sivun "tarkistettu viimeksi" -teksti) vain kun sisältö on oikeasti tarkistettu vero.fi:stä.
-const dateModified = '2026-10-04';
+const dateModified = '2026-10-08';
 
 const schemaData = {
   "@context": "https://schema.org",
@@ -255,7 +255,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Lue myös</p>
         <div data-track-group="lue-myos" class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <a href="/kullan-myynti/" class="text-gold-600 font-bold hover:underline">Kullan myynti →</a>
-          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Missä kultaa kannattaa myydä →</a>
+          <a href="/kullan-myyntipaikat/" class="text-gold-600 font-bold hover:underline">Mihin kultakorut kannattaa myydä →</a>
           <a href="/sanasto/#hankintameno-olettama" class="text-gold-600 font-bold hover:underline">Sanasto: hankintameno-olettama →</a>
           <a href="/oppaat/" class="text-gold-600 font-bold hover:underline">Kaikki oppaat →</a>
         </div>
@@ -277,7 +277,7 @@ const faqItems = (schemaData["@graph"].find((n: any) => n["@type"] === "FAQPage"
         <p class="text-xs text-gray-500 mt-4 leading-relaxed">
           Tämä sivu on yleisluontoinen opas, ei veroneuvontaa. Verosäännöt voivat muuttua —
           varmista oma tilanteesi aina vero.fi:stä tai Verohallinnolta.
-          Sivu tarkistettu viimeksi 4.10.2026.
+          Sivu tarkistettu viimeksi 8.10.2026.
         </p>
       </div>
 
